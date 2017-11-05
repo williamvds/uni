@@ -1,0 +1,12 @@
+Consumer Id = 1, Process Id = 3, Previous Burst Time = 16, New Burst Time = 0, Response Time = 0, Turn Around Time = 16
+Consumer Id = 1, Process Id = 9, Previous Burst Time = 22, New Burst Time = 0, Response Time = 13, Turn Around Time = 35
+Consumer Id = 5, Process Id = 5, Previous Burst Time = 36, New Burst Time = 0, Response Time = 0, Turn Around Time = 38
+Consumer Id = 3, Process Id = 8, Previous Burst Time = 50, New Burst Time = 0, Response Time = 0, Turn Around Time = 50
+Consumer Id = 4, Process Id = 2, Previous Burst Time = 78, New Burst Time = 0, Response Time = 0, Turn Around Time = 78
+Consumer Id = 2, Process Id = 0, Previous Burst Time = 84, New Burst Time = 0, Response Time = 0, Turn Around Time = 88
+Consumer Id = 1, Process Id = 1, Previous Burst Time = 87, New Burst Time = 0, Response Time = 38, Turn Around Time = 125
+Consumer Id = 5, Process Id = 6, Previous Burst Time = 87, New Burst Time = 0, Response Time = 38, Turn Around Time = 125
+Consumer Id = 3, Process Id = 7, Previous Burst Time = 93, New Burst Time = 0, Response Time = 50, Turn Around Time = 143
+Consumer Id = 4, Process Id = 4, Previous Burst Time = 94, New Burst Time = 0, Response Time = 78, Turn Around Time = 172
+Average response time = 21.700000
+Average turnaround time = 87.000000

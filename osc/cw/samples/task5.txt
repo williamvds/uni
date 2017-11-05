@@ -1,0 +1,21 @@
+Consumer Id = 3, Process Id = 2, Previous Burst Time = 16, New Burst Time = 0, Response Time = 0, Turn Around Time = 16
+Consumer Id = 4, Process Id = 4, Previous Burst Time = 36, New Burst Time = 0, Response Time = 0, Turn Around Time = 36
+Consumer Id = 2, Process Id = 0, Previous Burst Time = 84, New Burst Time = 34, Response Time = 0
+Consumer Id = 1, Process Id = 1, Previous Burst Time = 78, New Burst Time = 28, Response Time = 0
+Consumer Id = 5, Process Id = 3, Previous Burst Time = 94, New Burst Time = 44, Response Time = 0
+Consumer Id = 4, Process Id = 6, Previous Burst Time = 28, New Burst Time = 0, Response Time = 20, Turn Around Time = 48
+Consumer Id = 3, Process Id = 5, Previous Burst Time = 87, New Burst Time = 37, Response Time = 16
+Consumer Id = 3, Process Id = 5, Previous Burst Time = 37, New Burst Time = 33, Turn Around Time = 70
+Process 5 blocked on event type 1
+Consumer Id = 1, Process Id = 1, Previous Burst Time = 28, New Burst Time = 0, Turn Around Time = 78
+Process 5 in event queue 1 unblocked
+Consumer Id = 2, Process Id = 0, Previous Burst Time = 34, New Burst Time = 0, Turn Around Time = 84
+Consumer Id = 5, Process Id = 3, Previous Burst Time = 44, New Burst Time = 0, Turn Around Time = 94
+Consumer Id = 4, Process Id = 7, Previous Burst Time = 60, New Burst Time = 10, Response Time = 28
+Consumer Id = 2, Process Id = 5, Previous Burst Time = 33, New Burst Time = 0, Turn Around Time = 117
+Consumer Id = 1, Process Id = 9, Previous Burst Time = 30, New Burst Time = 0, Response Time = 9, Turn Around Time = 39
+Consumer Id = 4, Process Id = 7, Previous Burst Time = 10, New Burst Time = 0, Turn Around Time = 88
+Consumer Id = 3, Process Id = 8, Previous Burst Time = 73, New Burst Time = 23, Response Time = 13
+Consumer Id = 3, Process Id = 8, Previous Burst Time = 23, New Burst Time = 0, Turn Around Time = 86
+Average response time = 8.600000
+Average turnaround time = 111.300000
