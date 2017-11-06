@@ -27,6 +27,13 @@ void listInsert(struct process **head, struct process *proc) {
   prev->oNext = proc;
 }
 
+// Remove head of list
+void listRemove(struct process **head) {
+  struct process *temp = *head;
+  *head = (*head)->oNext;
+  free(temp);
+}
+
 int main(int argc, char **argv) {
   struct process *head = NULL;
   struct timeval *init = malloc(sizeof(struct timeval)),
@@ -55,7 +62,9 @@ int main(int argc, char **argv) {
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, Turn Around Time = %li\n",
       head->iProcessId, oldBurstTime, head->iBurstTime,
       response, turnaround);
-  } while((head = head->oNext));
+
+    listRemove(&head);
+  } while(head);
 
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
     totResponse /NUMBER_OF_PROCESSES, totTurnaround /NUMBER_OF_PROCESSES);
