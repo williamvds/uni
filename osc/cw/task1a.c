@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "coursework.h"
-#define PROC_NUM 5
 
 struct timeval time;
 
