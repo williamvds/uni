@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include "coursework.h"
 
-struct timeval time;
-
 // Insert process in order of ascending duration
 void listInsert(struct process **head, struct process *proc) {
   // If no head or head is >=, replace it

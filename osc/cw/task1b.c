@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include "coursework.h"
 
-struct timeval time;
-
 // Insert process at end
 void listInsert(struct process **head, struct process *proc) {
   if (!*head) {
