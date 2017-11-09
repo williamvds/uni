@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c11
 CPPFLAGS = -Wall -g -O2 -static
-LDFLAGS = -lpthread
+LDFLAGS = -pthread
 PROGS = task1a task1b task2 task3 task4 task5
 
 all: $(PROGS)
