@@ -33,8 +33,7 @@ void listRemove(struct process **head) {
 
 int main(int argc, char **argv) {
   struct process *head = NULL;
-  struct timeval *init = malloc(sizeof(struct timeval)),
-    *start = malloc(sizeof(struct timeval)),
+  struct timeval *start = malloc(sizeof(struct timeval)),
     *end = malloc(sizeof(struct timeval));
 
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
@@ -43,14 +42,13 @@ int main(int argc, char **argv) {
 
   int oldBurstTime;
   long int response, turnaround;
-  double totResponse = 0, totTurnaround = 0;
-  gettimeofday(init, NULL);
+  int totResponse = 0, totTurnaround = 0;
 
   do {
     oldBurstTime = head->iBurstTime;
     simulateSJFProcess(head, start, end);
 
-    response = getDifferenceInMilliSeconds(*init, *start);
+    response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
     totResponse += response;
 
     turnaround = getDifferenceInMilliSeconds(*start, *end);
@@ -65,6 +63,7 @@ int main(int argc, char **argv) {
   } while(head);
 
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
-    totResponse /NUMBER_OF_PROCESSES, totTurnaround /NUMBER_OF_PROCESSES);
+    (double) totResponse /NUMBER_OF_PROCESSES, (double) totTurnaround /NUMBER_OF_PROCESSES);
+
   return 0;
 }
