@@ -56,7 +56,8 @@ int main(int argc, char **argv) {
     turnaround = getDifferenceInMilliSeconds(*start, *end);
     totTurnaround += turnaround;
 
-    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, Turn Around Time = %li\n",
+    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, "
+      "Turn Around Time = %li\n",
       head->iProcessId, oldBurstTime, head->iBurstTime,
       response, turnaround);
 
