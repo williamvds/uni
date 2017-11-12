@@ -40,6 +40,8 @@ struct process *head = NULL; // shared pointer to head of list
 void *producer(void *arg) {
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
     struct process* proc = generateProcess();
+
+    sem_wait(&canProduce);
     pthread_mutex_lock(&sync);
 
     listInsert(&head, proc);
@@ -90,7 +92,7 @@ void *consumer(void *arg) {
 
 int main(int argc, char **argv) {
   // Producer semaphore starts at BUFFER_SIZE to track if full
-  sem_init(&canProduce, 0, -BUFFER_SIZE);
+  sem_init(&canProduce, 0, BUFFER_SIZE);
 
   pthread_t producerT, consumerT;
   pthread_create(&producerT, NULL, &producer, NULL);
