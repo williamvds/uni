@@ -33,18 +33,19 @@ void listRemove(struct process **head) {
   free(temp);
 }
 
-sem_t sync, canProduce, canConsume;
+sem_t canProduce, canConsume;
+pthread_mutex_t sync;
 struct process *head = NULL; // shared pointer to head of list
 
 void *producer(void *arg) {
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
     struct process* proc = generateProcess();
-    sem_wait(&sync);
+    pthread_mutex_lock(&sync);
 
     listInsert(&head, proc);
 
     sem_post(&canConsume);
-    sem_post(&sync);
+    pthread_mutex_unlock(&sync);
   }
 
   return NULL;
@@ -60,7 +61,7 @@ void *consumer(void *arg) {
 
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
     sem_wait(&canConsume);
-    sem_wait(&sync);
+    pthread_mutex_lock(&sync);
 
     oldBurstTime = head->iBurstTime;
     simulateSJFProcess(head, start, end);
@@ -78,7 +79,7 @@ void *consumer(void *arg) {
 
     listRemove(&head);
     sem_post(&canProduce); // new space in buffer
-    sem_post(&sync); // exit critial section
+    pthread_mutex_unlock(&sync); // exit critial section
   }
 
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
@@ -90,7 +91,6 @@ void *consumer(void *arg) {
 int main(int argc, char **argv) {
   // Producer semaphore starts at BUFFER_SIZE to track if full
   sem_init(&canProduce, 0, -BUFFER_SIZE);
-  sem_init(&sync, 0, 1);
 
   pthread_t producerT, consumerT;
   pthread_create(&producerT, NULL, &producer, NULL);
