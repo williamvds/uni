@@ -6,7 +6,7 @@ PROGS = task1a task1b task2 task3 task4 task5
 
 all: $(PROGS)
 
-task1a task2b: LDFLAGS=
+task1a task1b: LDFLAGS=
 
 %: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -o $@ coursework.c $<
