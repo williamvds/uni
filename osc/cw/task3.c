@@ -49,10 +49,7 @@ void *producer(void *arg) {
     sem_post(&canConsume);
   }
 
-  // Replace head with NULL to tell consumers to exit
-  pthread_mutex_lock(&sync);
-  head = NULL;
-  pthread_mutex_unlock(&sync);
+  // Wake up consumers again to allow them to exit
   sem_post(&canConsume);
 
   return NULL;
