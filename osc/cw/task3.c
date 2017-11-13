@@ -66,7 +66,7 @@ void *consumer(void *arg) {
     pthread_mutex_lock(&sync);
 
     // Receive NULL = wake up next consumer and terminate
-    if (head == NULL) {
+    if (!head) {
       pthread_mutex_unlock(&sync);
       sem_post(&canConsume);
       return NULL;
