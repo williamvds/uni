@@ -55,10 +55,7 @@ void *consumer(void *arg) {
   struct timeval *start = malloc(sizeof(struct timeval)),
     *end = malloc(sizeof(struct timeval));
 
-  int oldBurstTime;
-  long int response, turnaround;
   int totResponse = 0, totTurnaround = 0;
-
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
     sem_wait(&canConsume);
     pthread_mutex_lock(&sync);
@@ -69,13 +66,13 @@ void *consumer(void *arg) {
     pthread_mutex_unlock(&sync); // exit critial section
     sem_post(&canProduce); // new space in buffer
 
-    oldBurstTime = cur->iBurstTime;
+    int oldBurstTime = cur->iBurstTime;
     simulateSJFProcess(cur, start, end);
 
-    response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
+    long int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
     totResponse += response;
 
-    turnaround = getDifferenceInMilliSeconds(*start, *end);
+    long int turnaround = getDifferenceInMilliSeconds(*start, *end);
     totTurnaround += turnaround;
 
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, "
