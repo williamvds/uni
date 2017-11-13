@@ -28,9 +28,7 @@ void listInsert(struct process **head, struct process *proc) {
 
 // Remove head of list
 void listRemove(struct process **head) {
-  struct process *temp = *head;
   *head = (*head)->oNext;
-  free(temp);
 }
 
 sem_t canProduce, canConsume;
@@ -65,10 +63,16 @@ void *consumer(void *arg) {
     sem_wait(&canConsume);
     pthread_mutex_lock(&sync);
 
-    oldBurstTime = head->iBurstTime;
-    simulateSJFProcess(head, start, end);
+    struct process *cur = head;
+    listRemove(&head);
 
-    response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
+    pthread_mutex_unlock(&sync); // exit critial section
+    sem_post(&canProduce); // new space in buffer
+
+    oldBurstTime = cur->iBurstTime;
+    simulateSJFProcess(cur, start, end);
+
+    response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
     totResponse += response;
 
     turnaround = getDifferenceInMilliSeconds(*start, *end);
@@ -76,12 +80,10 @@ void *consumer(void *arg) {
 
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, "
       "Turn Around Time = %li\n",
-      head->iProcessId, oldBurstTime, head->iBurstTime,
+      cur->iProcessId, oldBurstTime, cur->iBurstTime,
       response, turnaround);
 
-    listRemove(&head);
-    sem_post(&canProduce); // new space in buffer
-    pthread_mutex_unlock(&sync); // exit critial section
+    free(cur);
   }
 
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
