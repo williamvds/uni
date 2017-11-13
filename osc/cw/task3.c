@@ -28,13 +28,11 @@ void listInsert(struct process **head, struct process *proc) {
 
 // Remove head of list
 void listRemove(struct process **head) {
-  struct process *temp = *head;
   *head = (*head)->oNext;
-  free(temp);
 }
 
 sem_t canProduce, canConsume;
-pthread_mutex_t sync;
+pthread_mutex_t sync, syncConsumer;
 struct process *head = NULL; // shared pointer to head of list
 
 void *producer(void *arg) {
@@ -72,24 +70,30 @@ void *consumer(void *arg) {
       return NULL;
     }
 
-    int oldBurstTime = head->iBurstTime;
-    simulateSJFProcess(head, start, end);
+    struct process *cur = head;
+    listRemove(&head);
 
-    long int response, turnaround;
-    response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
-    totResponse += response;
+    pthread_mutex_unlock(&sync); // exit critial section
+    sem_post(&canProduce); // new space in buffer
 
-    turnaround = getDifferenceInMilliSeconds(*start, *end);
-    totTurnaround += turnaround;
+    int oldBurstTime = cur->iBurstTime;
+    simulateSJFProcess(cur, start, end);
+
+    long int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
+    long int turnaround = getDifferenceInMilliSeconds(*start, *end);
 
     printf("Consumer Id = %d, Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, "
       "Response Time = %li, Turn Around Time = %li\n",
-      consumerID, head->iProcessId, oldBurstTime, head->iBurstTime,
+      consumerID, cur->iProcessId, oldBurstTime, cur->iBurstTime,
       response, turnaround);
 
-    listRemove(&head);
-    pthread_mutex_unlock(&sync); // exit critial section
-    sem_post(&canProduce); // new space in buffer
+    // Ensure totals are modified correctly
+    pthread_mutex_lock(&syncConsumer);
+    totResponse += response;
+    totTurnaround += turnaround;
+    pthread_mutex_unlock(&syncConsumer);
+
+    free(cur);
   }
 
   return NULL;
