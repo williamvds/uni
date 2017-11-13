@@ -69,14 +69,14 @@ void *consumer(void *arg) {
     int oldBurstTime = cur->iBurstTime;
     simulateSJFProcess(cur, start, end);
 
-    long int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
+    int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
     totResponse += response;
 
-    long int turnaround = getDifferenceInMilliSeconds(*start, *end);
+    int turnaround = getDifferenceInMilliSeconds(*start, *end);
     totTurnaround += turnaround;
 
-    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, "
-      "Turn Around Time = %li\n",
+    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, "
+      "Turn Around Time = %d\n",
       cur->iProcessId, oldBurstTime, cur->iBurstTime,
       response, turnaround);
 

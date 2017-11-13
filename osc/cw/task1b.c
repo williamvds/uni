@@ -36,29 +36,26 @@ int main(int argc, char **argv) {
     listInsert(&head, generateProcess());
   }
 
-  int oldBurstTime, oldState;
-  long int response, turnaround;
   int totResponse = 0, totTurnaround = 0;
-
   struct process *cur = head;
   do {
-    oldBurstTime = cur->iBurstTime;
-    oldState = cur->iState;
+    int oldBurstTime = cur->iBurstTime;
+    short oldState = cur->iState;
     simulateRoundRobinProcess(cur, start, end);
 
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d",
       cur->iProcessId, oldBurstTime, cur->iBurstTime);
 
     if (oldState == NEW) { // only do response time if the process is new
-      response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
+      int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
       totResponse += response;
-      printf(", Response Time = %li", response);
+      printf(", Response Time = %d", response);
     }
 
     if (cur->iBurstTime == 0) {
-      turnaround = getDifferenceInMilliSeconds(cur->oTimeCreated, *end);
+      int turnaround = getDifferenceInMilliSeconds(cur->oTimeCreated, *end);
       totTurnaround += turnaround;
-      printf(", Turn Around Time = %li", turnaround);
+      printf(", Turn Around Time = %d", turnaround);
 
       listRemove(&head, cur); // remove completed processes
     }

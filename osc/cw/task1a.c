@@ -40,22 +40,19 @@ int main(int argc, char **argv) {
     listInsert(&head, generateProcess());
   }
 
-  int oldBurstTime;
-  long int response, turnaround;
   int totResponse = 0, totTurnaround = 0;
-
   do {
-    oldBurstTime = head->iBurstTime;
+    int oldBurstTime = head->iBurstTime;
     simulateSJFProcess(head, start, end);
 
-    response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
+    int response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
     totResponse += response;
 
-    turnaround = getDifferenceInMilliSeconds(*start, *end);
+    int turnaround = getDifferenceInMilliSeconds(*start, *end);
     totTurnaround += turnaround;
 
-    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %li, "
-      "Turn Around Time = %li\n",
+    printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, "
+      "Turn Around Time = %d\n",
       head->iProcessId, oldBurstTime, head->iBurstTime,
       response, turnaround);
 
