@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     int response = getDifferenceInMilliSeconds(head->oTimeCreated, *start);
     totResponse += response;
 
-    int turnaround = getDifferenceInMilliSeconds(*start, *end);
+    int turnaround = getDifferenceInMilliSeconds(head->oTimeCreated, *end);
     totTurnaround += turnaround;
 
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, "
