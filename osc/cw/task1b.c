@@ -11,6 +11,7 @@ void listInsert(struct process **head, struct process *proc) {
   }
 
   struct process **cur = head;
+  // Walk list until we get to the last entry
   while((*cur)->oNext)
     cur = &(*cur)->oNext;
 
@@ -19,10 +20,11 @@ void listInsert(struct process **head, struct process *proc) {
 
 void listRemove(struct process **head, struct process *proc) {
   struct process **cur = head;
+  // Find entry before process we want to remove
   while((*cur) != proc)
     cur = &(*cur)->oNext;
 
-  // Replace proc with its ->next
+  // Replace previous' ->next with removed entry's ->next
   *cur = proc->oNext;
   free(proc);
 }
@@ -46,13 +48,13 @@ int main(int argc, char **argv) {
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d",
       cur->iProcessId, oldBurstTime, cur->iBurstTime);
 
-    if (oldState == NEW) { // only do response time if the process is new
+    if (oldState == NEW) { // output response time if the process is new
       int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
       totResponse += response;
       printf(", Response Time = %d", response);
     }
 
-    if (cur->iBurstTime == 0) {
+    if (cur->iState == FINISHED) { // output turnaround if process is completed
       int turnaround = getDifferenceInMilliSeconds(cur->oTimeCreated, *end);
       totTurnaround += turnaround;
       printf(", Turn Around Time = %d", turnaround);
@@ -61,7 +63,7 @@ int main(int argc, char **argv) {
     }
 
     printf("\n");
-  } while((cur = cur->oNext) || (cur = head));
+  } while((cur = cur->oNext) || (cur = head)); // go to next process or loop around
 
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
     (double) totResponse /NUMBER_OF_PROCESSES, (double) totTurnaround /NUMBER_OF_PROCESSES);
