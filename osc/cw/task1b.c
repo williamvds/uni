@@ -3,23 +3,22 @@
 #include <stdlib.h>
 #include "coursework.h"
 
-// Insert process at end
-void listInsert(struct process **head, struct process *proc) {
-  if (!*head) {
-    *head = proc;
+struct process *head = NULL, *tail;
+
+// Insert process at tail
+void listInsert(struct process *proc) {
+  if (!head) {
+    head = proc;
+    tail = proc;
     return;
   }
 
-  struct process **cur = head;
-  // Walk list until we get to the last entry
-  while((*cur)->oNext)
-    cur = &(*cur)->oNext;
-
-  (*cur)->oNext = proc;
+  tail->oNext = proc;
+  tail = proc;
 }
 
-void listRemove(struct process **head, struct process *proc) {
-  struct process **cur = head;
+void listRemove(struct process *proc) {
+  struct process **cur = &head;
   // Find entry before process we want to remove
   while((*cur) != proc)
     cur = &(*cur)->oNext;
@@ -30,12 +29,11 @@ void listRemove(struct process **head, struct process *proc) {
 }
 
 int main(int argc, char **argv) {
-  struct process *head = NULL;
   struct timeval *start = malloc(sizeof(struct timeval)),
     *end = malloc(sizeof(struct timeval));
 
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
-    listInsert(&head, generateProcess());
+    listInsert(generateProcess());
   }
 
   int totResponse = 0, totTurnaround = 0;
@@ -59,7 +57,7 @@ int main(int argc, char **argv) {
       totTurnaround += turnaround;
       printf(", Turn Around Time = %d", turnaround);
 
-      listRemove(&head, cur); // remove completed processes
+      listRemove(cur); // remove completed processes
     }
 
     printf("\n");
