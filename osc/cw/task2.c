@@ -16,7 +16,7 @@ void listInsert(struct process **head, struct process *proc) {
 
   // Loop until end or current has greater iBurstTime
   struct process *prev = NULL, *cur = *head;
-  while ( cur && (cur)->iBurstTime < proc->iBurstTime) {
+  while ( cur && cur->iBurstTime < proc->iBurstTime) {
     prev = cur;
     cur = cur->oNext;
   }
