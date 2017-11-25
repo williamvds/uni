@@ -16,7 +16,7 @@
 // Shared pointers to head and tail of ready queue
 struct process *readyHead = NULL, *readyTail = NULL;
 
-// Generic list insert - inserts at head and tracks tail
+// Generic list insert - inserts at tail
 void listInsert(struct process **head, struct process **tail, struct process *proc) {
   if (!*head) {
     *head = proc;
