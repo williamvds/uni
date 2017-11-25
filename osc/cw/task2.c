@@ -1,22 +1,25 @@
-// Process scheduling - shortest job first
+// SJF with bounded buffer
 #include <stdio.h>
 #include <stdlib.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include "coursework.h"
 
-// Insert process in order of ascending duration
-void listInsert(struct process **head, struct process *proc) {
+// Shared pointer to head of ready queue
+struct process *readyHead = NULL;
+
+// Insert process in ready queue in order of ascending duration
+void listInsert(struct process *proc) {
   // If no head or head is >=, replace it
-  if (*head == NULL || (*head)->iBurstTime >= proc->iBurstTime) {
-    proc->oNext = *head;
-    *head = proc;
+  if (readyHead == NULL || readyHead->iBurstTime >= proc->iBurstTime) {
+    proc->oNext = readyHead;
+    readyHead = proc;
     return;
   }
 
   // Loop until end or current has greater iBurstTime
-  struct process *prev = NULL, *cur = *head;
-  while ( cur && cur->iBurstTime < proc->iBurstTime) {
+  struct process *prev = NULL, *cur = readyHead;
+  while ( cur && (cur)->iBurstTime < proc->iBurstTime) {
     prev = cur;
     cur = cur->oNext;
   }
@@ -26,53 +29,56 @@ void listInsert(struct process **head, struct process *proc) {
   prev->oNext = proc;
 }
 
-// Remove head of list
-void listRemove(struct process **head) {
-  *head = (*head)->oNext;
+// Pop from head of list
+struct process *listPop() {
+  struct process *temp = readyHead;
+  readyHead = readyHead->oNext;
+  temp->oNext = NULL;
+
+  return temp;
 }
 
-sem_t canProduce, canConsume;
-pthread_mutex_t sync;
-struct process *head = NULL; // shared pointer to head of list
+sem_t canProduce, // Track number of free spaces in ready queue
+  canConsume; // Track number of processes in ready queue
+
+// Enforce mutual exclusion when manipulating ready queue
+pthread_mutex_t syncReadyQueue;
 
 void *producer(void *arg) {
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
     struct process* proc = generateProcess();
-
     sem_wait(&canProduce);
-    pthread_mutex_lock(&sync);
 
-    listInsert(&head, proc);
-
+    pthread_mutex_lock(&syncReadyQueue);
+      listInsert(proc);
     sem_post(&canConsume);
-    pthread_mutex_unlock(&sync);
+    pthread_mutex_unlock(&syncReadyQueue);
   }
 
   return NULL;
 }
 
 void *consumer(void *arg) {
-  struct timeval *start = malloc(sizeof(struct timeval)),
-    *end = malloc(sizeof(struct timeval));
+  struct timeval start, end;
 
   int totResponse = 0, totTurnaround = 0;
   for (int i=0; i < NUMBER_OF_PROCESSES; i++) {
+    // Ensure there is a process available
     sem_wait(&canConsume);
-    pthread_mutex_lock(&sync);
 
-    struct process *cur = head;
-    listRemove(&head);
+    pthread_mutex_lock(&syncReadyQueue);
+      struct process *cur = listPop();
+    pthread_mutex_unlock(&syncReadyQueue);
 
-    pthread_mutex_unlock(&sync); // exit critial section
-    sem_post(&canProduce); // new space in buffer
+    sem_post(&canProduce); // New space in ready queue - post to consumer
 
     int oldBurstTime = cur->iBurstTime;
-    simulateSJFProcess(cur, start, end);
+    simulateSJFProcess(cur, &start, &end);
 
-    int response = getDifferenceInMilliSeconds(cur->oTimeCreated, *start);
+    int response = getDifferenceInMilliSeconds(cur->oTimeCreated, start);
     totResponse += response;
 
-    int turnaround = getDifferenceInMilliSeconds(cur->oTimeCreated, *end);
+    int turnaround = getDifferenceInMilliSeconds(cur->oTimeCreated, end);
     totTurnaround += turnaround;
 
     printf("Process Id = %d, Previous Burst Time = %d, New Burst Time = %d, Response Time = %d, "
@@ -83,6 +89,7 @@ void *consumer(void *arg) {
     free(cur);
   }
 
+  // Output final result
   printf("Average response time = %lf\nAverage turn around time = %lf\n",
     (double) totResponse /NUMBER_OF_PROCESSES, (double) totTurnaround /NUMBER_OF_PROCESSES);
 
@@ -90,14 +97,17 @@ void *consumer(void *arg) {
 }
 
 int main(int argc, char **argv) {
-  // Producer semaphore starts at BUFFER_SIZE to track if full
+  // Producer semaphore starts at BUFFER_SIZE to track empty spaces in ready queue
   sem_init(&canProduce, 0, BUFFER_SIZE);
 
   pthread_t producerT, consumerT;
+  // Create producer and consumer threads
   pthread_create(&producerT, NULL, &producer, NULL);
   pthread_create(&consumerT, NULL, &consumer, NULL);
 
+  // Wait for producer and consumers
   pthread_join(producerT, NULL);
   pthread_join(consumerT, NULL);
+
   return 0;
 }
