@@ -174,8 +174,11 @@ void *consumer(void *arg) {
       pthread_mutex_lock(&syncReadyQueue);
         processesToRun--;
         // Wake up other consumers if they need to exit
-        if (!processesToRun)
+        if (!processesToRun) {
           sem_post(&canConsume);
+          pthread_mutex_unlock(&syncReadyQueue);
+          return NULL;
+        }
       pthread_mutex_unlock(&syncReadyQueue);
 
       sem_post(&canProduce);
