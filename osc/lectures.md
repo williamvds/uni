@@ -98,7 +98,7 @@ has been executed
 
 - Can be used to trigger context switches after a set time (known as the _time slice_)
 
-## Hardware considerations
+## Computer architecture
 ### Multi-core and hyperthreaded processors
 - Modern CPUs contain multiple cores and are often hyper-threaded
 - Evolution in hardware affects operating system design
@@ -113,6 +113,43 @@ has been executed
 - L2 cache can be shared or dedicated to individual cores
 - Cache management mainly done by hardware
 - CPU can only access main memory directly - files have to loaded into it
+
+## OS structures and implementation
+- OSs contain a lot of functionality, including...
+  - Processes - management, scheduling, context switching, etc
+  - Memory - management, virtual memory, etc
+  - File systems
+  - I/O management
+
+- OS can be structured in _micro_ and _monolithic_ kernels
+
+### Micro kernels
+- Provide minimal kernel functionality
+- Non-essential functionality is extracted from the kernel
+  - Communication, memory management, and CPU scheduling likely to be included
+  - File system, GUI, device drivers are likely to be user processes
+- Pros
+  - Easier to extend
+  - More portable
+  - Usually more reliable
+- Cons
+  - More frequent system calls and kernel traps = more overhead from mode switches
+
+- For example
+  - Some Unix versions
+  - Mac OS X
+  - Minix
+  - Early versions of Windows (NT4.0) (partially)
+
+### Monolithic kernels
+- All procedures linked into one single executable, runs in kernel mode
+- Cons
+  - Difficult to maintain due to size
+
+- Examples
+  - Current versions of...
+  - Windows
+  - Linux
 
 # Something TODO
 
