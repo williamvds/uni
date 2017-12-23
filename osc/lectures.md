@@ -1,5 +1,5 @@
 # Introduction to the Operating System
-> Operating system - A layer of indirection on top of the hardware
+> Operating system: A layer of indirection on top of the hardware
 
 
 ## Properties of an OS
@@ -150,6 +150,126 @@ has been executed
   - Current versions of...
   - Windows
   - Linux
+
+# Processes
+> Process: a running instance of a program
+
+- Programs are passive - they are stored on a disk
+- Process has associated control structures, may be active, may have resources (I/O devices, 
+memory, processor)
+- Control structures... 
+  - register a process with OS
+  - are process control blocks (PCBs), stored as entries in the OS's process table 
+- PCBs contain info to administer process, necessary for context switching
+
+## Memory layout
+- __Code__: aka Text, can be shared between processes running the same code
+- __Data__
+- __Stack__: Last in First Out structure - local variables removed once a function exits
+- __Heap__: dynamic memory for data
+
+| STACK |
+|:-----:|
+| ...   |
+| HEAP  |
+| DATA  |
+| TEXT  |
+
+- The top of the table is MAX (logical address) and the bottom 0
+- Stack and heap are placed at opposite ends to allow them to grow
+- Some OSs use address space layout randomisation TODO
+
+## Process states and transitions
+- __New__: just created (has PCB), waiting to be admitted to ready queue, may not yet be in memory
+- __Ready__: waiting for CPU to become available
+- __Running__: controls the CPU (or a core)
+- __Blocked__: process cannot continue, eg is waiting for I/O
+- __Terminated__: no longer executable, though data structures including PCB may be temporarily 
+preserved
+- __Suspended__: process is swapped out
+
+- __New__     to __Ready__:  process admitted and OS commits to execution
+- __Ready__   to __Running__: process selected by process scheduler
+- __Running__ to __Blocked__: process needs to wait for interrupt or carried out a system call
+- __Blocked__ to __Ready__: event waited for happens, eg I/O operation finished
+- __Running__ to __Ready__: process is preempted, eg by timer interrupt or pause
+- __Running__ to __Terminated__: process has finished, eg ended or encountered exception
+
+- Interrupts, traps, and system calls lie on the basis of transitions
+
+## Multi-processing
+- Modern computers run multiple processes 'simultaneously'
+- In a single processor system, instructions of individual processes are executed sequentially
+- Processor alternates processes using context switches
+- True parallelism requires multiple processors
+
+### Process Control Blocks
+- __Identification__: ID, user, parent ID
+- __Control information__: process state, scheduling information, etc
+- __State information__
+  - user registers
+  - program counter
+  - stack pointer
+  - program status word
+  - memory management information
+  - files
+  - etc
+
+- Are kernel data structures - protected and only accessible in kernel mode
+- Allowing user applications to access them directly could compromise their integrity 
+(eg could monopolise the CPU)
+- OS manages them on the user's behalf through system calls (eg to set priority)
+
+### Process tables
+- __Process__: holds control blocks for each process
+- __Memory__: info about memory allocation, protection, virtual memory
+- __I/O:__ availability, status, transfer information
+- __File:__ location, status
+
+- Maintained by kernel and usually cross referenced
+
+### Context switching
+> Context switch: Save state of old process and loads the state of the new process
+
+1. __Save process state__: program counter, registers, etc
+-  __Update PCB__: change status from running to ready/blocked
+-  Move PCB to appropriate queue (ready/blocked)
+-  __Run scheduler__: select new process
+-  __Update PCB__: change status to running
+-  Update memory management unit
+-  Restore process
+
+- - Creates overhead in execution: time is spent saving, reading, re-loading register states
+
+### Time slicing
+> Time slice: the maximum duration a process can keep executing before being preempted
+
+- Short time slices provide...
+ - Good response times - less time before a process starts executing
+ - Low effective utilisation - more time spent context switching
+
+- Long time slices provide...
+  - Low response times
+  - High effective utilisation
+
+## Creating and terminating processes
+- Use system calls - usually wrapped around OS libraries (eg libc) following a well-defined API 
+(eg POSIX, WIN32)
+
+- Unix: `fork()` - generates exact copy of parent
+- Windows: `NTCreateProcess()`
+- Linux: `Clone()`
+
+- `fork()`:
+  - Returns process ID to the parent
+  - Returns 0 to the child process
+
+- System calls are necessary to notify the OS the process has terminated:
+  - Resources de-allocated
+  - Output flushed
+  - Process administration may have to performed
+  - Unix/Linux: `fork()` or `kill()`
+  - Windows: `TerminateProcess()`
 
 # Something TODO
 
