@@ -271,6 +271,288 @@ preserved
   - Unix/Linux: `fork()` or `kill()`
   - Windows: `TerminateProcess()`
 
+# Process scheduling
+- The OS is responsible for managing and scheduling processes:
+  - When to admit to the system (new ➡ ready)
+  - Select next process to run (ready ➡ run)
+  - Decide when and which process to interrupt (running ➡ ready)
+
+- Scheduler (aka dispatcher) decides which process to run
+- Scheduler uses a scheduling algorithm to do so
+- Type of algorithm used is influenced by the type of OS (eg real time, batch)
+
+## Evaluation
+- User-oriented criteria
+  - __Response time__: time between creating the job and it beginning execution
+  - __Turnaround time__: time between creating the job and finishing it
+  - __Predictability__: the variance in processing times
+
+- System-oriented criteria
+  - __Throughput__: number of jobs processed per hour
+  - __Fairness__: equal distribution of processing and waiting time and avoiding keeping some processes
+waiting excessively long (starvation)
+
+- Criteria can conflict - eg improving response time may require more context switches, worsening 
+throughput and increasing turnaround time
+
+- Performance measures:
+  - __Average response time__: average time of process start
+  - __Average turnaround time__: average time taken for each processes to finish
+
+## Scheduler types
+
+### By time horizon
+- __Long term__ 
+  - Applies to new processes
+  - Controls the degree of multiprogramming by deciding which process to admit and when
+  - Good mix of CPU and I/O bound processes keeps all resources as busy as possible
+  - Usually absent in modern popular OSs
+
+- __Medium term__: controls swapping and the degree of multiprocessing
+
+- __Short-term__: decide which process to run next
+  - Manages the ready queue
+  - Invoked very frequently, so must be fast
+  - Usually called in response to clock interrupts, I/O interrupts, or blocking system calls
+
+### By approach
+- __Non-preemptive__
+  - Processes are only interrupted voluntarily - eg I/O or a 'nice' system call like `yield()`
+  - eg Windows 3.1 and DOS
+
+- __Preemptive__
+  - Processes can be interrupted forcefully or voluntarily
+  - Requires context switches = overhead, so too many should be avoided
+  - Prevents processes from monopolising the CPU
+  - Most popular modern operating systems take this approach
+
+## Scheduling algorithms
+1. First Come First Served (FCFS) / First In First Out (FIFO)
+  - Non-preemptive
+  - Strict queueing mechanism - schedules in same order processes were added to the queue
+  - Pros
+      - Positional fairness
+      - Easy to implement
+  - Cons
+      - Favours long processes over short ones
+      - Could compromise resource utilisation - CPU vs I/O devices
+- Shortest Job First
+  - Non-preemptive
+  - Starts processes in order of ascending processing time using a provided/known estimate of processing
+  - Pros
+      - Always optimal turnaround time
+  - Cons
+      - Starvation of long processes
+      - Fairness and predictability compromised
+      - Processing times have to be known beforehand
+- Round Robin
+  - Preemptive version of FCFS - forces context switches at periodic intervals or time slices
+  - Run in order that they were added to queue
+  - Processes are forcefully interrupted by the timer
+  - Pros
+      - Improved response time
+      - Effective for general purpose time sharing systems
+  - Cons
+      - Increased context switching = overhead
+      - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
+        - Possibly prevented by working with multiple queues
+      - Can reduce to FCFS
+  - Length of time slice must be carefully considered
+    - Short = good (low) response time = low throughput
+    - Long = high throughput = bad (long) response time
+  - If time slice is used partially, the next process start immediately
+- Priority Queues
+  - Preemptive
+### By time horizon
+- __Long term__ 
+  - Applies to new processes
+  - Controls the degree of multiprogramming by deciding which process to admit and when
+  - Good mix of CPU and I/O bound processes keeps all resources as busy as possible
+  - Usually absent in modern popular OSs
+
+- __Medium term__: controls swapping and the degree of multiprocessing
+
+- __Short-term__: decide which process to run next
+  - Manages the ready queue
+  - Invoked very frequently, so must be fast
+  - Usually called in response to clock interrupts, I/O interrupts, or blocking system calls
+
+### By approach
+- __Non-preemptive__
+  - Processes are only interrupted voluntarily - eg I/O or a 'nice' system call like `yield()`
+  - eg Windows 3.1 and DOS
+
+- __Preemptive__
+  - Processes can be interrupted forcefully or voluntarily
+  - Requires context switches = overhead, so too many should be avoided
+  - Prevents processes from monopolising the CPU
+  - Most popular modern operating systems take this approach
+
+## Scheduling algorithms
+1. First Come First Served (FCFS) / First In First Out (FIFO)
+  - Non-preemptive
+  - Strict queueing mechanism - schedules in same order processes were added to the queue
+  - Pros
+      - Positional fairness
+      - Easy to implement
+  - Cons
+      - Favours long processes over short ones
+      - Could compromise resource utilisation - CPU vs I/O devices
+- Shortest Job First
+  - Non-preemptive
+  - Starts processes in order of ascending processing time using a provided/known estimate of processing
+  - Pros
+      - Always optimal turnaround time
+  - Cons
+      - Starvation of long processes
+      - Fairness and predictability compromised
+      - Processing times have to be known beforehand
+- Round Robin
+  - Preemptive version of FCFS - forces context switches at periodic intervals or time slices
+  - Run in order that they were added to queue
+  - Processes are forcefully interrupted by the timer
+  - Pros
+      - Improved response time
+      - Effective for general purpose time sharing systems
+  - Cons
+      - Increased context switching = overhead
+      - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
+        - Possibly prevented by working with multiple queues
+      - Can reduce to FCFS
+  - Length of time slice must be carefully considered
+    - Short = good (low) response time = low throughput
+    - Long = high throughput = bad (long) response time
+  - If time slice is used partially, the next process start immediately
+- Priority Queues
+  - Preemptive
+  - Schedules processes by priority (saved in process control block)
+  - Can prioritise I/O bound jobs
+  - Priorities are fixed
+  - Low priority processes may be starved (if process priorities do not change)
+  - Schedules processes by priority (saved in process control block)
+  - Jobs of same priority run in Round Robin fashion
+  - Pros 
+      - Can prioritise I/O bound jobs
+  - Cons
+      - Low priority processes may be starved (if process priorities do not change)
+
+## Multi-level feedback queues
+- Multiple queues, for each priority level
+- Different scheduling algorithm(s) can be used for individual queues
+- Jobs can move between queues - migration policy between queues:
+  - Lower priority queue if too much CPU time is used - prioritise I/O and interactive processes
+  - Higher priority queue to prevent starvation and avoid inversion of control 
+
+> Inversion of control - where a high priority process is overwhelmed by lower priority ones 
+> because they are using the same resources)
+
+- Are highly configurable and offer significant flexibility
+
+### Characteristics
+- Number of queues
+- Scheduling algorithms used for individual queues
+- Migration policy between queues
+- Initial access to queues
+
+### Case study: Windows 7
+- Interactive system
+- Preemptive scheduler
+- Dynamic priority levels
+  - Two priority classes with 16 priority levels
+  - __Real time__: fixed priority level
+  - __Variable__: can have their priority temporarily boosted
+- Use round robin within the queues
+
+- Priorities based on _process base priority_ (0-15) and _thread base priority_ (±2 relative to process priority)
+- Priority dynamically changes between _base priority_ and _maximum priority_
+  - Interactive I/O bound processes receive larger boost
+  - Boosting priorities prevents priority inversion
+
+## Linux - the Completely Fair Scheduler
+- Scheduling has evolved over different versions of Linux to account for...
+  - multiple processors/cores
+  - processor affinity
+  - load balancing between cores
+
+- Scheduling types
+  - Real time tasks (for POSIX compliance)
+    - Real time FIFO tasks
+    - Real time Round Robin tasks
+  - Time sharing tasks using a preemptive approach (similar to variable in Windows)
+
+- Linux's scheduling algorithm for time sharing tasks is the Completely Fair Scheduler (CFS)
+
+- Real time FIFO tasks...
+  - have the highest priority 
+  - are scheduled using the FCFS approach
+  - are preempted if a higher priority shows up
+- Real time round robin tasks are preemptable by clock interrupts and have an associated time slice
+- Both approaches cannot guarantee hard deadlines
+
+### Time sharing tasks - equal priority
+- CFS divides the CPU time between all processes
+- They will be allocated a time slice of `1/N * (available CPU time)`
+  - eg, if `N = 5` each processes will receive 20% of the processor's time
+
+> Targeted latency: Interval of time during which every process should run at least once
+> Length of time slice and available CPU time are based on this
+
+- Larger N means the context switch time becomes dominant, so a lower bound on the 'time slice' 
+is imposed by the minimum granularity
+  - A process' time slice can be no less than the minimum granularity, else response time will 
+deteriorate
+
+### Time sharing tasks - different priority
+- Weighting scheme used to take different priorities into account
+- Each process allocated a weight `w(i)` that reflects its priority
+- The time slice allocated to the process is proportional to the percentage of allocated CPU time 
+it has not yet used
+- The tasks with the lowest proportional amount of used CPU time are selected first
+
+## Multiprocessor scheduling
+- On a single processor machine, scheduler only has to consider which process (/thread) to run next
+- Scheduling on a multiprocessor/core machine requires deciding...
+  - __Where__: which CPU to run a process on
+  - __When__: what time to run a process
+
+### Shared queues
+- Single or multi-level queue shared between all CPUS
+- Pros
+  - Automatic load balancing
+- Cons
+  - Contention for the queues - locking required
+  - Does not account for processor affinity - moving to a different CPU invalidates cache, and 
+look aside buffers in MMU
+- Windows allocates the highest priority threads to the individual CPU/cores
+
+### Private queues
+- Each CPU has a private (set of) queue(s)
+- Pros
+  - CPU affinity automatically satisfied
+  - Contention for a shared queue is minimised
+- Cons
+  - Less load balancing
+- Migrating between CPU queues is possible
+
+### Related threads
+- Some threads (of the same process) are cooperating - sending messages to one another
+  - eg search algorithms
+- Ideally these threads run simultaneously on multiple CPUs
+  - Otherwise threads will have to wait until their next time slice to handle responses
+
+#### Space scheduling
+- N threads are allocated to N dedicated CPUs
+- N threads are kept waiting until N CPUs are available
+- Non-preemptive - blocking calls result in idle CPUs = less context switching overhead but results
+in CPU idle time
+- N can be dynamically adjusted to match processor capacity
+
+#### Gang scheduling
+- Time slices synchronised and scheduler groups threads together to run simultaneously
+(as much as possible)
+- Preemptive
+- Blocking threads result in idle CPUs
+
 # Something TODO
 
 ## Another thing
