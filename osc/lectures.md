@@ -1,7 +1,6 @@
 # Introduction to the Operating System
 > Operating system: A layer of indirection on top of the hardware
 
-
 ## Properties of an OS
 - Has access to the full capabilities of the hardware
 - Provides...
@@ -878,6 +877,63 @@ their critical section
 resource it requires
     - Can happen in chains
     - Can be prevented by implementing priority inheritance to boost the lower's priority
+
+## Producer/consumer problem
+- Producer(s) and consumer(s) share `n` buffers (eg array) that are capable of holding one item 
+each (eg a printer queue)
+- Can be bounded (size `n`) or unbounded size
+- Producers adds items - goes to sleep if buffer is full
+- Consumers remove items - goes to sleep if buffer is empty
+- Manipulation of counter will need to be synced
+- Counter (index) variable keeps track of the number of items in the buffer
+- Simplest version of problem has one producer, one consumer, unbounded size
+
+- Two binary semaphores/mutexes:
+  - `sync` synchronizes access to the buffer (counter), initialised to 1
+  - `delay_consumer` ensures that the consumer goes to sleep when there are no items available, 
+  initialised to 0
+  - Cons
+      - Race condition - When consumer has exhausted the buffer, the produce can still increment 
+count before consumer checks it
+
+### Synchronisation problems
+- Bounded buffer
+  - eg with `n` consumers, `m` producers, fixed buffer size `N`
+  - `sync`: boolean mutex/semaphore - enforce mutual exclusion when manipulating the buffer
+  - `empty`: tracks number of empty spaces in buffer, initialised to `N`
+  - `full`: tracks number of full spaces in buffer, initialised to `0`
+  - `empty` and `full` are counting semaphores, updated as elements are removed/added respectively
+
+### Dining philosophers problem
+- 5 philosophers sitting on a round table
+- Each needs 2 forks to be able to eat
+- When hungry (in between thinking), the philosopher tries the acquire the forks on their left and 
+right
+- Reflects general problem of sharing a limited set of resources (forks) between a number of 
+processes (philosophers)
+
+#### Naïve solutions
+- Pick up a fork and wait for a second one to become available
+  - Have one semaphore per fork
+  - If all start at the same time, they will all take the fork on the left = deadlock as each is 
+  waiting for the fork on their right
+  - Cons
+      - Can avoid deadlock by putting forks down and waiting a random time
+(similar to Ethernet networks)
+
+- Put one spare fork in the center of the table
+  - Each philosopher has a fork for themselves
+  - Each philosopher waits for the spare to be free when hungry
+  - Cons
+      - Results in poor usage of resources
+
+#### Ideal solution
+- Store state of philosophers:
+- `state[N]`: State of each philosopher - thinking, hungry, eating
+- `phil[N]`: One semaphore per philosopher (each initialised to 0)
+- `sync`: enforce mutual exclusion of the critical section
+- Philosopher sleeps if one of their neighbours are eating
+- Neighbours wake up the philosopher if they have finished eating
 
 # Something TODO
 
