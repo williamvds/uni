@@ -1,0 +1,3 @@
+/* Redirect everything to index.php */
+RewriteEngine on
+RewriteRule .* /index.php [L,QSA]

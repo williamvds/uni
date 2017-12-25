@@ -1,0 +1,224 @@
+/* Colors
+  P:  #e0e0e0
+  PL: #fff
+  PD: #aeaeae
+
+  S:  #00bcd4
+  SL: #62eff
+  SD: #008ba3
+
+  Text: #000
+*/
+* { transition: all .2s ease; }
+
+body {
+  margin: 0;
+  background: #e0e0e0;
+}
+
+h1 { margin: 15px 0 10px 0; }
+p { margin: 8px 0 5px 0; }
+
+a {
+  color: #0090ea;
+  text-decoration: none;
+}
+
+.sizeWrap {
+  max-width: 1000px;
+  height: 100%;
+  margin: auto;
+}
+
+header {
+  z-index: 5;
+  background: #aeaeae;
+  box-shadow: 0 2px 3px 0 rgba( 0,0,0, .6 );
+  box-sizing: border-box;
+  height: 66px;
+  padding: 5px 20px;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+header #logo {
+  display: inline-table;
+  height: 100%;
+}
+
+header #logo > h1 {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* Dynamic title text when screen width is too small */
+@media ( max-width: 500px ) {
+  header #logo > h1 {
+    font-size: 4.5vw;
+  }
+}
+
+header .links {
+  display: inline-table;
+  float: right;
+  height: 100%;
+}
+
+header .links > a {
+  color: #000;
+  font-weight: 500;
+  display: table-cell;
+  padding: 0 10px;
+  vertical-align: middle;
+}
+
+header a:hover {
+  color: #0090ea;
+}
+
+header .links > a:last-child {
+  padding: 0 0 0 10px;
+}
+
+header .links > a.current {
+  color: #0090ea;
+  text-shadow: 1px 0 0 #0090ea;
+}
+
+header .links > a:not(:last-child) {
+  margin-right: 15px;
+}
+
+content {
+  position: relative;
+  text-align: center;
+  display: block;
+}
+
+table {
+  width: 80%;
+  margin-top: 10px;
+  border-spacing: 6px;
+  border-collapse: collapse;
+}
+
+#search {
+  width: 80%;
+  text-align: left;
+}
+
+/* Maximise table width on small screens */
+@media ( max-width: 600px ) {
+  #search, table { width: 100%; }
+}
+
+th {
+  text-align: left;
+  font-size: 14px;
+  padding: 10px;
+}
+
+td { padding: 5px 10px; }
+
+td a {
+  opacity: 0;
+  margin-right: 15px;
+}
+
+tr > th:first-child, td:first-child {
+  text-align: right;
+}
+
+tbody > tr:hover { background: #e0e0e0; }
+
+tr:hover td > a {
+  opacity: initial;
+}
+
+.card, table, button {
+  color: #000;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .14),
+              0 1px 8px 0 rgba(0, 0, 0, .12),
+              0 3px 3px -2px rgba(0, 0, 0, .4);
+}
+
+.card {
+  display: inline-block;
+  padding-top: 20px;
+  width: 200px;
+  margin: 10px;
+}
+
+.card:hover, button:hover, button:focus {
+  box-shadow: 0 6px 10px 0 rgba(0, 0, 0, .14),
+              0 1px 18px 0 rgba(0, 0, 0, .12),
+              0 3px 5px -1px rgba(0, 0, 0, .4);
+}
+
+.card h1, .card h2 {
+  margin: 0;
+}
+
+.card h2 {
+  font: 20px normal;
+  background: #008ba3;
+  margin: 20px 0 0 0;
+  padding: 10px 0;
+  width: 100%;
+  color: #fff;
+}
+
+#search {
+  margin-top: 15px;
+}
+
+button {
+  margin-top: 15px;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  color: #fff;
+  background: #008ba3;
+  font-size: 16px;
+}
+
+input:valid {
+  border: solid black;
+  border-width: 0 0 2px 0;
+}
+
+input:invalid, input.invalid {
+  border-bottom: 2px solid red;
+}
+
+input, select {
+  margin-top: 15px;
+  border: none;
+  font-size: 15px;
+  box-sizing: border-box;
+  margin-left: 10px;
+  background: inherit;
+  padding: 2px 2px 4px 2px;
+}
+
+input:focus, button:focus, select:focus {
+  outline: none;
+}
+
+select:hover {
+  background: rgba( 0, 0, 0, .1 );
+}
+
+#details > label {
+  display: inline-block;
+  text-align: right;
+  width: 300px;
+}
+
+#details input, select {
+  display: inline;
+  width: 175px;
+}
