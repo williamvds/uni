@@ -553,6 +553,193 @@ in CPU idle time
 - Preemptive
 - Blocking threads result in idle CPUs
 
+# Threads
+> Threads: Execution traces with which a process can share its resources, 
+> running in the same resource environment
+
+- Process contain...
+  - resources - related ones grouped together
+    - logical address space containing process image (program, data, heap, stack)
+    - Files, I/O devices, I/O channels
+  - execution trace - an entity that is executed
+
+- Threads...
+  - have their execution states - program counter, stack, and register states
+  - have states and transitions (new, running, blocked, ready, terminated)
+  - have a thread control block
+  - share code
+  - share data - global variables and memory
+  - share files - one thread opens the file, all other threads can access it
+
+- Some CPUs (hyperthreaded) have direct hardware support for multithreading
+  - Can offer up to 8 hardware threads per core
+
+- Pros
+  - Less overhead to create/terminate/switch - address space is the same for threads of the same 
+process
+	- Inter-thread communication is easier/faster than interprocess - threads share memory by default
+	- Share the same resources used by multiple activities
+	- Carry out blocking tasks in parallel/concurrently - I/O and memory access 
+	- No protection boundaries are required in the address space:
+		- Threads are cooperating
+		- Belong the same user 
+		- Share a common goal
+
+- Cons
+	- Synchronisation has to be considered carefully
+
+## Shared resources
+- Shared between threads
+  - Address space
+  - Global variables
+  - Open files
+  - Child processes
+  - Pending alarms
+  - Signals and signal handlers
+  - Accounting information
+
+- Private to threads
+  - Program counter
+  - Registers
+  - Stack
+  - State
+  - Local variables
+
+## Implementation
+
+### User threads
+- Many to one - kernel only sees owning process
+- Thread management performed in user space using user library
+	- Creating, destroying, scheduling, thread control block manipulation
+- Process maintains thread table managed by the runtime system without kernel's knowledge
+	- Similar to process table
+	- Used for thread switching
+	- Tracks thread related information
+
+- Pros
+	- In user space - no mode switches required
+	- Full control over the thread scheduler
+	- OS independent - can use threads on OS' that don't support them
+- Cons
+	- Blocking system calls suspend the entire process - the threads are mapped onto a single process managed by the kernel
+	- No true parallelism - process is scheduled on single CPU
+	- Clock interrupts are non-existent - no preemptive interrupts
+	- Page faults result in blocking the process
+
+### Kernel threads
+- One to one - kernel sees each individual thread
+- Kernel manages threads, user application accesses threading facilities through API and system calls
+	- Thread table is in kernel, containing thread control blocks - subset of process control blocks
+	- If a thread blocks, the kernel chooses another thread from the same or different process
+- Used by Windows and Linux
+
+- Pros
+	- True parallelism can be performed
+- Cons
+	- Frequent mode switches = lower performance
+	- Greater overhead when dealing with null forks and signal waits compared to user threads
+
+### Hybrid
+- Many to many
+- User threads multiplexed onto kernel threads
+- Kernel sees and schedules a limited number of kernel threads
+- User application sees user threads and creates/schedules these - unrestricted number
+
+## Management
+Thread libraries:
+- Provide an API/interface for managing threads 
+- creating, running, destroying, synchronising, etc
+- Implementation:
+- User space = user threads
+- System calls - rely on kernel for thread implementations
+- Eg POSIX's PThreads, Windows Threads, Java Threads
+- PThreads:
+- A specification that anyone can implement - defines a set of API function calls, including:
+- pthread_create        - create new thread
+- pthread_exit        - Exit existing thread
+- pthread_join        - Wait for existing thread with ID
+- pthread_yield        - Release CPU
+- pthread_attr_init    - Thread attributes (eg priority)
+- pthread_attr_destroy    - Release attributes
+- Can be implemented as user or kernel threads
+
+# Concurrency
+- Threads and processes that execute concurrently or in parallel can share resources
+  - eg devices, memory - variables and data structures
+  - Multiprocessing improves system utilisation
+- A process/thread can be interrupted at any point in time - eg by timer, I/O
+  - The process state (including registers) is saved in the process control block
+- The outcome of programs may become unpredictable:
+  - Sharing data can lead to inconsistencies - when interrupted whilst manipulating data
+  - Outcome of a process may depend on order of execution
+  - eg incrementing a counter - need to read, add, and store new value
+  - If interrupted during concurrent processing each thread will have a different state
+
+## Critical sections
+> Race condition: When multiple threads/processes access shared data and the result is dependent on
+> the order in which the instructions are interleaved
+
+- A set of instructions in which shared resources between processes/threads (eg variables) are 
+changed
+- Mutual exclusion must be enforced for critical sections
+
+> Mutual exclusion: Ensuring only one process at a time can be in the critical section
+
+- Processes have to get 'permission' before entering their critical section
+  - Request lock, hold lock, release lock
+
+### Within the OS 
+- Multiple processes/threads are running in the kernel
+- Kernel processes can be interrupted
+- Need to ensure that kernel data structures are not corrupted by concurrency issues due to race 
+conditions
+- Processes share resources, including memory, files, processor time, printers, I/O devices, etc
+- Needs to provide locking mechanisms to implement/support mutual exclusion 
+(and prevent starvation and deadlocks)
+- Need to allocate and deallocate these resource safely - avoid interference, deadlocks, starvation
+
+### Requirements for solving the critical section problem
+- __Mutual exclusion__: only one process can be in its critical section at any point in time
+- __Progress__: any process must be able to enter its critical section at some point in time
+  - Processes/threads in the 'remaining code' do not influence access to critical sections
+- __Fairness / bounded waiting__: processes cannot be made to wait indefinitely
+
+- These must be satisfied, independent of the order in which sequences are executed
+
+### Enforcing mutual exclusion
+- __Software__: using Peterson's solution
+- __Hardware__: using `test_and_set()`, `swap_and_compare()`
+  - CPU instructions that check and modify values in one go = no risk of interruption
+
+- Based on 
+  - Mutexes
+  - Semaphores
+  - Monitors (software construct within the programming languages)
+
+### Deadlocks
+> Deadlock: Where each process/thread in the set is waiting for an event that only the other 
+> process/thread in the set can cause
+
+- Given two mutually exclusive resources X and Y, which can only be held by one process/thread at 
+a time
+- Threads A and B need to acquire both resources ( _locks_ ), and request them in opposite orders
+- Such a sequence of events could occur in a multiprocess system:
+  - A requests and acquires X
+  - B requests and acquires Y
+  - A requests Y
+  - B requests X
+  - Neither thread can continue
+- Each deadlocked process/thread is waiting for a resource held by another deadlocked 
+process/thread, which cannot run and hence cannot release the resources
+- Can occur between any number of processes/threads and for any number of resources
+
+- Conditions for a deadlock
+  - __Mutual exclusion__: A resource can be assigned to at most one process at a time
+  - __Hold and wait condition__: A resource can be held whilst requesting new resources
+  - __No preemption__: Resources cannot be forcefully taken away from a process
+  - __Circular wait__: There is a circular chain of two or more processes, waiting for a resource held
+by the other processes
+
 # Something TODO
 
 ## Another thing
