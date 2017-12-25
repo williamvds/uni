@@ -443,8 +443,8 @@ throughput and increasing turnaround time
   - Lower priority queue if too much CPU time is used - prioritise I/O and interactive processes
   - Higher priority queue to prevent starvation and avoid inversion of control 
 
-> Inversion of control - where a high priority process is overwhelmed by lower priority ones 
-> because they are using the same resources)
+> Inversion of control/priority inversion: Where a high priority process is overwhelmed by lower 
+> priority ones because they are using the same resources)
 
 - Are highly configurable and offer significant flexibility
 
@@ -646,22 +646,23 @@ process
 - User application sees user threads and creates/schedules these - unrestricted number
 
 ## Management
-Thread libraries:
-- Provide an API/interface for managing threads 
-- creating, running, destroying, synchronising, etc
-- Implementation:
-- User space = user threads
-- System calls - rely on kernel for thread implementations
-- Eg POSIX's PThreads, Windows Threads, Java Threads
+- Thread libraries:
+  - Provide an API/interface for managing threads 
+    - creating, running, destroying, synchronising, etc
+  - Implementation:
+    - User space = user threads
+    - System calls - rely on kernel for thread implementations
+  - Eg POSIX's PThreads, Windows Threads, Java Threads
+
 - PThreads:
-- A specification that anyone can implement - defines a set of API function calls, including:
-- pthread_create        - create new thread
-- pthread_exit        - Exit existing thread
-- pthread_join        - Wait for existing thread with ID
-- pthread_yield        - Release CPU
-- pthread_attr_init    - Thread attributes (eg priority)
-- pthread_attr_destroy    - Release attributes
-- Can be implemented as user or kernel threads
+  - A specification that anyone can implement - defines a set of API function calls, including:
+  - Can be implemented as user or kernel threads
+  - `pthread_create`: create new thread
+  - `pthread_exit`: Exit existing thread
+  - `pthread_join`: Wait for existing thread with ID
+  - `pthread_yield`: Release CPU
+  - `pthread_attr_init`: Thread attributes (eg priority)
+  - `pthread_attr_destroy`: Release attributes
 
 # Concurrency
 - Threads and processes that execute concurrently or in parallel can share resources
@@ -739,6 +740,144 @@ process/thread, which cannot run and hence cannot release the resources
   - __No preemption__: Resources cannot be forcefully taken away from a process
   - __Circular wait__: There is a circular chain of two or more processes, waiting for a resource held
 by the other processes
+
+## Peterson's solution
+- Software solution
+- Worked well on older machines
+
+- Two shared variables:
+  - `turn`: indicates which process is next to enter its critical section
+  - `boolean flag[2]`: indicates that a process is ready to enter its critical section
+- Two processes (i and j) execute in strict alternation, can be generalised to multiple processes
+
+- Pros
+  - Satisfies all critical section requirements - mutual exclusion, progress, fairness
+- Cons
+  - Busy waiting is used - process loops endlessly while waiting for the lock to clear
+
+
+- Eg, for thread 0:
+    ```c
+    flag[0] = true;
+    turn = 1;
+    while (flag[1] == true && turn == 1) {
+      // busy wait
+    }
+    // critical section
+    ...
+    // end of critical section
+    flag[0] = false;
+    ```
+- Thread 1 would use the same structure, but replacing `1` with `0` and vice versa
+
+### Satisfying mutual exclusion
+- Both `flag[i]` and `flag[j]` are true when they want to enter their critical section
+- `turn` is a singular variable that can only store one value
+- Hence, either `while(flag[i] && turn == i)` or `while(flag[j] && turn == j)` is true and at most 
+one process can enter its critical section
+
+### Satisfying progress and bounded waiting
+- If process j does not want to enter its critical section
+  - `flag[j] == false`
+  - `while(flag[j] && turn == j)` will terminate for the process i
+  - i enters critical section
+
+- If both want to enter their critical section
+  - Both flags are true
+  - `turn` is either i or j - eg for `turn == j`
+  - `while(flag[j] && turn == j)` terminates and i enters section
+  - i finishes critical section - `flag[i] == false`
+  - `while(flag[i] && turn == i)` terminates and j enters section
+
+## Hardware solution
+- Disable interrupts whilst executing a critical section and prevent interruption 
+(eg form timers, I/O devices)
+- _May_ be appropriate on a single CPU machine
+
+- Atomic instructions:
+  - `test_and_set()`
+  - `swap_and_compare()`
+  - Uninterruptible - done in one contiguous set of instructions
+  - Used in combination with global lock variables, assumed to be `true` if the lock is in use
+
+- Cons
+  - Are hardware instructions and (usually) not directly accessible to the user - OS is meant to 
+abstract this
+  - Busy waiting
+  - Deadlock is possible - if two threads request resources in opposite order
+  - Insufficient on modern multi-core/processor machines
+
+- OS uses hardware instructions to implement higher level mechanisms/instructions for mutual 
+exclusion - ie mutexes and semaphores
+
+## Mutexes
+> Mutex: An approach for mutual exclusion provided by the OS
+
+- Contains a boolean lock variable to indicate availability
+- If `true` the lock is available - the process can enter critical section
+
+- Manipulation functions:
+  - `acquire()`: before entering a critical section - boolean set to `false`
+  - `release()`: called after exiting the critical section - boolean set to `true` again
+  - Both must be atomic - no interrupts should occur between reading and setting the lock
+  - Process that acquires the lock must release the lock (in contrast to semaphores)
+
+- Pros
+  - Context switches avoided - good for short critical sections
+  - Efficient on multi-core/processor systems when locks are held for a short time only
+
+- Cons
+  - `acquire()` calls result in busy waiting (appears to be OS dependent)
+    - ie mutex is a 'spinlock'
+    - Detrimental for performance on single CPU systems
+
+## Semaphores
+> Semaphore: An approach for mutual exclusion and process synchronisation provided by the OS
+
+- Can be binary
+- Or integer - 0 to N (counting semaphore)
+
+- Manipulation functions:
+  - `wait()`: Called when resource is acquired - the counter is decremented
+  - `signal()`/`post()`: Called when resource is released - the counter is incremented
+  - Both must be atomic - no interrupts should occur between reading and setting the counter
+
+- Calling `post()` removes a process from the blocked queue if the counter is non-negative
+  - State changed from blocked to ready
+- Different queueing strategies can be employed to remove processes (eg FIFO)
+- The negative value of a semaphore is the number of processes waiting for the resource
+- `block()` and `wakeup()` are system calls provided by the OS
+
+- Atomicity of `post()` and `wait()` can be achieved through...
+  - use of mutexes
+  - disabling interrupts in single CPU systems
+  - hardware instructions
+- Atomicity of those functions means busy waiting is moved from the critical section to `wait()` 
+and `post()` - which are short
+
+- Semaphores within the same process can be declared as global variables of the type `sem_t`
+  - `sem_init()`: Initialises value of the semaphore
+  - `sem_wait()`: Decrements value of semaphore
+  - `sem_post()`: Increments the value of the semaphore
+
+- Pros
+  - No busy waiting - calling `wait()` will block the process when the internal counter is negative
+    - Process joins blocked queue
+    - Process state changed from running to blocked
+    - Control transferred to the process scheduler
+
+- Cons
+  - __Context switch overhead__: If critical section is short context switch dominates
+  - __Performance penalty__: From synchronising code
+    - Synchronize only when necessary
+    - Synchronize as few instructions as possible - otherwise you're delaying others from entering
+their critical section
+  - __Starvation__: Poorly designed queueing approaches (eg LIFO) may result in fairness violations
+  - __Deadlocks__
+  - __Priority inversion__: High priority process has to wait for the lower priority one to release a 
+resource it requires
+    - Can happen in chains
+    - Can be prevented by implementing priority inheritance to boost the lower's priority
 
 # Something TODO
 
