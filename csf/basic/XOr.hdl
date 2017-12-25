@@ -1,0 +1,9 @@
+CHIP XOr {
+	IN a, b;
+	OUT out;
+
+	PARTS:
+	Nand( a= a, b= b, out= nandOut );
+	Or( a= a, b= b, out= orOut );
+	And( a= nandOut, b= orOut, out= out );	
+}

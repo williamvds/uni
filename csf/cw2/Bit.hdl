@@ -1,0 +1,18 @@
+// This file is adapted from part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+
+/**
+ * 1-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ *                 else out does not change (out[t+1] = out[t])
+ */
+
+CHIP Bit {
+  IN in, load;
+  OUT out;
+
+  PARTS:
+    Mux( a= DFFOut, b= in, sel= load, out= DFFIn );
+    DFF( in= DFFIn, out= DFFOut, out= out );
+}

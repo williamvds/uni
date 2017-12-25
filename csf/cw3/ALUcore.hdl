@@ -1,0 +1,28 @@
+CHIP ALUcore {
+	IN a[8], b[8], carryIn, zeroA, nDb, sums, ands, xors, ors, srs;
+	OUT out[8], carryOut;
+
+  PARTS:
+    Mux8( a= a, sel= zeroA, out= A );
+
+    Not8( in= b, out= invertedB );
+    Mux8( a= b, b= invertedB, sel= nDb, out= B );
+
+    Add8( a= A, b= B, carryIn= carryIn, out= add, carryOut= addCarry );
+    Mux8( b= add, sel= sums, out= muxAdd );
+    Mux( b= addCarry, sel= sums, out= muxAddCarry );
+
+    And8( a= A, b= B, out= and );
+    Mux8( a= muxAdd, b= and, sel= ands, out= muxAnd );
+
+    Xor8( a= A, b= B, out= xor );
+    Mux8( a= muxAnd, b= xor, sel= xors, out= muxXor );
+
+    Or8( a= A, b= B, out= or );
+    Mux8( a= muxXor, b= or, sel= ors, out= muxOr );
+
+    Shift8( in= a, out= shift, carryOut= shiftCarry );
+    Mux8( a= muxOr, b= shift, sel= srs, out= out );
+    // Mux( a= muxAddCarry, b= shiftCarry, sel= srs, out= carryOut );
+
+}

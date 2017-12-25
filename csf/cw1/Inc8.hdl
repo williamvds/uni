@@ -1,0 +1,7 @@
+CHIP Inc8 {
+	IN in[8], carryIn;
+	OUT out[8], carryOut;
+
+  PARTS:
+    Add8( a= in, carryIn= carryIn, out= out, carryOut= carryOut );
+}

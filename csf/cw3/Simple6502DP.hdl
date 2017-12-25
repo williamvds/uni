@@ -1,0 +1,23 @@
+CHIP Simple6502DP {
+  IN dataIn[8], diDB, dbOut, dbAC, acDB, dbX,xDB, dbY,yDB, aluDB, dbBALU, dbAALU, carryIn, sums, ands, xors, ors,srs, nDb, zeroA;
+  OUT dataOut[8];
+
+  PARTS:
+    Mux8( b= dataIn, sel= diDB, out= dataMux );
+    Mux8( a= dataMux, b= accumulator, sel= acDB, out= accMux );
+    Mux8( a= accMux, b= xRegister, sel= xDB, out= xMux );
+    Mux8( a= xMux, b= yRegister, sel= yDB, out= yMux );
+    Mux8( a= yMux, b= ALUOut, sel= aluDB, out= bus );
+
+    Register( in= bus, load= dbAC, out= accumulator );
+
+    Register( in= bus, load= dbX, out= xRegister );
+
+    Register( in= bus, load= dbY, out= yRegister );
+
+    RegisteredALU( a= bus, b= bus, aLoad= dbAALU, bLoad= dbBALU, carryIn= carryIn, zeroA= zeroA,
+      nDb= nDb, sums= sums, ands= ands, xors= xors, ors= ors, srs= srs, out= ALUOut );
+
+    Register( in= bus, load= dbOut, out= dataOut );
+
+}

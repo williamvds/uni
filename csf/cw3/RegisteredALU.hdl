@@ -1,0 +1,11 @@
+CHIP RegisteredALU {
+  IN aLoad, bLoad, a[8], b[8], carryIn, sums, ands, xors, ors,srs, nDb, zeroA;
+	OUT out[8], carryOut;
+
+  PARTS:
+    Register( in= a, load= aLoad, out= aRegister );
+    Register( in= b, load= bLoad, out= bRegister );
+    ALUcore( a= aRegister, b= bRegister, carryIn= carryIn, zeroA= zeroA, nDb= nDb, sums= sums,
+      ands= ands, xors= xors, ors= ors, srs= srs,
+      out= out, carryOut= carryOut );
+}

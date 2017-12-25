@@ -1,0 +1,14 @@
+CHIP Shift8 {
+	IN in[8];
+	OUT out[8], carryOut;
+
+  PARTS:
+    Or( a= in[7], out= out[6] );
+    Or( a= in[6], out= out[5] );
+    Or( a= in[5], out= out[4] );
+    Or( a= in[4], out= out[3] );
+    Or( a= in[3], out= out[2] );
+    Or( a= in[2], out= out[1] );
+    Or( a= in[1], out= out[0] );
+    Or( a= in[0], out= carryOut );
+}
