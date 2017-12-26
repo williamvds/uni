@@ -1046,6 +1046,111 @@ approximate predictions
   - Can allocate small processes to large partitions
   - Con: Results in increased internal fragmentation
 
+## Relocation and protection
+- When run, a program does not know in advance which partition/address it will occupy
+  - Cannot generate static addresses that are absolute (referring to physical memory)
+  - Addresses should be relative to where the program has been loaded
+  - OS must resolve relocation, allowing processes to run at different memory locations
+
+- Protection - once you can have two programs in memory at the same time, need to consider and 
+enforce protection 
+  - One process must not be able to access another's memory
+
+> Logical address: A memory address seen by a process
+
+- Logical addresses are...
+  - independent of the current physical memory assignment
+  - Eg relative to the start of the program
+
+> Physical address: Refers to an actual location in main memory
+
+- Logical address space needs to map onto physical address space
+
+### Approaches
+- Static 'relocation' at compile time - a process has to be located at the same point in memory 
+every time
+
+- Dynamic relocation at load time
+  - Offset added to every logical address - accounts for its physical location in memory
+  - Cons
+    - Slows down loading of a process
+    - Does not account for swapping
+
+- Dynamic relocation at runtime
+  - Two special purpose registers maintained in the CPU (in MMU)
+    - __Base register__: Stores the start address of the partition
+    - __Limit register__: Holds the size of the partition
+  - At runtime:
+    - Base register added to logical (relative) address to generate physical address
+    - Result is compared against the limit register
+  - Con: Requires hardware support - was not always present
+
+## Dynamic partitioning
+> Dynamic partitioning: Variable number of partitions of which the size and starting address can
+> change over time
+
+- Fixed partitioning = internal fragmentation
+  - There may not exist a partition that is exactly the size the process needs
+  - The partition may not be used entirely
+- Dynamic partitioning allocates the precise amount of contiguous memory a process requires
+  - Prevents internal fragmentation
+
+### Swapping
+> Swapping: Holding some processes on the drive and moving them between drive and main memory as 
+> necessary
+
+- Reasoning
+  - Some processes only run occasionally
+  - There are more processes than partitions (assuming fixed partitions)
+  - A process' memory requirements have changed, eg increasing
+  - The total amount of memory that is required for the process exceeds the available memory
+
+- Issues
+  - Exact memory requirements may not be known in advance 
+    - The heap and stack grow dynamically
+    - Could include extra space on top of current requirements
+
+  - __External fragmentation__
+    - Swapping a process out of memory will create an unused gap ('hole') in physical memory
+    - A new process may not use the entire hole, leaving a small unused block
+    - A new process may be too large for a given "hole"
+    - Overhead of memory compaction to recover holes can be prohibitive and requires dynamic 
+relocation
+
+  - __Memory management__
+    - Becomes more complicated
+    - Need to keep track of available memory, using...
+        - bitmaps
+        - linked lists
+    - Consider how to quickly allocate processes to available memory
+> External fragmentation: Blocks of memory that go unused because they are to small to be allocated
+> to a process
+
+### Allocation structures
+#### Bitmaps
+- Simple data structure - like an array
+- Each entry is 1 or 0 boolean, indicating whether the block at that index is allocated
+- Size of bitmap depends on amount of memory and size of blocks
+- Eg, with 4K blocks and 32M of memory
+  - 8192 entries in bitmap
+  - = 1KB of storage used
+
+- Finding gaps of sufficient size requires finding a certain number of adjacent bits in bitmap
+  - Quite a long operation
+
+- Issues
+  - Small block sizes means a large bitmap = slower searching
+  - While karger blocks result in internal fragmentation
+
+- The issues mean that bitmaps are rarely used for this purpose
+
+#### Linked lists
+- Entry contains...
+  - start of memory block
+  - size
+  - allocated/unallocated boolean
+
+- Allocation is non-trivial
 # Something TODO
 
 ## Another thing
