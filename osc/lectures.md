@@ -935,6 +935,117 @@ processes (philosophers)
 - Philosopher sleeps if one of their neighbours are eating
 - Neighbours wake up the philosopher if they have finished eating
 
+# Memory management
+- Computers typically have memory hierarchies:
+  - Registers, L1/2/3 cache
+  - Main memory
+  - Disks
+- _Higher memory_ is faster, more expensive, and volatile
+- _Lower memory_ is slower, cheaper, non volatile
+- OS provides a memory abstraction
+- Memory can be seen as one linear array of bytes/words
+
+- OS is responsible for...
+  - allocating/deallocating memory when requested by processes
+  - keeping track of used/unused memory
+  - distributing memory between processes and simulating an 'infinitely large' memory space
+  - controlling access in multiprogramming
+  - transparently moving data from memory to disk and vice versa
+
+- Memory management has evolved - amount of memory available and used has greatly increased
+  - Many of the early ideas underpin more modern memory management approaches (eg relocation)
+  - Modern consumer electronics often require less complex memory management processes
+
+- Partitioning: A process' memory can either be stored...
+  - __Continguously__: As a single block in physical (main) memory, without holes or gaps
+  - __Non-continguously__: Data divided into multiple blocks (or segments), spread around physical 
+memory, not necessarily adjacent
+
+> Contiguous: Connecting, without a break
+
+## Mono-programming
+> Mono-programming: Having a single partition for user processes
+
+- One single user process in memory/executed at any point
+- A fixed region of memory is allocated to the OS/kernel - remaining used by the single process
+- eg used in MS-DOS
+- Process has direct access to physical memory = no address translation
+- Process always located in the same address space
+- No protection between different user processes required
+- Overlays enable the programmer to use more memory than available - load program incrementally
+
+> Overlaying: Transferring a block of data/code into memory, replacing what is already there
+
+- Common in embedded systems and modern consumer electronics - eg washing machines, microwaves, etc
+
+- Cons
+  - If a process has direct memory access it might be able to access OS memory
+  - OS can be seen as a process - there's already multiple processes
+  - Low utilisation of hardware resources (CPU, I/O, etc)
+  - Mono-programming unacceptable as multiprogramming is expected on modern machines
+
+- Can simulate multiprogramming through swapping
+  - Swap process out to disk and load a new one (though context switches would become time 
+consuming)
+
+## Modelling multi-programming
+- Given `n` processes in memory
+- A process spends `p` percent of its time waiting for I/O
+- CPU utilisation is `1 - (time all processes are waiting for I/O)`
+- CPU utilisation is given by `1 - p^n`
+- eg, given `p = .2`, we can achieve 100% CPU utilisation using 4 processes `(1 - .2^4)`
+- CPU util increases with `n` and decreases with `p`
+- More memory means space for more processes, which enables achieving higher util
+
+- __Multi-programming improves CPU utilisation, and so memory management should support it__
+
+- Caveats
+  - Assumes all processes are independent (not always true)
+  - Could build more complex models using the _queueing theory_, but could use this model for 
+approximate predictions
+
+
+## Partitioning
+
+### Fixed partitions, equal size
+- Divide memory into static, contiguous, and equally sized partitions, with fixed size and location
+- Any process can take any (large enough) partition
+- OS keeps track of which parts are being used, and which are free
+
+- Pros
+  - Allocation of fixed equal sized partitions to process is trivial
+  - Very little overhead, simple implementation
+  - Allows multiprocessing = better CPU util
+
+- Cons
+  - Low memory utilisation and internal fragmentation - parts may be unnecessarily large
+  - Overlays needed if a program does not fit into partition (burden on programmer)
+
+> Internal fragmentation: When part of a partition is not being used
+
+### Fixed partitions, non-equal size
+- Divide memory into static, non-equally sized partitions, with fixed size and location
+
+- Pros
+  - Reduces internal fragmentation
+  - Allows multiprocessing = better CPU util
+
+- Cons
+  - Low memory utilisation and internal fragmentation - parts may be unnecessarily large
+  - Allocating processes to partitions must be carefully considered
+  - Overlays needed if a program does not fit into partition (burden on programmer)
+
+#### Allocation methods
+- Private queue per partition
+  - Assigns each process to smallest partition in which it would fit
+  - Pro: Reduces internal fragmentation
+  - Con: Can reduce memory util - lots of small jobs results in unused large parts = starvation
+
+- Single shared queue
+  - Applies to all partitions
+  - Can allocate small processes to large partitions
+  - Con: Results in increased internal fragmentation
+
 # Something TODO
 
 ## Another thing
