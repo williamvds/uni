@@ -179,14 +179,16 @@ memory, processor)
 - Some OSs use address space layout randomisation TODO
 
 ## Process states and transitions
-- __New__: just created (has PCB), waiting to be admitted to ready queue, may not yet be in memory
-- __Ready__: waiting for CPU to become available
-- __Running__: controls the CPU (or a core)
-- __Blocked__: process cannot continue, eg is waiting for I/O
-- __Terminated__: no longer executable, though data structures including PCB may be temporarily 
-preserved
-- __Suspended__: process is swapped out
+### States
+  - __New__: just created (has PCB), waiting to be admitted to ready queue, may not yet be in memory
+  - __Ready__: waiting for CPU to become available
+  - __Running__: controls the CPU (or a core)
+  - __Blocked__: process cannot continue, eg is waiting for I/O
+  - __Terminated__: no longer executable, though data structures including PCB may be temporarily 
+  preserved
+  - __Suspended__: process is swapped out
 
+### Transitions
 - __New__     to __Ready__:  process admitted and OS commits to execution
 - __Ready__   to __Running__: process selected by process scheduler
 - __Running__ to __Blocked__: process needs to wait for interrupt or carried out a system call
@@ -272,9 +274,9 @@ preserved
 
 # Process scheduling
 - The OS is responsible for managing and scheduling processes:
-  - When to admit to the system (new ➡ ready)
-  - Select next process to run (ready ➡ run)
-  - Decide when and which process to interrupt (running ➡ ready)
+  - When to admit to the system ( __New__ to __Ready__ )
+  - Select next process to run ( __Ready__ to __Running__ )
+  - Decide when and which process to interrupt ( __Running__ to __Ready__ )
 
 - Scheduler (aka dispatcher) decides which process to run
 - Scheduler uses a scheduling algorithm to do so
