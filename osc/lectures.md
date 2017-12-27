@@ -240,7 +240,7 @@ memory, processor)
 -  Update memory management unit
 -  Restore process
 
-- - Creates overhead in execution: time is spent saving, reading, re-loading register states
+- Con: Creates overhead in execution - time is spent saving, reading, re-loading register states
 
 ### Time slicing
 > Time slice: the maximum duration a process can keep executing before being preempted
@@ -301,7 +301,6 @@ throughput and increasing turnaround time
   - __Average turnaround time__: average time taken for each processes to finish
 
 ## Scheduler types
-
 ### By time horizon
 - __Long term__ 
   - Applies to new processes
@@ -328,114 +327,56 @@ throughput and increasing turnaround time
   - Most popular modern operating systems take this approach
 
 ## Scheduling algorithms
-1. First Come First Served (FCFS) / First In First Out (FIFO)
-  - Non-preemptive
-  - Strict queueing mechanism - schedules in same order processes were added to the queue
-  - Pros
-      - Positional fairness
-      - Easy to implement
-  - Cons
-      - Favours long processes over short ones
-      - Could compromise resource utilisation - CPU vs I/O devices
-- Shortest Job First
-  - Non-preemptive
-  - Starts processes in order of ascending processing time using a provided/known estimate of processing
-  - Pros
-      - Always optimal turnaround time
-  - Cons
-      - Starvation of long processes
-      - Fairness and predictability compromised
-      - Processing times have to be known beforehand
-- Round Robin
-  - Preemptive version of FCFS - forces context switches at periodic intervals or time slices
-  - Run in order that they were added to queue
-  - Processes are forcefully interrupted by the timer
-  - Pros
-      - Improved response time
-      - Effective for general purpose time sharing systems
-  - Cons
-      - Increased context switching = overhead
-      - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
-        - Possibly prevented by working with multiple queues
-      - Can reduce to FCFS
-  - Length of time slice must be carefully considered
-    - Short = good (low) response time = low throughput
-    - Long = high throughput = bad (long) response time
-  - If time slice is used partially, the next process start immediately
-- Priority Queues
+### First Come First Served (FCFS)
+- aka First In First Out (FIFO)
+- Non-preemptive
+- Strict queueing mechanism - schedules in same order processes were added to the queue
+
+- Pros
+  - Positional fairness
+  - Easy to implement
+
+- Cons
+  - Favours long processes over short ones
+  - Could compromise resource utilisation - CPU vs I/O devices
+
+### Shortest Job First
+- Non-preemptive
+- Starts processes in order of ascending processing time using a provided/known estimate of processing
+
+- Pro: Always optimal turnaround time
+
+- Cons
+  - Starvation of long processes
+  - Fairness and predictability compromised
+  - Processing times have to be known beforehand
+
+### Round Robin
+- Preemptive version of FCFS - forces context switches at periodic intervals or time slices
+- Run in order that they were added to queue
+- Processes are forcefully interrupted by the timer
+- If time slice is used partially, the next process start immediately
+
+- Pros
+  - Improved response time
+  - Effective for general purpose time sharing systems
+
+- Cons
+  - Increased context switching = overhead
+  - Can reduce to FCFS
+  - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
+    - Possibly prevented by working with multiple queues
+
+- Length of time slice must be carefully considered
+  - Short = good (low) response time = low throughput
+  - Long = high throughput = bad (long) response time
+
+### Priority Queues
   - Preemptive
-### By time horizon
-- __Long term__ 
-  - Applies to new processes
-  - Controls the degree of multiprogramming by deciding which process to admit and when
-  - Good mix of CPU and I/O bound processes keeps all resources as busy as possible
-  - Usually absent in modern popular OSs
-
-- __Medium term__: controls swapping and the degree of multiprocessing
-
-- __Short-term__: decide which process to run next
-  - Manages the ready queue
-  - Invoked very frequently, so must be fast
-  - Usually called in response to clock interrupts, I/O interrupts, or blocking system calls
-
-### By approach
-- __Non-preemptive__
-  - Processes are only interrupted voluntarily - eg I/O or a 'nice' system call like `yield()`
-  - eg Windows 3.1 and DOS
-
-- __Preemptive__
-  - Processes can be interrupted forcefully or voluntarily
-  - Requires context switches = overhead, so too many should be avoided
-  - Prevents processes from monopolising the CPU
-  - Most popular modern operating systems take this approach
-
-## Scheduling algorithms
-1. First Come First Served (FCFS) / First In First Out (FIFO)
-  - Non-preemptive
-  - Strict queueing mechanism - schedules in same order processes were added to the queue
-  - Pros
-      - Positional fairness
-      - Easy to implement
-  - Cons
-      - Favours long processes over short ones
-      - Could compromise resource utilisation - CPU vs I/O devices
-- Shortest Job First
-  - Non-preemptive
-  - Starts processes in order of ascending processing time using a provided/known estimate of processing
-  - Pros
-      - Always optimal turnaround time
-  - Cons
-      - Starvation of long processes
-      - Fairness and predictability compromised
-      - Processing times have to be known beforehand
-- Round Robin
-  - Preemptive version of FCFS - forces context switches at periodic intervals or time slices
-  - Run in order that they were added to queue
-  - Processes are forcefully interrupted by the timer
-  - Pros
-      - Improved response time
-      - Effective for general purpose time sharing systems
-  - Cons
-      - Increased context switching = overhead
-      - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
-        - Possibly prevented by working with multiple queues
-      - Can reduce to FCFS
-  - Length of time slice must be carefully considered
-    - Short = good (low) response time = low throughput
-    - Long = high throughput = bad (long) response time
-  - If time slice is used partially, the next process start immediately
-- Priority Queues
-  - Preemptive
-  - Schedules processes by priority (saved in process control block)
-  - Can prioritise I/O bound jobs
-  - Priorities are fixed
-  - Low priority processes may be starved (if process priorities do not change)
   - Schedules processes by priority (saved in process control block)
   - Jobs of same priority run in Round Robin fashion
-  - Pros 
-      - Can prioritise I/O bound jobs
-  - Cons
-      - Low priority processes may be starved (if process priorities do not change)
+  - Pro: Can prioritise I/O bound jobs
+  - Con: Low priority processes may be starved (if process priorities do not change)
 
 ## Multi-level feedback queues
 - Multiple queues, for each priority level
