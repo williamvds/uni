@@ -97,7 +97,7 @@ design alternatives
 
 - __Scope__: Specifies whether pattern applies to classes or objects
   - __Class__: Deal with relationships between classes and sub-classes (fixed at compile-time)
-  - __Object__: Deal with object relationships (changable at runtime)
+  - __Object__: Deal with object relationships (changeable at runtime)
 
 ### Examples
 #### Adapter
@@ -108,7 +108,7 @@ design alternatives
 - __Object adapter__: Uses object composition
 
 #### Factory
-> Factory: Creating object without exposing the creation logic to the client, and referring to the 
+> Factory: Creating objects without exposing the creation logic to the client, and referring to the 
 > created object using a common interface
 
 - Eg, an application with a number of _Shape_ subclasses
@@ -126,3 +126,17 @@ string describing such a shape
 #### State pattern
 > State pattern: A number of objects represent various states, a context object's behaviour varies
 > as its state object changes
+
+#### Singleton
+> Singleton: A class of which only a single instance can be created
+
+- Reference to instance stored as a (private) property
+- Has a (static) method `getInstance()` that returns the instance
+  - Creates instance if it has not already created
+
+#### Model View Controller (MVC)
+> MVC: A pattern in which the components of a system are broken up into Model, View, and Controller
+
+- __Model__: Manages the state of the system, including any and all data
+- __View__: Allows a user to interact with the model
+- __Controller__: Acts as the interface between the _model_ and _view_
