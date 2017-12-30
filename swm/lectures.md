@@ -1,3 +1,71 @@
+# Repository tools
+## Collaborative challenges
+- Need to coordinate and manage contributions in large software, involving a large number of people
+- Team members may be spread across several locations
+- Large open-source projects may have a huge number of contributors
+  - Linux kernel (2015)
+    - 12,000 contributors
+    - 20 million lines of code
+    - Each release contains about 10,000 patches
+
+- Need to...
+  - maintain (other people's) code
+  - manage the code in a distributed way
+  - plan and coordinate tasks
+  - plan changes and fixes
+
+## Coordination
+- __Kanban board__
+  - Create tasks with specifications
+  - Assign people to complete them
+  - Organise tasks by progress
+  - eg Trello, GitHub projects, GitLab issue boards
+
+- __Communication__
+  - Provide a method for contributors to communicate with one another
+  - Ideally provide different channels to separate topics - keeps related discussion(s) together
+  - eg Slack, IRC
+
+## Managing source code
+- Use a source code version control or repository system
+- eg Git, SVN (SubVersioN), CVS (Concurrent Versioning System)
+
+- __Features__:
+  - Store code centrally
+  - Users check out versions, check in changes
+  - Changes are logged, can be rolled back
+
+### Using Git
+- __Concepts__:
+  - _Working folder_: The state of your local directory, in which you can make changes to files
+  - 🠳`git add`
+  - _Staging area_: Where your selected changes are prepared
+  - 🠳`git commit`
+  - _Local repository_: Your local copy of the repository
+  - 🠳`git push` 🠱`git fetch`
+  - _Remote repository_: The central, remote, location where all code is stored and changes are logged
+
+- Branches can be used to separate work on different issues
+  - `git checkout {branch name}`
+  - Avoids clashing with other features being worked on
+  - Merge into master can be managed using pull/merge requests
+  
+- __Issues__
+  - Need to ensure that commit messages are helpful
+  - Need to ensure contributors keep their local repositories up to date to avoid conflicts
+
+## Continuous integration
+- Regression testing is useful when maintaining code
+- Ideally do very regular ( _continuous_ ) testing of all code
+- Can use the central repository for this
+- Testing can be completed over regular intervals or for every commit
+  - Produces visible report of test results
+  - Makes sure system is buildable (or compiles)
+  - Lists code coverage (% lines tested)
+  - Report coding style violations
+  - Static anaylsis to find bugs
+  - etc
+
 # Object-orientation
 ## SOLID design principles
 - By [Uncle Bob](http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod)
