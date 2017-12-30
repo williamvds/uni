@@ -19,12 +19,12 @@
   - Create tasks with specifications
   - Assign people to complete them
   - Organise tasks by progress
-  - eg Trello, GitHub projects, GitLab issue boards
+  - eg [Trello](https://trello.com), [GitHub projects](https://help.github.com/articles/about-project-boards), [GitLab issue boards](https://docs.gitlab.com/ee/user/project/issue_board.html)
 
 - __Communication__
   - Provide a method for contributors to communicate with one another
   - Ideally provide different channels to separate topics - keeps related discussion(s) together
-  - eg Slack, IRC
+  - eg [Slack](https://slack.com), IRC
 
 ## Managing source code
 - Use a source code version control or repository system
@@ -63,7 +63,7 @@
   - Makes sure system is buildable (or compiles)
   - Lists code coverage (% lines tested)
   - Report coding style violations
-  - Static anaylsis to find bugs
+  - Static analysis to find bugs
   - etc
 
 # Object-orientation
