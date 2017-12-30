@@ -1,3 +1,127 @@
+# Coding tools
+## Documentation
+- XDoc tools, like [Javadoc](http://www.oracle.com/technetwork/articles/java/index-137868.html), allow creating special comments
+- These comments store... 
+  - class/method purposes
+  - method parameters and their descriptions
+  - values returned from methods
+- Tools can generate HTML pages with an organised layout of information about the codebase
+
+### Javadoc example
+- __Tags__: Used to provide specific information
+  - `@param name description`: A method parameter
+  - `@return description`: The value returned by the method
+  - `@see className`: A reference to another class
+```java
+/**
+ * Returns an Image object that can then be painted on the screen. 
+ * The url argument must specify an absolute {@link URL}. The name
+ * argument is a specifier that is relative to the url argument. 
+ * <p>
+ * This method always returns immediately, whether or not the 
+ * image exists. When this applet attempts to draw the image on
+ * the screen, the data will be loaded. The graphics primitives 
+ * that draw the image will incrementally paint on the screen. 
+ *
+ * @param  url  an absolute URL giving the base location of the image
+ * @param  name the location of the image, relative to the url argument
+ * @return      the image at the specified URL
+ * @see         Image
+ */
+public Image getImage(URL url, String name) {
+  try {
+    return getImage(new URL(url, name));
+  } catch (MalformedURLException e) {
+    return null;
+  }
+}
+```
+
+## Build files
+> Build files: Provide a set of instructions for how a project should be compiled or built
+- aka build scripts
+- Larger projects, that may rely on external resources, may require custom build scripts
+  - Can build in dependencies, package files, run tests, deploy software, etc
+
+- Pros
+  - __Portable__: (Ideally) work on all platforms necessary
+  - __Configurable__
+  - __Script other external processes__:
+    - Testing
+    - Metrics
+    - Deployment
+  - Avoid manually performing confusing compile logic (eg managing CLASSPATH for Java)
+  - Ensures consistent compiles
+
+### Java build systems
+#### [Ant](https://ant.apache.org)
+- From circa 2000
+- By the Apache Software Foundation
+- Uses XML
+- Contains
+  - One project
+  - Targets (containing tasks)
+  - Tasks: A piece of code that can be executed
+- Reliable, simple set of tools
+- Procedural, but uses XML
+  - Not good for large projects
+ 
+#### [Maven](https://maven.apache.org)
+- Released 2004
+- Also by Apache
+- Intended to improve upon Ant
+- Also uses XML
+- Has knowledge of source file locations
+
+#### [Gradle](https://gradle.org)
+- Released 2012
+- Tried to take the best parts of Ant and Maven
+- Uses domain-specific language over XML
+- Declarative
+- More cleanly accomplishes required tasks of a typical development project, from compilation 
+through testing and deployment
+- Official build system for Android
+```ant
+<project name="MyProject" default="dist" basedir=".">
+  <description>
+    simple example build file
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+		<!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+    description="compile the source">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="dist" depends="compile"
+    description="generate the distribution">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
+
+  <target name="clean"
+    description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>
+```
+
 # Repository tools
 ## Collaborative challenges
 - Need to coordinate and manage contributions in large software, involving a large number of people
