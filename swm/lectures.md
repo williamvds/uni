@@ -1,3 +1,159 @@
+# Universal Markup Language (UML)
+> Universal Markup Language: a family of graphical notations that help in describing, designing, and organising object oriented software systems
+- Latest version is 2.5 (June 2015)
+
+- Pros
+  - Ensures accuracy of communication, and enhances it
+  - Captures logical software architecture independent of implementation
+  - Helps in managing complexity
+  - Enables reuse of design
+
+## Use case specification
+- Name
+- Purpose
+- Precondition(s)
+- Base path (optimistic flow)
+  - If everything goes desirably
+- Alternative paths (pragmatic flows)
+  - Every other possible way the system can be (ab)used
+  - Including normal alternative use, errors, and failures
+- Postcondition(s)
+
+## Use Case diagrams
+- Behaviour diagrams that describe a __set of actions__ (use cases) that some system or systems (the subject) should or can perform
+  - May be in collaboration with with one ore more external users (actors)
+- Do __not__ make any attempt to represent the __order or number of times__ that the systems actions and sub-actions should be executed
+
+### Components
+- Actors
+  - Entities that interface with the system
+  - Can be __people__ or __other systems__
+  - Can be identified by considering the __roles__ they play
+
+- Use cases
+  - Based on __user stories__ (derived from discussions with stakeholders)
+  - Represent what the actor wants the system to do
+  - Only the name of the use case is represented in the diagram
+    - Requires a use case specification in which each use case is formally described
+    - Must be provided with a complete flow of activity (from actor's point of view)
+    - Must be provide with observable and valuable results to the actor
+
+- Relationships
+  - Between use case and actor: Indicate which actors initiate which use cases
+  - Between two use cases
+    - Specify common functionality and simplifying use case flows
+  - `<<include>>`
+    - Multiple use cases share functionality - can be split into a shared use case
+    - One use case can be required by another
+    - The dependent use case re-uses the depended-on use case
+  - `<<extends>>`
+    - When activities might be performed as part of another, but not mandatory for use case to run successfully
+    - When more capability is being added
+
+- System boundary
+
+## Activity diagram
+- Graphical representations of workflows of step-by-step activities
+- Includes actions related to individual use cases or across many use cases
+- Supports parallel behaviour (unlike flowcharts)
+
+### Components
+- __Activities__: A state that is left once the activity is finished
+- __Activity edge__: Transition that fires when previous activity completes
+- __Synchronisation bar__: Brings together multiple parallel steps
+- __Decisions__: Diamond shapes that represent decisions
+- __Swim lanes__: A way to group activities performed by the same actor, or to group activities in a single thread
+
+## Sequence diagrams
+- Temporal representation of objects and their interactions
+- Shows objects and actors collaborating
+
+- Horizontal axes: Which object/participant is acting
+- Vertical axes: Represents time (vertically downwards meaning forward)
+
+### Components
+- __Participants__: Objects or actors that perform an action
+- __Lines__: Represent time as seen by the object (lifeline)
+- __Arrows__: Are messages, connect lifelines of sender and receiver
+  - Represent events or the invocation of operations
+- __Rectangle__: Represents when an object is alive
+  - Covers an object's lifeline
+  - Narrow in width
+- __Creation arrow__: Represents a new object being created
+  - 'New' is written above it
+  - Ones after the start of a scenario appear lower than those created before
+- __Deletion marker__: Represents an object being deleted
+  - Marked by an X at the bottom of an object's lifeline
+  - In some OOP languages this is handled automatically
+
+## Class diagrams
+- Shows the existence of classes, their structures, and relationships
+- Provides a logical view of the system
+
+- Pros of the class model
+  - Quickly and cheaply build a system to satisfaction of client
+  - System is easy to maintain and adapt
+
+- Classes are...
+  - tangible
+  - roles
+  - events
+  - interactions
+
+- Associations between classes...
+  - correspond to verbs
+  - exist if one class has to know about an object of another class, or vice versa
+
+> Multiplicity: The number of links between each instance of associated classes
+
+### Components
+- __Classes__: Their structure (properties), and behaviour (methods)
+- __Relationships__
+  - Association
+  - Aggregation
+  - Composition
+  - Generalisation
+  - Dependency
+- Multiplicity and navigation indicators
+  - __1__: exactly one
+  - __*__: unlimited - zero or more
+  - __0..*__: zero or more
+  - __1..*__: one or more
+  - __2..7__: specific range
+
+### Representation
+- Classes are depicted as rectangles with three compartments
+  - Class name
+  - __Attributes__: Data contained in an object of the class
+  - __Operations__: Class behaviour
+
+- Symbols
+  - `+`: public
+  - `#`: protected
+  - `-`: private
+  - `/`: derived
+  - `$`: static
+
+- __Association__: Bi-directional connection between two classes
+  - The most general form of relationship
+  - Solid line between two class rectangles
+  - Text at either end of the line depict multiplicity
+
+- __Aggregation__: _Is a part of_ relationship
+  - Unfilled diamond at the end connecting to the class that aggregates the other
+
+- __Composition__: Implies the owner is explicitly responsible for creating and deleting the parts
+  - Strong form of aggregation
+  - A filled diamond at the end of the class that aggregates
+
+- __Generalisation__: _Is a_ relationship
+  - Unfilled triangle pointer at the end of the superclass rectangle
+  - Dashed line with a `V` pointer towards the class that depends on the other
+
+- __Dependency__: When changes in the definition of one class may cause changes to the other
+  - Unidirectional
+  - Dashed line
+
 # Coding tools
 ## Documentation
 - XDoc tools, like [Javadoc](http://www.oracle.com/technetwork/articles/java/index-137868.html), allow creating special comments
@@ -121,6 +277,62 @@ through testing and deployment
   </target>
 </project>
 ```
+## Unit testing
+- Focuses on testing the building blocks of software
+- In OO, objects and methods can be tested
+
+- In development...
+	- we can focus on small units
+	- we can test components separately and in parallel
+	- it makes it easier to locate errors
+
+- During maintenance...
+	- Provide a set of tests for regression testing
+		- Check for errors after maintaining or fixing software
+
+- Can use testing frames, eg JUnit for Java
+- Test names should be descriptive
+  - Help tracking down where they occured, may hint what caused it
+- Need to also consider...
+  - integration testing
+  - acceptance testing
+
+### Testing considerations
+#### Equivalence classes
+- Testing data is split into sets, in each set the values should give an equivalent result
+(in terms of behaviour)
+
+- __Guidelines__
+  1. If input value is a range, test once in range, twice outside (< and >)
+  2. If input value is a small set where behaviour differs for each, multiple tests are required
+(one for each, and one outside)
+  3. If specific conditions are tested, provide failing and succeeding test for each condition
+
+#### Boundary conditions
+- Values around boundaries are usually important
+- In ranges of numbers, need to consider just before, on, and just after the range
+  - eg test on the edge of the boundaries, and floating values just above/below them
+
+#### Special values
+- For numbers, 0 is often a special case
+- Times
+- Dates
+
+#### Logic (descision coverage)
+- Programs/methods can take different procedural paths due to conditionals
+- Need to test all possible paths
+- eg both parts of an if/else statement
+
+### Test Driven Development (TDD)
+- Writing tests after code has been written can cause issues
+  - Tests may be written for the code to pass
+  - Testing is delayed until the end of a coding session
+  - Refactoring becomes difficult until there are tests
+
+> Test Driven Development: Tests are written first, which are derived from business requirements to
+> meet the specification
+- The minimum amount of code is written - enough to pass the tests
+  - You aren't gonna need it (YAGNI) - functionality should not be added until deemed necessary
 
 # Repository tools
 ## Collaborative challenges
