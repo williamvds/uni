@@ -86,7 +86,7 @@
   - Marked by an X at the bottom of an object's lifeline
   - In some OOP languages this is handled automatically
 
-## Class diagrams
+## Class diagram
 - Shows the existence of classes, their structures, and relationships
 - Provides a logical view of the system
 
@@ -153,6 +153,25 @@
 - __Dependency__: When changes in the definition of one class may cause changes to the other
   - Unidirectional
   - Dashed line
+
+## State Machine diagram
+- Visualises the possible states of a system and the events/messages that cause transitions between
+those states
+- Also shows the action(s) that result from a state change
+
+### States
+> State: A condition during the life of an object - when it satisfies some condition, performs some
+> action, or waits for an event
+- __Start__: The initial state of an object when created - every diagram has exactly one
+- __Stop__: An end to the flow - a diagram can have multiple
+
+### Representation
+- __States__: Rounded boxes, with the name of the state within them
+- __Events__: Arrows pointing between the states, labelled, eg with a method name
+- __Guards__: Conditions in events that indicate it depends on specific values of an object's 
+attributes
+  - Affect the behaviour of the state machine - transition can only occur when condition is true
+  - Condition appended to event arrow label, wrapped in [square brackets]
 
 # Coding tools
 ## Documentation
@@ -277,6 +296,7 @@ through testing and deployment
   </target>
 </project>
 ```
+
 ## Unit testing
 - Focuses on testing the building blocks of software
 - In OO, objects and methods can be tested
