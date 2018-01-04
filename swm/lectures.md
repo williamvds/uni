@@ -1,5 +1,6 @@
 # Universal Markup Language (UML)
-> Universal Markup Language: a family of graphical notations that help in describing, designing, and organising object oriented software systems
+> Universal Markup Language: a family of graphical notations that help in describing, designing,
+> and organising object oriented software systems
 - Latest version is 2.5 (June 2015)
 
 - Pros
@@ -16,13 +17,15 @@
   - If everything goes desirably
 - Alternative paths (pragmatic flows)
   - Every other possible way the system can be (ab)used
-  - Including normal alternative use, errors, and failures
+  - Including normal, alternative use, errors, and failures
 - Postcondition(s)
 
 ## Use Case diagrams
-- Behaviour diagrams that describe a __set of actions__ (use cases) that some system or systems (the subject) should or can perform
+- Behaviour diagrams that describe a __set of actions__ (use cases) that some system or systems
+(the subject) should or can perform
   - May be in collaboration with with one ore more external users (actors)
-- Do __not__ make any attempt to represent the __order or number of times__ that the systems actions and sub-actions should be executed
+- Do __not__ make any attempt to represent the __order or number of times__ that the systems actions and
+sub-actions should be executed
 
 ### Components
 - Actors
@@ -47,7 +50,8 @@
     - One use case can be required by another
     - The dependent use case re-uses the depended-on use case
   - `<<extends>>`
-    - When activities might be performed as part of another, but not mandatory for use case to run successfully
+    - When activities might be performed as part of another, but not mandatory for use case to run
+successfully
     - When more capability is being added
 
 - System boundary
@@ -62,7 +66,8 @@
 - __Activity edge__: Transition that fires when previous activity completes
 - __Synchronisation bar__: Brings together multiple parallel steps
 - __Decisions__: Diamond shapes that represent decisions
-- __Swim lanes__: A way to group activities performed by the same actor, or to group activities in a single thread
+- __Swim lanes__: A way to group activities performed by the same actor, or to group activities in a
+single thread
 
 ## Sequence diagrams
 - Temporal representation of objects and their interactions
@@ -168,7 +173,7 @@ those states
 ### Representation
 - __States__: Rounded boxes, with the name of the state within them
 - __Events__: Arrows pointing between the states, labelled, eg with a method name
-- __Guards__: Conditions in events that indicate it depends on specific values of an object's 
+- __Guards__: Conditions in events that indicate it depends on specific values of an object's
 attributes
   - Affect the behaviour of the state machine - transition can only occur when condition is true
   - Condition appended to event arrow label, wrapped in [square brackets]
@@ -189,14 +194,14 @@ attributes
   - `@see className`: A reference to another class
 ```java
 /**
- * Returns an Image object that can then be painted on the screen. 
+ * Returns an Image object that can then be painted on the screen.
  * The url argument must specify an absolute {@link URL}. The name
- * argument is a specifier that is relative to the url argument. 
+ * argument is a specifier that is relative to the url argument.
  * <p>
- * This method always returns immediately, whether or not the 
+ * This method always returns immediately, whether or not the
  * image exists. When this applet attempts to draw the image on
- * the screen, the data will be loaded. The graphics primitives 
- * that draw the image will incrementally paint on the screen. 
+ * the screen, the data will be loaded. The graphics primitives
+ * that draw the image will incrementally paint on the screen.
  *
  * @param  url  an absolute URL giving the base location of the image
  * @param  name the location of the image, relative to the url argument
@@ -240,7 +245,7 @@ public Image getImage(URL url, String name) {
 - Reliable, simple set of tools
 - Procedural, but uses XML
   - Not good for large projects
- 
+
 #### [Maven](https://maven.apache.org)
 - Released 2004
 - Also by Apache
@@ -253,7 +258,7 @@ public Image getImage(URL url, String name) {
 - Tried to take the best parts of Ant and Maven
 - Uses domain-specific language over XML
 - Declarative
-- More cleanly accomplishes required tasks of a typical development project, from compilation 
+- More cleanly accomplishes required tasks of a typical development project, from compilation
 through testing and deployment
 - Official build system for Android
 ```ant
@@ -312,7 +317,7 @@ through testing and deployment
 
 - Can use testing frames, eg JUnit for Java
 - Test names should be descriptive
-  - Help tracking down where they occured, may hint what caused it
+  - Help tracking down where they occurred, may hint what caused it
 - Need to also consider...
   - integration testing
   - acceptance testing
@@ -338,7 +343,7 @@ through testing and deployment
 - Times
 - Dates
 
-#### Logic (descision coverage)
+#### Logic (decision coverage)
 - Programs/methods can take different procedural paths due to conditionals
 - Need to test all possible paths
 - eg both parts of an if/else statement
@@ -405,7 +410,7 @@ through testing and deployment
   - `git checkout {branch name}`
   - Avoids clashing with other features being worked on
   - Merge into master can be managed using pull/merge requests
-  
+
 - __Issues__
   - Need to ensure that commit messages are helpful
   - Need to ensure contributors keep their local repositories up to date to avoid conflicts
@@ -435,16 +440,16 @@ through testing and deployment
 - Classes with multiple responsibilities should be split up
   - Pros
     - Supports reuse
-    - Supports minimising modifications 
+    - Supports minimising modifications
 
 > A method should have one and only one responsibility
 - Methods with multiple responsibilities should be split up
   - Pros
     - Supports reuse
-    - Supports minimising modifications 
+    - Supports minimising modifications
 
 ### Open-closed
-> Software entities (classes, modules, functions, etc.) should be open for extension, 
+> Software entities (classes, modules, functions, etc.) should be open for extension,
 > but closed for modification.
 
 - Open for extension
@@ -480,7 +485,7 @@ without knowing their class
     - are reusable
 
 ### Dependency Inversion
-> High-level modules should not depend on low-level modules. Both should depend on abstractions. 
+> High-level modules should not depend on low-level modules. Both should depend on abstractions.
 > Abstractions should not depend on details. Details should depend on abstractions.
 
 - Reduces coupling between layers of code by adding abstractions
@@ -490,7 +495,7 @@ without knowing their class
 - Favour object aggregation over class inheritance
 - Class inheritance breaks encapsulation
   - Subclasses have access to (non-private) properties and methods
-- Use object aggregation 
+- Use object aggregation
   - Which depends upon objects interacting via interfaces - ensuring encapsulation
 
 ## Design patterns
@@ -498,7 +503,7 @@ without knowing their class
 
 - The _pattern_ provides an abstract description of the design problem and how a general arrangement
 of element solves it
-- A _design pattern_ identifies... 
+- A _design pattern_ identifies...
   - participating classes and instances
   - their roles
   - the distribution of responsibilities
@@ -525,18 +530,18 @@ design alternatives
 
 ### Examples
 #### Adapter
-> Adapter: A single class responsible for joining the functionalities of independent or 
+> Adapter: A single class responsible for joining the functionalities of independent or
 > incompatible interfaces
 
 - __Class adapter__: Uses multiple inheritance
 - __Object adapter__: Uses object composition
 
 #### Factory
-> Factory: Creating objects without exposing the creation logic to the client, and referring to the 
+> Factory: Creating objects without exposing the creation logic to the client, and referring to the
 > created object using a common interface
 
 - Eg, an application with a number of _Shape_ subclasses
-  - A _ShapeFactory_ creates instances of _Circle_ and _Rectangle_ when provided with the respective 
+  - A _ShapeFactory_ creates instances of _Circle_ and _Rectangle_ when provided with the respective
 string describing such a shape
   - Created objects are returned as _Shape_
 
