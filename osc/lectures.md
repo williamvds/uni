@@ -900,8 +900,8 @@ processes (philosophers)
   - Modern consumer electronics often require less complex memory management processes
 
 - Partitioning: A process' memory can either be stored...
-  - __Continguously__: As a single block in physical (main) memory, without holes or gaps
-  - __Non-continguously__: Data divided into multiple blocks (or segments), spread around physical 
+  - __Contiguously__: As a single block in physical (main) memory, without holes or gaps
+  - __Non-contiguously__: Data divided into multiple blocks (or segments), spread around physical 
 memory, not necessarily adjacent
 
 > Contiguous: Connecting, without a break
@@ -1083,7 +1083,7 @@ relocation
 
 - Issues
   - Small block sizes means a large bitmap = slower searching
-  - While karger blocks result in internal fragmentation
+  - While larger blocks result in internal fragmentation
 
 - The issues mean that bitmaps are rarely used for this purpose
 
