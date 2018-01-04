@@ -1094,7 +1094,297 @@ relocation
   - allocated/unallocated boolean
 
 - Allocation is non-trivial
-# Something TODO
+
+# File systems
+
+## Disk construction
+- Multiple aluminium/glass platters covered in __magnetisable material__
+  - Stacked on top of each other, held in place by a spindle
+  - __Read/write heads__ fly above the surface (distance 0.2 to 0.007 mm)
+    - Connected to a single disk arm, controlled by a single actuator
+  - Data stored on both sides of disks
+  - Common diameters range from 1.8 to 3.5 inches
+  - Disks rotated at a constant speed - the speed on the inside is less than on the outside
+- Disk controller between CPU and the drive
+- Hard disks are currently about 4 orders of magnitude slower than main memory - need to reduce the
+impact
+
+### Low-level format and organisation
+- __Tracks__: Concentric circle on a single platter side
+  - Multiple on each side, become larger as they move outwards
+- __Sectors__: Segments of a track (usually 512B or 4KB)
+  - Usually have an equal number of bytes in them
+  - Number increases from inner side to outside of disk
+  - Consists of preamble, data, and error correcting code
+  - __Additional data stored results in reduced disk capacity__
+- __Cylinders__: collection of tracks in the same relative position to the spindle
+
+- Usually have a __cylinder skew__ - offset is added to sector 0 in adjacent tracks
+  - Compensates for seek time - moving from one track to the next
+
+### Access times
+- __Access time__ = seek time + rotational delay + transfer time
+  - __Seek time__: Time needed to move the arm to the cylinder - is dominant
+  - __Rotational latency__: Time before desired sector appears under the head
+    - On average half the rotation time
+  - __Transfer time__: Time to transfer the data
+
+- Multiple requests can occur concurrently
+  - Access time may be increased by a __queueing time__
+  - Dominance of seek time leaves room for optimisation - consider the order of read operations
+
+- Estimated seek time (moving arm from one track to another): `Ts = n * m + s`
+  - `Ts`: Seek time
+  - `n`: Number of tracks to be crossed
+  - `s`: Any additional startup delay
+
+- Rotational latency can be estimated from disk RPM (rotations per minute)
+  - `time for one rotation = (60*100)/rpm` (in ms)
+  - `average rotational latency = time for one rotation /2`
+  - `average rotation latency = 30000/rpm`
+
+- Transfer time `Tt`:
+  - For the number of bytes in a track `N`, it takes one revolution to read them all
+  - `b` contiguous bytes takes `b/N` revolutions
+  - `Tt = b/N * (ms per minute)/rpm`
+
+## Disk scheduling
+- OS must use hardware efficiently
+  - File system can position/organise files strategically
+  - Having multiple disk requests queued can minimise arm movement
+- Every I/O operation is handled by a system call, allowing the OS to intercept and reorder requests
+- If the drive or controller is free, the request can be handled immediately, otherwise it is queued
+
+- In a dynamic situation, several I/O requests will be made over time
+  - Requests are stored in a table of requested sectors, per cylinder
+- __Disk scheduling algorithms__ determine the order in which requests are processed
+
+### First come first served (FCFS)
+- Requests processed in order that they arrive
+
+### Shortest Seek Time First
+- Request closest to current head position is processed next
+- Aims to reduce head movement
+- __Pro__: Performance improvement upon FCFS
+- __Con__: Can result in starvation
+  - Arm stays in the middle of the disk when under heavy load
+  - Edge cylinders are poorly served - unfair
+  - Continuously receiving requests for the same location could __starve__ other regions
+
+### SCAN / Lift algorithm
+- Head moves in the same direction until end is reached (starting from outside)
+  - Handles all pending requests as it passes over cylinders
+  - Reverses direction when it gets to the last cylinder in current direction
+
+- __Pro__: Upper limit on waiting time is `2 * number of cylinders` - no starvation
+- __Con__: Middle cylinders are favoured if disk is heavily used 
+  - Max wait time is `N` tracks at center, `2N` tracks at edges
+
+### C-SCAN (Circular SCAN)
+- Once the edge of the disk is reached, requests at the other end have been waiting the longest
+- When reversing, C-SCAN does not handle requests, returning to where it began
+- Only handles requests in one direction
+- __Pros__: fairer, equalises response times across disk
+
+### Look-SCAN
+- Moves head to the last cylinder __of the first/last__ request instead of simply to the edges
+- __Con__: Seeks are cylinder by cylinder - each containing multiple tracks
+  - The arm may _stick_ to a cylinder
+
+### N-step-SCAN
+- Only services a limited number of requests every sweep
+
+### Observations and notes
+- Look-SCAN and variations are reasonable choices for algorithms
+- Performance of each algorithm is dependent on the load of the disk
+  - If only one request is received at a time, FCFS will perform as well as any other
+- __Optimal__ algorithms are difficult to achieve if requests arrive over time
+
+- Controlling disk scheduling in Unix/Linux
+  - Can read/write `/sys/block/<device name, eg sda>/queue/scheduler`
+  - Three options:
+    - `noop`: FCFS
+    - `deadline`: N-step-SCAN
+    - `cfq`: Complete Fairness Queueing
+
+    ```
+    $ cat /sys/block/sda/queue/scheduler
+    noop [deadline] cfq
+    ```
+  - Option surrounded by square brackets is the currently active scheduler
+
+- Driver caching
+  - In most modern drives, the time required to seek to a new cylinder > the rotational time
+  - Makes sense to read more sectors than actually required
+    - Read sectors during the rotation delay (that are passed by)
+    - Modern controllers read multiple sectors when asked for data from a single on - 
+track-at-a-time caching
+
+- Solid State Drives (SSDs) have no moving parts - they store data in electrical circuits
+  - No seek or rotation delays
+  - FCFS is useful in general purpose system
+  - Other algorithms may reduce performance
+
+## User view
+> User view: defines a file system in terms of the abstractions that the operating system provides
+
+- How the file system looks like to regular users (and programmers)
+- Relates to abstractions
+
+- Provides:
+  - __File abstraction__: Hides away implementation of files from user
+  - __File naming policies__: Abstracts storage details
+  - __User file attributes__: Ability to read/manage size, protection, owner, protection, modification 
+times
+  - __System attributes__: Non-human readable file descriptors, archive & temporary flags
+  - __System calls__: Enable interaction with file system
+  - __Directory structures__ and organisation
+
+### File types
+- Many OSs support several types of file
+- Windows and Unix have regular files and directories
+  - __Regular files__: Contain user data in ASCII or (a well-defined) binary format
+  - __Directories__: Group files together - are files in the implementation level
+- Unix has character and block special files
+  - __Character special files__: Used to model serial I/O devices - eg keyboards, printers
+  - __Block special files__: Model block storage devices like hard drive
+
+### File control block (FCB)
+| permissions |
+|:-:|
+| dates (create, access, write) |
+| owner, group, Access Control List (ACL) |
+| size |
+| (pointers to) data blocks |
+
+- Are kernel data structures - protected and only accessible in kernel mode
+- Allowing user applications to access them could compromise their integrity
+  - System calls provided for user applications
+
+### Directories
+> Directories: Special files that group together other files.
+> Their structure is defined by the file system
+- Eg, a bit is set that indicates the file is a directory
+
+- Multiple directory structures have been used in the past
+  - __Single level__: All files in the same directory (still used in consumer electronics)
+  - __Two/multiple level (hierarchical) directories__: Tree structures
+    - __Absolute path name__: Path from root of the file system
+    - __Relative path name__: The current working directory is used as a starting point
+  - __Directed acyclic graph (DAG)__: Allows files to be shared (with links to files or sub-directories)
+    - Cycles are forbidden
+  - __Generic graph structure__: Links and cycles can be used
+
+- Using DAG and generic graph structures complicates implementation
+  - When searching the file system...
+    - cycles can result in infinite loops
+    - sub-trees can be traversed multiple times
+  - Files can have multiple absolute names
+  - Deleting files becomes complicated
+    - Links may no longer point to a file
+    - Inaccessible cycles may exist
+  - Garbage collection may be required to remove files that are no longer accessible from the tree
+    - Files may become part of a cycle only
+
+### System calls
+> System calls: Allow the OS to perform (kernel mode) actions on a user application's behalf
+- Categorised into __file manipulation__ and __directory manipulation__
+- __File manipulation__: `open()`, `close()`, `read()`, `write()`, etc
+- __Directory manipulation__:
+  - `create()`/`delete()`: Create/delete directory
+  - `opendir()`/`closedir()`: Add/free directory to/from internal tables
+  - `readdir()`: Return next entry in the directory file
+  - `rename()`, `link()`, `unlink()`, `list()`, `update()`
+
+## Implementation view
+> Implementation view: defines the file system in terms of its low-level implementation
+- All file systems have to address several considerations:
+  - Disk partitions, partition tables, boot sectors, etc
+  - Free space management
+  - System wide and per process file tables
+- Low level formatting writes sectors to disk
+- High level formatting imposes a file system on top - blocks can cover multiple sectors
+
+### Partitions
+- Disks are usually divided into multiple partitions
+  - On each an independent file system may exist
+- The Master Boot Record (MBR) is located at the start of the entire drive
+  - Used to boot the computer - it is read and executed by the BIOS
+  - Contains a partition table that the end, indicating the active partition
+
+#### Unix partition contents
+| Boot block |
+|:-:|
+| Super block |
+| Free space management |
+| I-nodes |
+| Root directory |
+| Data |
+
+- __Boot block__: Exists on every partition, will contain code to boot the OS
+- __Super block__: Contains partition details, eg size, umber of blocks, I-node table size
+- __Free space management__: A bitmap or linked list, indicating the free blocks
+- I-nodes: An array of data structures, each storing information about a single file
+- __Root directory__: The top of the file system tree
+- __Data__: Files and directories
+
+### Free space management
+- Need to keep track of free disk space
+  - Store a list of free blocks
+
+#### Using bitmaps
+- An array on the disk
+- A single bit for each block indicates whether that block is free or not
+- __Pro__: Take up comparatively less space than linked lists
+- __Con__: Size of the bitmap grows with the size of the disk
+  - Fixed size for each disk
+  - Can only keep bitmap in memory for small disks
+
+#### Using linked lists
+- Aka _grouping_
+- Free blocks are used to hold the indexes of free blocks
+  - eg with 1KB blocks and 32b disk block number, each block holds 255 blocks
+  - One pointer points to the next block
+- Size of list grows with disk size, shrinks with block size
+- Can instead keep track of number of consecutive blocks
+  - Known as _counting_
+- __Pros__
+  - Less wasted space
+    - Size of free list shrinks as disk fills
+  - Only need to keep in memory one block of pointers
+    - Load a new block when needed
+
+### File tables
+- Need to store multiple data structures in memory
+  - __Mount table__
+  - __Directory cache__: Recently accessed directory information
+  - __System-wide open file table__: Contains a copy of the FCB for every open file
+    - Location on disk
+    - File size
+    - Open count - number of processes using the file
+  - __Per-process open file table__: Contains a pointer to the system open file table
+
+- Opening a file requires...
+  1. checking the directory structure (in memory, or on disk)
+  2. loading the FCB from disk into memory
+
+- Reading a file requires...
+  1. checking the file index in the per-process open-file table for a pointer
+  2. following that pointer to the system-wide open-file table
+  3. loading the FCB from disk into memory
+  4. reading the data blocks on disk
+
+### Directories
+- Contain a list of human readable file names that are mapped onto unique identifiers and disk
+locations
+  - Map logical file onto the physical location
+- Can store all related file attributes
+  - Name
+  - Disk address (on Windows)
+  - Pointer to I-node (Unix)
+- Finding a file involves searching a directory file
+  - Random order of directory entries could be slow - would mean O(n) search time
+  - Indexes or hash tables can be used
 
 ## Another thing
 
