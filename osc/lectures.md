@@ -1386,74 +1386,148 @@ locations
   - Random order of directory entries could be slow - would mean O(n) search time
   - Indexes or hash tables can be used
 
-## Another thing
-
-### Implementation
-23/11 - #21
-
-- The layout of the file system and the fire allocation methods used by the OS heavily influences the seek movements
+## Implementations
+- The layout of the file system and the file allocation methods used by the OS influences the 
+seeking of a mechianical hard drive
   - Contiguous files will result in many short head movements
 
-- Disk scheduling could be implemented in the controller, but OS could prioritise requests
+- Disk scheduling could be implemented in the controller, but OS can prioritise requests
 
 Sequential vs random access:
-- Files will be composed of a number of blocks
-- Sequential access - blocks before a desired one must be processed before the desired one
-- Random access - the desired block can be accessed without processing any before it
+  - Larger files are composed of a number of blocks
+  - __Sequential access__: - blocks before a desired one must be processed before the desired one
+  - __Random access__: - the desired block can be accessed without processing any before it
 
-#### Contiguous allocation
+### Contiguous allocation
 Similar to dynamic partitioning in memory allocation:
   - Each file stored in a single group of adjacent blocks on the hard disk
   - Eg 1KB blocks, storing a 100KB file, would use 100 contiguous blocks
 
 - Allocation of free space can be done using first fit, best fit, next fit, etc
+- In use by CD-ROMs and DVDs
 
-Pros:
-  - Simple to implement: need store only location of first block and length of file (in directory entry)
-  - Optimal read/write performance - related blocks clustered in nearby/adjacent sectors = minimised seek time
+- __Pros__
+  - __Simple to implement__: Need store only location of first block and length of file
+(in directory entry)
+  - __Optimal read/write performance__: Related blocks clustered in nearby/adjacent sectors 
+= minimised seek time
 
-Cons:
-  - Exact size of file is not always known beforehand - need to consider if file size overflows initially allocated disk space
-  - Allocation algorithms needed to decide which free blocks to allocate t oa given file
-  - Deleting a file = external fragmentation: need to defrag
-  - !!
+- __Cons__:
+  - __Need to know exact file size__: Not always known beforehand
+    - If file size grows it could overflow the initially allocated disk space
+  - __Allocation algorithms__ are needed to decide which free blocks to allocate to a given file
+  - __Deleting a file = external fragmentation__: Need to defrag disk
 
-#### Linked lists
-- Avoid external fragmentation by storing files in separate blocks (similar to paging) that are linked to one another
+### Linked lists
+- Avoid external fragmentation by storing files in separate blocks (similar to paging) that are 
+linked to one another
 - Only address of first block needed to locate file
 - Each block contains a data pointer to the next block (taking up space)
 
-Pros:
-  - Easy to maintain - only first block (address) has to be maintained in the directory entry
-  - File sizes can grow dynamically - new blocks/sectors can be added to the end of the file as necessary
-  - Eliminates external fragmentation - all blocks/sectors can be used
+- __Pros__
+  - __Easy to maintain__: Only first block (address) has to be maintained in the directory entry
+  - __File sizes can grow dynamically__: New blocks/sectors can be added to the end of the file as necessary
+  - __Eliminates external fragmentation__: all blocks/sectors can be used
   - Sequential access is straightforward - though more seek ops/disk access may be required
 
-Cons:
-  - Random access very slow - need to walk list to find desired block
-  - Internal fragmentation - on average the last half of the block is left unused
-    - Internal fragmentation will be reduced with smaller block sizes
-  - May result in random disk access - !!
-  - !!
+- __Cons__
+  - __Random access is very slow__: Need to walk the list to find desired block
+  - __Internal fragmentation__: On average the last half of the last block is left unused
+    - Smaller block sizes = less internal fragmentation
+  - __Possibility of random disk access__
+    - Blocks stored around the disk
+    - Need to seek to the next block for each link in the list
+    - This would be very slow
+    - Larger blocks (containing multiple sectors) will be faster
+  - __Pointer takes up space__
+  - __Reliability worsened__: If a block in the list is corrupted, the rest of the file is lost
 
-#### File Allocation Tables (FAT)
+### File Allocation Tables (FAT)
 - Stores linked-list pointers in a separate index table - called a File Allocation Table (FAT)
 - Information stored in memory
 
-Pros:
-  - Block size remains power of 2 - no space lost due to the pointer
-  - Index table can be kept in memory - fast non-sequential/random access
+- __Pros__
+  - __Block size remains power of 2__: No space is lost due to the pointer
+  - __Index table can be kept in memory__: Fast non-sequential/random access
 
-Cons:
-  - Also need to store FAT on disk
-  - Size of FAT grows with number of blocks (ie with size of disk)
-    - For a 200GB disk with 1KB block size 200 million entries are required
+- __Cons__
+  - __Also need to store FAT on disk__
+  - __Size of FAT grows with number of blocks (ie with size of disk)__
+    - For a 200GB disk with 1KB block size, 200 million entries are required
     - Given 4B per entry, the FAT will use 800MB of main memory
 
-#### I-nodes
+### I-nodes
 - Each file has a small data structure (on disk) called an I-node (index-node)
   - Contains its attributes and block pointers
-  - They are only loaded when the file is open (stored in system-wide open file table)
-  - If !!
+  - Each only loaded when the file is open (stored in system-wide open file table)
+  - Amount of memory required is `n * k`:
+    - `n`: Size of an I-node
+    - `k`: Max number of files that can be open simultaneously
 
-- !!
+
+- Composed of a combination of:
+  - Direct block pointers (usually 10)
+  - Indirect block pointers
+
+- With only direct block pointers, maximum file size is `block size * no. direct blocks`
+- A single indirect block can store up to `(block size) / (size of disk address)` block pointers
+- A double indirect block would square the number of blocks pointable by a single indirect block
+- Larger files will require a greater level of indirect blocks
+
+### Directories using I-nodes
+- In UNIX, all information about the file is stored in its I-node
+- Allows directory tables to be simple data structures composed of a file name and I-node pointer
+- Directories are a special file, that have their own I-node
+
+### I-node file lookups
+1. Locate the root directory of the file system
+  - Its I-node is in a fixed location in the disk
+  - The directory itself could be anywhere on disk
+2. Locate the directory entries specified in the path
+  - Find I-node number of first directory
+  - Use I-node number to index the I-node table and retreive the directory file
+  - Repeat above cycle until the lowest-level directory file is reached
+3. Search the file's directory file for the I-node, cache it in memory
+
+### Hard and soft links
+- Allow directories to share files
+- One directory is the 'real' owner
+
+#### Hard link
+- Each folder holds a reference to the same I-node
+- An _I-node link reference counter_ tracks number of directories referring to each I-node
+- Created using `ln file.txt linkName`
+
+- __Pro__: Faster - doesn't require reading another I-node
+- __Cons__: Deleting a file becomes difficult
+  - If owner deletes the file, the other directories will hold a reference to an invalid/undesired I-node
+  - I-node is kept intact if > 1 reference
+  - File is deleted from owner's directory table but technically is responsible for the space the 
+file takes up
+
+#### Symbolic/soft link
+- A file stores the location of the shared file
+- Only the owner maintains the I-node reference
+- New file has its own I-node
+- Created using `ln -s file.txt linkName`
+
+- __Pros__: 
+  - No issues with deleting the original file - link is simply broken
+  - Can cross boundaries of filesystems - linked file could be stored on a different machine
+
+- __Cons__
+  - Result in another file lookup
+  - Require an extra I-node for the link file
+
+### File system examples
+- Unix V7
+  - Tree structured with links
+  - Directories contain file names and I-node numbers
+  - I-nodes contain user and system attributes
+  - One single, double, and triple indirect block can be used
+
+- More sophisticated systems like ext3 were developed later
+- Windows (up to XP) used FAT16/32
+- Windows (since XP) moved to 64b NTFS because of file size limitations
+  - Uses a similar idea to I-nodes called Master File Tables
+  - Have bigger I-nodes that can also contain small files and directories
