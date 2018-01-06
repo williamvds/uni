@@ -1531,3 +1531,68 @@ file takes up
 - Windows (since XP) moved to 64b NTFS because of file size limitations
   - Uses a similar idea to I-nodes called Master File Tables
   - Have bigger I-nodes that can also contain small files and directories
+
+## Paradigms
+
+### Log structured
+- Many operations, eg creating a file, may involve using several blocks
+  - Blocks do not need to be adjacent
+  - Seeking to blocks in a hard drive causes delays, slowing down performance
+- Log structured filesystems try to __improve speed__ by __minimising head movements and rotation delays__
+- They use the disk as a log - only writes at the end
+- Read and write operations are buffered in memory, to write larger volumes in one go
+- Once the buffer is full, it is _flushed_ to the disk, written as one contiguous segment
+  - I-nodes and data written to the same segment
+  - Finding I-nodes becomes more difficult
+- I-node map is maintained in memory to quickly find disk address of I-nodes
+- __Cleaner thread__: A process that runs in the background, scanning the log circularly to compact it
+  - Deleted files are removed
+  - Files in use are marked as free segments - they will later be written to the end
+- The hard drive is treated as a circular buffer
+
+- __Pros__
+  - __Performance greatly increased__: On writes, file creation and deletion
+  - __Writes are more robust__: Done in a single operation
+- __Cons__
+  - Highly incompatible with existing file systems
+  - Cleaner thread uses CPU time
+
+### Journaling
+- Deleting a file requires
+  1. Removing the respective entry in the directory entry
+  2. Adding the file's I-node to the list of free I-nodes
+  3. Adding the file's blocks to the free list
+- Failure points:
+  - __Crash after removing directory entry__: I-nodes and disk blocks inaccessible
+  - __Crash after freeing I-nodes__: Disk blocks inaccessible
+- Changing order of the events does not resolve these issues
+
+- Journaling aims to increase resilience against crashes
+  - Filesystem updates are recorded as a transaction
+  1. Write operations to log file
+  2. Carry out operations
+  3. Remove/commit the log entries
+
+- If a crash occurs in the middle of an operation, the log entries will still be there
+  - Log can be examined after crash
+  - __Pro__: Can restore consistency of the file system
+
+- eg NTFS, ext3/4
+
+### Virtual (VFS)
+- Multiple filesystems usually exist on a computer
+- They can be seamlessly integrated by the OS (eg in Unix/Linux)
+- VFS relies on the standard object oriented principles of polymorphism
+  - A generic interface is specified by the POSIX standards
+  - Commonly contains the POSIX system calls: `open()`, `close()`, `read()`, `write()`
+  - Each filesystem implements the interface
+  - Done in the implementation layer of the file system
+- Allows Unix/Linux to unify different file systems
+  - Files are shown as a single hierarchy
+  - Implementation details are hidden from the user
+  - Files can be stored on different machines (eg [sshfs](https://github.com/libfuse/sshfs))
+
+- All file systems, including the root, are registered with the VFS
+  - A list/table to the VFS function calls is kept - function pointers
+  - Every VFS function call corresponds to the specific entry in the VFS function table for the given file system
+  - VFS maps the POSIX call onto the file system's operation
