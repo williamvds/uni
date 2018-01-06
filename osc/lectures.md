@@ -1324,7 +1324,7 @@ times
 - __Boot block__: Exists on every partition, will contain code to boot the OS
 - __Super block__: Contains partition details, eg size, umber of blocks, I-node table size
 - __Free space management__: A bitmap or linked list, indicating the free blocks
-- I-nodes: An array of data structures, each storing information about a single file
+- __I-nodes__: An array of data structures, each storing information about a single file
 - __Root directory__: The top of the file system tree
 - __Data__: Files and directories
 
@@ -1596,3 +1596,122 @@ file takes up
   - A list/table to the VFS function calls is kept - function pointers
   - Every VFS function call corresponds to the specific entry in the VFS function table for the given file system
   - VFS maps the POSIX call onto the file system's operation
+
+## Recovery
+- Journaling reduces probability of inconsistencies
+- There is still the possibility of some inconsistencies - eg data blocks not being flushed to the 
+drive
+- Can cause issues, in particular with structural blocks like I-nodes, directories, and free lists
+- System utilities are available to restore file systems, eg...
+  - Scandisk
+  - FSCK
+
+### Block consistency
+- Check whether blocks are assigned/used the correct way
+- Build two tables:
+  1. Counts how often a block is present in a file
+  2. Counts how often a block is present in the free list
+- Typically a slow process - can take hours, partition needs to be unmounted
+- __Missing block__: Not in either of the tables - add it to the free list
+- __Duplicate block entry in free list__: Rebuild the free list
+- __Block present in more than one file__:
+  - Removing one file = add block to free list
+  - Remove both files = duplicate entry in free list
+  - __Solution__: Use a new free block and copy the content - file is likely to be damaged
+
+- FSCK algorithm:
+  1. Iterate through all I-nodes
+    1. Retrieve blocks
+    2. Increment counters
+  2. Iterate through the free list
+    - Increment counters for free blocks
+
+### I-node consistency
+- Checks directories by checking I-node counts
+- __I-node count too high__: Fewer directories contain the file than indicated
+  - Removing file = I-node counter decremented
+  - Counter > 1 so I-node/disk space is not marked free
+- __I-node count too low__: More directories contain the file than indicated
+  - Removing file = I-node counter decremented (eventually reaching 0) whilst the file is still 
+referenced
+  - File/I-node released even though file is still in use
+
+- Algorithm
+  - Recurse through the directory hierarchy
+    - Increment respective file counters
+  - One file may be in multiple directories
+    - Compare file and I-node counters
+    - Correct if necessary
+
+### Defragmentation
+- Initially, all free disk space is contiguous
+- Over time, creating and removing files creates gaps of free blocks
+- Defrag utilities aim to make allocated and free file blocks contiguous
+- ext2/3 suffers less from fragmentation
+- Defragmenting SSDs is counter-productive - no seek time, re-writing causes wear
+
+## Linux filesystem history
+- __Minix__: Max file size 64MB, file names limited to 14 characters
+- __Extended file system (extfs)__: Max file size 2GB, file names limited to 255 characters
+- __ext2__: Larger files and names, better performance
+- __ext3/4__: Journaling and more
+
+### Ext2
+- One of the most popular Linux file systems
+- Goals:
+  - Improve upon performance of MINIX and extfs, distributing directors evenly over disk
+  - Greater file names and sizes, improving directory implementation
+
+#### Structure
+
+| Boot |
+|:-:|
+| Block group 0 |
+| Block group 1 |
+| Block group 2 |
+| ... |
+
+- Block groups have the same size and are stored sequentially - allowing indexing
+- __Pros__
+  - __Reduce fragmentation__: Storing I-nodes with their files, and directories with their files
+  - Reduce seek times to improve performance
+
+#### Within a block group
+| Superblock |
+|:-:|
+| Group descriptor |
+| Block bitmap |
+| I-node bitmap |
+| I-nodes |
+| Data blocks |
+
+- __Superblock__:  Contains file system information - number of I-nodes, blocks
+- __Group descriptor__: Bitmap locations, number of free blocks, I-nodes, and directories
+- __Data block & I-node bitmaps__: Keep track of free disk blocks and I-nodes
+- __Table of I-nodes__: Contain file and disk block information
+- __Data blocks__: Contain file and directory blocks
+
+### Directory entries
+- Contain fixed-length fields:
+  - I-node number
+  - Entry size (bytes)
+  - Type field - file directory, special file, etc
+  - File name length
+- Then file name (variable length)
+- Directories searched linearly (they are unsorted)
+- Cache in maintained for recently accessed items
+- File names up to 255 characters
+- File lookups limited to 255 characters
+- I-node structure similar to Unix I-nodes:
+  - 12 block addresses
+  - Single, double, triple indirect blocks
+  - Can handle file sizes up to 16GB with 1KB blocks, 64TB with 8KB blocks
+
+### Ext3
+- In Ext2, files are written immediately to prevent inconsistency
+  - Causes seeking
+  - Makes the file system more suitable to flash disks - no journal is used
+
+- Ext3 extensions:
+  - __Tree based structures__: HTrees for directory files - facilitates indexing
+  - __Journaling__
