@@ -1388,7 +1388,7 @@ locations
 
 ## Implementations
 - The layout of the file system and the file allocation methods used by the OS influences the 
-seeking of a mechianical hard drive
+seeking of a mechanical hard drive
   - Contiguous files will result in many short head movements
 
 - Disk scheduling could be implemented in the controller, but OS can prioritise requests
@@ -1485,7 +1485,7 @@ linked to one another
   - The directory itself could be anywhere on disk
 2. Locate the directory entries specified in the path
   - Find I-node number of first directory
-  - Use I-node number to index the I-node table and retreive the directory file
+  - Use I-node number to index the I-node table and retrieve the directory file
   - Repeat above cycle until the lowest-level directory file is reached
 3. Search the file's directory file for the I-node, cache it in memory
 
@@ -1715,3 +1715,123 @@ referenced
 - Ext3 extensions:
   - __Tree based structures__: HTrees for directory files - facilitates indexing
   - __Journaling__
+
+# Virtualisation
+- Example scenario
+  - A company runs several servers - web, email, FTP
+  - These usually run on separate machines because of load and/or reliability
+  - Admins do not trust the OS to run forever without failure
+  - One server failing will not bring down all the other services
+
+- Alternative: virtual machines (VM)
+  - Hardware of a single computer abstracted onto several different execution environments 
+(idea from 60/70s)
+
+- Software is given illusion that it has full control over hardware
+- Can run multiple instances of an OS, or different ones, on the same machine
+
+> Host: The underlying hardware system
+
+> Hypervisor / Virtual machine manager (VMM): Creates and runs virtual machines, providing them
+> with an interface identical to the host (except in paravirtualisation)
+
+> Guest: Process provided with a virtual copy of the host - usually an OS
+
+- __Con__: Failure at server level would cause more damage
+- __Pros__: 
+  - Failure of a single VM does not bring down any others
+    - Most failures are caused by software, not hardware
+  - Fewer physical machines = money saved on hardware and electricity
+  - Can run legacy applications
+
+## Properties
+- __Isolation__: Each VM is independent, so failures do not affect the host
+- __Encapsulation__: State of a VM can be captured into a file
+  - Easier than migrating processes
+  - Just have to move the memory image that contains OS tables
+- __Interposition__: All guest actions are moderated by the hypervisor, which can inspect, modify, 
+and deny them
+
+## Requirements
+- __Safety__: The hypervisor should have full control of virtualised resources
+  - Can enforce resource sharing
+- __Fidelity__: Behaviour of a program on a VM should be the same as on the bare hardware
+  - Need to consider privileged instructions - provided by hardware support 
+(Virtualisation Technology)
+- __Efficiency__: Minimise code run without intervention by hypervisor, to minimise overheads
+
+## Approaches
+- __Full virtualisation__: Tries to trick guest into believing it controls the entire system
+- __Paravirtualisation__: VM does not simulate hardware, instead offering a set of _hypercalls_ which 
+allow guests to send explicit requests to the hypervisor
+- __Process-level virtualisation__: Allowing a process written for another OS to run
+  - Wine on Linux, for Windows apps
+  - Cygwin on Windows, for Linux shell apps
+
+## Hypervisor types
+### Natives (type 1)
+- Like an OS, is the only program running in most privileged mode
+- Supports multiple copies of the actual hardware
+
+- Installs directly onto hardware
+- Hypervisor is the real kernel
+- Unmodified OS runs in user mode
+  - Runs is _virtual_ kernel mode
+  - Privileged instructions processed by hypervisor
+  - Hardware Virtualisation Technology necessary
+- Preferred for high-end servers
+- Paravirtualisation VMs are based on this type of hypervisor
+- Eg: VMware ESX Server, Xen
+
+### Hosted (type 2)
+- Relies on OS to allocate and schedule resources, like a regular process
+- Installs and runs VMs as an application on existing OS
+- Relies on host scheduling
+  - Might not be suitable for intensive VM workloads
+- Used in process-level virtualisation - it needs an OS
+- __Cons__
+  - I/O path is slow because it needs to go through the host
+- Eg: VMware Player/Workstation/Server, Parallels desktop
+
+## Resources to virtualise
+- Privileged instructions (exceptions and interruptions)
+- CPU
+- Memory
+- I/O devices
+
+- Some OS functionality is duplicated
+
+### Privileged instructions
+- It's unsafe to let guest kernel run in kernel mode
+- VM needs two modes - virtual user mode and virtual kernel mode (both in real user mode)
+- Eg, if a guest tries to map virtual pages to physical pages
+  - __Type-1 hypervisor__: CPUs without Virtualisation Technology will fail to execute the instruction, 
+causing the guest to crash
+  - __Type-2 hypervisor__: Can work without VT - privileged instructions are emulated
+
+1. Attempting to use a privileged instruction in user mode causes an error
+2. Control is moved to hypervisor
+3. Hypervisor analyses error, performs action attempted by guest
+4. Control is returned to guest in user mode
+
+- Known as __trap and emulate__
+
+### CPU
+- Need to multiplex multiple VMs onto a CPU
+- Can time-slice the guests
+  - Guests can then schedule their own OS/applications during that slice
+- Type-1: Can use simple round-robin, and share unused work with other VMs
+
+### Memory
+- Hypervisor partitions memory among VM
+  - Hardware pages are assigned to VMs
+  - Needs to control mappings for isolation
+- Each VM's OS creates and manages page tables, but these are not used by the MMU
+- For each VM, hypervisor creates a _shadow_ page table, mapping virtual pages of guests onto actual 
+hardware pages
+
+### Events and I/O
+- Guests cannot interact directly with I/O devices, but guests believe they own these devices
+- Hypervisor receives interrupts and exceptions
+- Type-1 hypervisors: Run the device drivers
+- Type-2 hypervisors: Driver passes operation to real device driver on host OS
