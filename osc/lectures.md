@@ -13,13 +13,17 @@
 
 ## Example scenarios where the OS is used
 __Reading a file in Java__
-- __File systems__: abstract where a file is physically writing on the disk, and how it is retrieved
-- __Platform abstraction__: the instructions look the same regardless of the device running it
-- __Concurrency__: managing when multiple programs access the same file simultaneously
+- __File systems__: abstract where a file is physically writing on the disk, and 
+    how it is retrieved
+- __Platform abstraction__: the instructions look the same regardless of the device
+    running it
+- __Concurrency__: managing when multiple programs access the same file
+    simultaneously
 - __Security__: denying access when necessary
 
 __Loading a large array of data__
-- Deciding where to store it in memory and protecting that memory from unauthorised access
+- Deciding where to store it in memory and protecting that memory from
+    unauthorised access
 - Managing situations when more memory than physically available is required
 - Managing when only a part of the array is in use
 - Managing when other processes start running
@@ -45,7 +49,8 @@ __Loading a large array of data__
 - OS structures/implementation
 
 ## CPU design
-- Basic cycle is fetch-decode-execute (but usually includes pipelines or superscalar systems)
+- Basic cycle is fetch-decode-execute (but usually includes pipelines or
+    superscalar systems)
 - Each model has their own instruction set
 - Have a set of registers
   - Very fast memory close to the 'core'
@@ -53,33 +58,40 @@ __Loading a large array of data__
   - the program counter
   - program status word
 - Compiler/programmer decides what to keep in the registers
-- Context switching must save and restore CPU's internal state, including registers
+- Context switching must save and restore CPU's internal state, including
+    registers
 
 ## The Memory Management Unit (MMU)
-- Running the same program multiple times, printing the memory address of a variable, will yield 
-the exact same address - even simultaneously (in most operating systems)
+- Running the same program multiple times, printing the memory address of a
+    variable, will yield the exact same address - even simultaneously
+- Behaviour may differ between operating systems
 - Variables are simply mnemonic names for memory addresses
 - The compiler...
   - assigns a memory address to variables at compile time
-  - does not know where in physical memory the process will run (multiple processes run on modern 
-machines) 
+  - does not know where in physical memory the process will run (multiple
+      processes run on modern machines) 
   - assumes it will start at `0` (in logical address space)
+
 - Rarely, a process may run at physical address `0`
 - Otherwise, `physical address = logical address + offset`
 - Modern computers use logical and physical memory addresses
-  - Logical address space: `0` to `MAX64` (where `MAX64` is theoretically up to 16 exbibytes on 64 
-bit machines)
-  - Physical address space: `0` to `MAX`, (where `MAX` is determined by amount of physical memory)
-- Address translation takes place in the MMU - logical addresses are converted to physical
+  - Logical address space: `0` to `MAX64` (where `MAX64` is theoretically up to
+      ~16 exbibytes on 64 bit machines)
+  - Physical address space: `0` to `MAX`, (where `MAX` is determined by amount
+      of physical memory)
+- Address translation takes place in the MMU - logical addresses are converted
+    to physical
+
 - Context switches between processes... 
   - invalidates the MMU
   - invalidates registers, cache
-  - requires the internal state of the current process to be saved, and the new one's restored
+  - requires the internal state of the current process to be saved, and the new
+      one's restored
 
 ## Interrupts
 - Temporarily pause a process' normal operation
-- Interrupts only performed at the end of the fetch-decode-execute cycle - after the instruction 
-has been executed
+- Interrupts only performed at the end of the fetch-decode-execute cycle - 
+    after an instruction has been executed
 - Types include...
   - Timer interrupts (by CPU clock)
   - I/O interrupts (for I/O completion or error codes)
@@ -87,21 +99,24 @@ has been executed
 
 ### Timer interrupts
 1. Timer generates an interrupt
--  CPU finishes current instruction and tests for interrupts
--  Transfer to interrupt service routing: 
-  1. save current process state - status word, program counter
-  -  set program counter to interrupt service routine
-  -  save registers and other state information
--  Carry out interrupt service routine (aka the scheduler)
--  Restore next process to run
+2. CPU finishes current instruction and tests for interrupts
+3. Transfer to interrupt service routine: 
+    1. Save current process state - status word, program counter
+    2. Set program counter to interrupt service routine
+    3. Save registers and other state information
+4. Carry out interrupt service routine (aka the scheduler)
+5. Restore next process to run
 
-- Can be used to trigger context switches after a set time (known as the _time slice_)
+- Can be used to trigger context switches after a set time (known as the _time
+    slice_)
 
 ## Computer architecture
+
 ### Multi-core and hyperthreaded processors
 - Modern CPUs contain multiple cores and are often hyper-threaded
 - Evolution in hardware affects operating system design
-- Need to provide process scheduling accounting for load balancing and CPU affinity
+- Need to provide process scheduling accounting for load balancing and CPU
+    affinity
 - Cache coherency becomes important
 
 ### Memory
@@ -132,7 +147,8 @@ has been executed
   - More portable
   - Usually more reliable
 - Cons
-  - More frequent system calls and kernel traps = more overhead from mode switches
+  - More frequent system calls and kernel traps = more overhead from mode
+      switches
 
 - For example
   - Some Unix versions
@@ -154,44 +170,47 @@ has been executed
 > Process: a running instance of a program
 
 - Programs are passive - they are stored on a disk
-- Process has associated control structures, may be active, may have resources (I/O devices, 
-memory, processor)
+- Process has associated control structures, may be active, may have resources
+    (I/O devices, memory, processor)
 - Control structures... 
   - register a process with OS
-  - are process control blocks (PCBs), stored as entries in the OS's process table 
-- PCBs contain info to administer process, necessary for context switching
+  - are process control blocks (PCBs), stored as entries in the OS's process
+      table 
+- PCBs contain info to administer process - necessary for context switching
 
 ## Memory layout
 - __Code__: aka Text, can be shared between processes running the same code
 - __Data__
-- __Stack__: Last in First Out structure - local variables removed once a function exits
+- __Stack__: Last in First Out structure - local variables, which are removed once
+    a function exits
 - __Heap__: dynamic memory for data
 
-| STACK |
-|:-----:|
-| ...   |
-| HEAP  |
-| DATA  |
-| TEXT  |
+| Stack |
+|:-:|
+| ... |
+| Heap |
+| Data |
+| Code |
 
 - The top of the table is MAX (logical address) and the bottom 0
 - Stack and heap are placed at opposite ends to allow them to grow
 - Some OSs use address space layout randomisation TODO
 
-## Process states and transitions
-### States
-  - __New__: just created (has PCB), waiting to be admitted to ready queue, may not yet be in memory
+## Process states
+  - __New__: just created (has PCB), waiting to be admitted to ready queue, may not
+      yet be in memory
   - __Ready__: waiting for CPU to become available
   - __Running__: controls the CPU (or a core)
   - __Blocked__: process cannot continue, eg is waiting for I/O
-  - __Terminated__: no longer executable, though data structures including PCB may be temporarily 
-  preserved
+  - __Terminated__: no longer executable, though data structures including PCB may
+      be temporarily preserved
   - __Suspended__: process is swapped out
 
-### Transitions
-- __New__     to __Ready__:  process admitted and OS commits to execution
-- __Ready__   to __Running__: process selected by process scheduler
-- __Running__ to __Blocked__: process needs to wait for interrupt or carried out a system call
+## State transitions
+- __New__ to __Ready__:  process admitted and OS commits to execution
+- __Ready__ to __Running__: process selected by process scheduler
+- __Running__ to __Blocked__: process needs to wait for interrupt or carried out a
+    system call
 - __Blocked__ to __Ready__: event waited for happens, eg I/O operation finished
 - __Running__ to __Ready__: process is preempted, eg by timer interrupt or pause
 - __Running__ to __Terminated__: process has finished, eg ended or encountered exception
@@ -200,7 +219,8 @@ memory, processor)
 
 ## Multi-processing
 - Modern computers run multiple processes 'simultaneously'
-- In a single processor system, instructions of individual processes are executed sequentially
+- In a single processor system, instructions of individual processes are
+    executed sequentially
 - Processor alternates processes using context switches
 - True parallelism requires multiple processors
 
@@ -208,62 +228,63 @@ memory, processor)
 - __Identification__: ID, user, parent ID
 - __Control information__: process state, scheduling information, etc
 - __State information__
-  - user registers
-  - program counter
-  - stack pointer
-  - program status word
-  - memory management information
-  - files
+  - User registers
+  - Program counter
+  - Stack pointer
+  - Program status word
+  - Memory management information
+  - Files
   - etc
 
 - Are kernel data structures - protected and only accessible in kernel mode
-- Allowing user applications to access them directly could compromise their integrity 
-(eg could monopolise the CPU)
+- Allowing user applications to access them directly could compromise their
+    integrity (eg could monopolise the CPU)
 - OS manages them on the user's behalf through system calls (eg to set priority)
 
 ### Process tables
 - __Process__: holds control blocks for each process
 - __Memory__: info about memory allocation, protection, virtual memory
 - __I/O:__ availability, status, transfer information
-- __File:__ location, status
+- __Files:__ location, status
 
 - Maintained by kernel and usually cross referenced
 
 ### Context switching
-> Context switch: Save state of old process and loads the state of the new process
+> Context switch: Save state of old process and loads the state of the new
+> process
 
 1. __Save process state__: program counter, registers, etc
--  __Update PCB__: change status from running to ready/blocked
--  Move PCB to appropriate queue (ready/blocked)
--  __Run scheduler__: select new process
--  __Update PCB__: change status to running
--  Update memory management unit
--  Restore process
+1. __Update PCB__: change status from running to ready/blocked
+1. Move PCB to appropriate queue (ready/blocked)
+1. __Run scheduler__: select new process
+1. __Update PCB__: change status to running
+1. Update memory management unit
+1. Restore process
 
-- Con: Creates overhead in execution - time is spent saving, reading, re-loading register states
+- __Con__: Creates overhead in execution - time is spent saving, reading,
+    re-loading register states
 
 ### Time slicing
-> Time slice: the maximum duration a process can keep executing before being preempted
+> Time slice: the maximum duration a process can keep executing before being
+> preempted
 
 - Short time slices provide...
- - Good response times - less time before a process starts executing
- - Low effective utilisation - more time spent context switching
+  - Good response times - less time before a process starts executing
+  - Low effective utilisation - more time spent context switching
 
 - Long time slices provide...
   - Low response times
   - High effective utilisation
 
 ## Creating and terminating processes
-- Use system calls - usually wrapped around OS libraries (eg libc) following a well-defined API 
-(eg POSIX, WIN32)
+- Use system calls - usually wrapped around OS libraries (eg libc) following a
+    well-defined API (eg POSIX, WIN32)
 
 - Unix: `fork()` - generates exact copy of parent
-- Windows: `NTCreateProcess()`
-- Linux: `Clone()`
-
-- `fork()`:
   - Returns process ID to the parent
   - Returns 0 to the child process
+- Windows: `NTCreateProcess()`
+- Linux: `Clone()`
 
 - System calls are necessary to notify the OS the process has terminated:
   - Resources de-allocated
@@ -290,30 +311,34 @@ memory, processor)
 
 - System-oriented criteria
   - __Throughput__: number of jobs processed per hour
-  - __Fairness__: equal distribution of processing and waiting time and avoiding keeping some processes
-waiting excessively long (starvation)
+  - __Fairness__: equal distribution of processing and waiting time and avoiding
+      keeping some processes waiting excessively long (starvation)
 
-- Criteria can conflict - eg improving response time may require more context switches, worsening 
-throughput and increasing turnaround time
+- Criteria can conflict - eg improving response time may require more context
+    switches, worsening throughput and increasing turnaround time
 
 - Performance measures:
   - __Average response time__: average time of process start
   - __Average turnaround time__: average time taken for each processes to finish
 
 ## Scheduler types
+
 ### By time horizon
 - __Long term__ 
   - Applies to new processes
-  - Controls the degree of multiprogramming by deciding which process to admit and when
-  - Good mix of CPU and I/O bound processes keeps all resources as busy as possible
+  - Controls the degree of multiprogramming by deciding which process to admit
+      and when
+  - Good mix of CPU and I/O bound processes keeps all resources as busy as
+      possible
   - Usually absent in modern popular OSs
 
-- __Medium term__: controls swapping and the degree of multiprocessing
+- __Medium term__: Controls swapping and the degree of multiprocessing
 
-- __Short-term__: decide which process to run next
+- __Short-term__: Decide which process to run next
   - Manages the ready queue
   - Invoked very frequently, so must be fast
-  - Usually called in response to clock interrupts, I/O interrupts, or blocking system calls
+  - Usually called in response to clock interrupts, I/O interrupts, or blocking
+      system calls
 
 ### By approach
 - __Non-preemptive__
@@ -327,10 +352,12 @@ throughput and increasing turnaround time
   - Most popular modern operating systems take this approach
 
 ## Scheduling algorithms
+
 ### First Come First Served (FCFS)
 - aka First In First Out (FIFO)
 - Non-preemptive
-- Strict queueing mechanism - schedules in same order processes were added to the queue
+- Strict queueing mechanism - schedules in same order processes were added to
+    the queue
 
 - Pros
   - Positional fairness
@@ -342,7 +369,8 @@ throughput and increasing turnaround time
 
 ### Shortest Job First
 - Non-preemptive
-- Starts processes in order of ascending processing time using a provided/known estimate of processing
+- Starts processes in order of ascending processing time using a provided/known
+    estimate of processing
 
 - Pro: Always optimal turnaround time
 
@@ -352,19 +380,21 @@ throughput and increasing turnaround time
   - Processing times have to be known beforehand
 
 ### Round Robin
-- Preemptive version of FCFS - forces context switches at periodic intervals or time slices
+- Preemptive version of FCFS - forces context switches at periodic intervals or
+    time slices
 - Run in order that they were added to queue
 - Processes are forcefully interrupted by the timer
 - If time slice is used partially, the next process start immediately
 
-- Pros
+- __Pros__
   - Improved response time
   - Effective for general purpose time sharing systems
 
-- Cons
+- __Cons__
   - Increased context switching = overhead
   - Can reduce to FCFS
-  - Favours CPU bound processes (usually longer) over I/O processes (usually shorter)
+  - Favours CPU bound processes (usually longer) over I/O processes
+      (usually shorter)
     - Possibly prevented by working with multiple queues
 
 - Length of time slice must be carefully considered
@@ -375,26 +405,28 @@ throughput and increasing turnaround time
   - Preemptive
   - Schedules processes by priority (saved in process control block)
   - Jobs of same priority run in Round Robin fashion
-  - Pro: Can prioritise I/O bound jobs
-  - Con: Low priority processes may be starved (if process priorities do not change)
+  - __Pro__: Can prioritise I/O bound jobs
+  - __Con__: Low priority processes may be starved (if process priorities do not
+      change)
 
 ## Multi-level feedback queues
 - Multiple queues, for each priority level
 - Different scheduling algorithm(s) can be used for individual queues
 - Jobs can move between queues - migration policy between queues:
-  - Lower priority queue if too much CPU time is used - prioritise I/O and interactive processes
+  - Lower priority queue if too much CPU time is used - prioritise I/O and
+      interactive processes
   - Higher priority queue to prevent starvation and avoid inversion of control 
 
-> Inversion of control/priority inversion: Where a high priority process is overwhelmed by lower 
-> priority ones because they are using the same resources)
+> Inversion of control/priority inversion: Where a high priority process is 
+> overwhelmed by lower priority ones because they are using the same resources
 
 - Are highly configurable and offer significant flexibility
 
 ### Characteristics
-- Number of queues
-- Scheduling algorithms used for individual queues
-- Migration policy between queues
-- Initial access to queues
+- Have a certain number of queues
+- Scheduling algorithms are used for individual queues
+- Have a migration policy between queues
+- Policy for initial access to queues
 
 ### Case study: Windows 7
 - Interactive system
@@ -405,7 +437,8 @@ throughput and increasing turnaround time
   - __Variable__: can have their priority temporarily boosted
 - Use round robin within the queues
 
-- Priorities based on _process base priority_ (0-15) and _thread base priority_ (±2 relative to process priority)
+- Priorities based on _process base priority_ (0-15) and _thread base priority_
+    (±2 relative to process priority)
 - Priority dynamically changes between _base priority_ and _maximum priority_
   - Interactive I/O bound processes receive larger boost
   - Boosting priorities prevents priority inversion
@@ -420,15 +453,18 @@ throughput and increasing turnaround time
   - Real time tasks (for POSIX compliance)
     - Real time FIFO tasks
     - Real time Round Robin tasks
-  - Time sharing tasks using a preemptive approach (similar to variable in Windows)
+  - Time sharing tasks using a preemptive approach (similar to variable in
+      Windows)
 
-- Linux's scheduling algorithm for time sharing tasks is the Completely Fair Scheduler (CFS)
+- Linux's scheduling algorithm for time sharing tasks is the Completely Fair
+    Scheduler (CFS)
 
 - Real time FIFO tasks...
   - have the highest priority 
   - are scheduled using the FCFS approach
   - are preempted if a higher priority shows up
-- Real time round robin tasks are preemptable by clock interrupts and have an associated time slice
+- Real time round robin tasks are preemptable by clock interrupts and have an
+    associated time slice
 - Both approaches cannot guarantee hard deadlines
 
 ### Time sharing tasks - equal priority
@@ -436,24 +472,26 @@ throughput and increasing turnaround time
 - They will be allocated a time slice of `1/N * (available CPU time)`
   - eg, if `N = 5` each processes will receive 20% of the processor's time
 
-> Targeted latency: Interval of time during which every process should run at least once
-> Length of time slice and available CPU time are based on this
+> Targeted latency: Interval of time during which every process should run at 
+> least once. Length of time slice and available CPU time are based on this
 
-- Larger N means the context switch time becomes dominant, so a lower bound on the 'time slice' 
-is imposed by the minimum granularity
-  - A process' time slice can be no less than the minimum granularity, else response time will 
-deteriorate
+- Larger N means the context switch time becomes dominant, so a lower bound on
+    the time slice is imposed by the _minimum granularity_
+  - A process' time slice can be no less than the minimum granularity, else 
+      response time will deteriorate
 
 ### Time sharing tasks - different priority
 - Weighting scheme used to take different priorities into account
 - Each process allocated a weight `w(i)` that reflects its priority
-- The time slice allocated to the process is proportional to the percentage of allocated CPU time 
-it has not yet used
-- The tasks with the lowest proportional amount of used CPU time are selected first
+- The time slice allocated to the process is proportional to the percentage of
+    allocated CPU time it has not yet used
+- The tasks with the lowest proportional amount of used CPU time are selected
+    first
 
 ## Multiprocessor scheduling
-- On a single processor machine, scheduler only has to consider which process (/thread) to run next
-- Scheduling on a multiprocessor/core machine requires deciding...
+- On a single processor machine, scheduler only has to consider which process
+    (or thread) to run next
+- Scheduling on a multiprocessor/core machine requires deciding:
   - __Where__: which CPU to run a process on
   - __When__: what time to run a process
 
@@ -463,8 +501,8 @@ it has not yet used
   - Automatic load balancing
 - Cons
   - Contention for the queues - locking required
-  - Does not account for processor affinity - moving to a different CPU invalidates cache, and 
-look aside buffers in MMU
+  - Does not account for processor affinity - moving to a different CPU
+      invalidates cache, and look aside buffers in MMU
 - Windows allocates the highest priority threads to the individual CPU/cores
 
 ### Private queues
@@ -477,21 +515,23 @@ look aside buffers in MMU
 - Migrating between CPU queues is possible
 
 ### Related threads
-- Some threads (of the same process) are cooperating - sending messages to one another
+- Some threads (of the same process) are cooperating - sending messages to one
+    another
   - eg search algorithms
 - Ideally these threads run simultaneously on multiple CPUs
-  - Otherwise threads will have to wait until their next time slice to handle responses
+  - Otherwise threads will have to wait until their next time slice to handle
+      responses
 
 #### Space scheduling
 - N threads are allocated to N dedicated CPUs
 - N threads are kept waiting until N CPUs are available
-- Non-preemptive - blocking calls result in idle CPUs = less context switching overhead but results
-in CPU idle time
+- Non-preemptive - blocking calls result in idle CPUs = less context switching
+    overhead but results in CPU idle time
 - N can be dynamically adjusted to match processor capacity
 
 #### Gang scheduling
-- Time slices synchronised and scheduler groups threads together to run simultaneously
-(as much as possible)
+- Time slices synchronised and scheduler groups threads together to run
+    simultaneously (as much as possible)
 - Preemptive
 - Blocking threads result in idle CPUs
 
@@ -500,10 +540,11 @@ in CPU idle time
 > running in the same resource environment
 
 - Process contain...
-  - resources - related ones grouped together
-    - logical address space containing process image (program, data, heap, stack)
+  - resources: related ones grouped together
+    - Logical address space containing process image (program, data, heap, 
+        stack)
     - Files, I/O devices, I/O channels
-  - execution trace - an entity that is executed
+  - execution trace: an entity that is executed
 
 - Threads...
   - have their execution states - program counter, stack, and register states
@@ -517,18 +558,19 @@ in CPU idle time
   - Can offer up to 8 hardware threads per core
 
 - Pros
-  - Less overhead to create/terminate/switch - address space is the same for threads of the same 
-process
-	- Inter-thread communication is easier/faster than interprocess - threads share memory by default
-	- Share the same resources used by multiple activities
-	- Carry out blocking tasks in parallel/concurrently - I/O and memory access 
-	- No protection boundaries are required in the address space:
-		- Threads are cooperating
-		- Belong the same user 
-		- Share a common goal
+  - Less overhead to create/terminate/switch - address space is the same for
+      threads of the same process
+  - Inter-thread communication is easier/faster than interprocess - threads
+      share memory by default
+  - Share the same resources used by multiple activities
+  - Carry out blocking tasks in parallel/concurrently - I/O and memory access 
+  - No protection boundaries are required in the address space:
+    - Threads are cooperating
+    - Belong the same user 
+    - Share a common goal
 
 - Cons
-	- Synchronisation has to be considered carefully
+  - Synchronisation has to be considered carefully
 
 ## Shared resources
 - Shared between threads
@@ -552,40 +594,49 @@ process
 ### User threads
 - Many to one - kernel only sees owning process
 - Thread management performed in user space using user library
-	- Creating, destroying, scheduling, thread control block manipulation
-- Process maintains thread table managed by the runtime system without kernel's knowledge
-	- Similar to process table
-	- Used for thread switching
-	- Tracks thread related information
+  - Creating, destroying, scheduling, thread control block manipulation
+- Process maintains thread table managed by the runtime system without kernel's
+    knowledge
+  - Similar to process table
+  - Used for thread switching
+  - Tracks thread related information
 
-- Pros
-	- In user space - no mode switches required
-	- Full control over the thread scheduler
-	- OS independent - can use threads on OS' that don't support them
-- Cons
-	- Blocking system calls suspend the entire process - the threads are mapped onto a single process managed by the kernel
-	- No true parallelism - process is scheduled on single CPU
-	- Clock interrupts are non-existent - no preemptive interrupts
-	- Page faults result in blocking the process
+- __Pros__
+  - In user space - no mode switches required
+  - Full control over the thread scheduler
+  - OS independent - can use threads on OS' that don't support them
+
+- __Cons__
+  - Blocking system calls suspend the entire process - the threads are mapped
+      onto a single process managed by the kernel
+  - No true parallelism - process is scheduled on single CPU
+  - Clock interrupts are non-existent - no preemptive interrupts
+  - Page faults result in blocking the process
 
 ### Kernel threads
 - One to one - kernel sees each individual thread
-- Kernel manages threads, user application accesses threading facilities through API and system calls
-	- Thread table is in kernel, containing thread control blocks - subset of process control blocks
-	- If a thread blocks, the kernel chooses another thread from the same or different process
+- Kernel manages threads, user application accesses threading facilities
+    through API and system calls
+  - Thread table is in kernel, containing thread control blocks - subset of
+      process control blocks
+  - If a thread blocks, the kernel chooses another thread from the same or
+      different process
 - Used by Windows and Linux
 
-- Pros
-	- True parallelism can be performed
-- Cons
-	- Frequent mode switches = lower performance
-	- Greater overhead when dealing with null forks and signal waits compared to user threads
+- __Pro__: True parallelism can be performed
+
+- __Cons__
+  - Frequent mode switches = lower performance
+  - Greater overhead when dealing with null forks and signal waits compared to
+      user threads
 
 ### Hybrid
 - Many to many
 - User threads multiplexed onto kernel threads
 - Kernel sees and schedules a limited number of kernel threads
-- User application sees user threads and creates/schedules these - unrestricted number
+- User application sees user threads and creates/schedules these
+
+- __Pro__: Unrestricted number of threads
 
 ## Management
 - Thread libraries:
@@ -597,62 +648,80 @@ process
   - Eg POSIX's PThreads, Windows Threads, Java Threads
 
 - PThreads:
-  - A specification that anyone can implement - defines a set of API function calls, including:
+  - A specification that anyone can implement - defines a set of API function
+      calls, including:
+    - `pthread_create`: Create new thread
+    - `pthread_exit`: Exit existing thread
+    - `pthread_join`: Wait for existing thread with ID
+    - `pthread_yield`: Release CPU
+    - `pthread_attr_init`: Thread attributes (eg priority)
+    - `pthread_attr_destroy`: Release attributes
   - Can be implemented as user or kernel threads
-  - `pthread_create`: create new thread
-  - `pthread_exit`: Exit existing thread
-  - `pthread_join`: Wait for existing thread with ID
-  - `pthread_yield`: Release CPU
-  - `pthread_attr_init`: Thread attributes (eg priority)
-  - `pthread_attr_destroy`: Release attributes
 
 # Concurrency
-- Threads and processes that execute concurrently or in parallel can share resources
+- Threads and processes that execute concurrently or in parallel can share
+    resources
   - eg devices, memory - variables and data structures
   - Multiprocessing improves system utilisation
+
 - A process/thread can be interrupted at any point in time - eg by timer, I/O
-  - The process state (including registers) is saved in the process control block
+  - The process state (including registers) is saved in the process control
+      block
+
 - The outcome of programs may become unpredictable:
-  - Sharing data can lead to inconsistencies - when interrupted whilst manipulating data
+  - Sharing data can lead to inconsistencies - when interrupted whilst
+      manipulating data
   - Outcome of a process may depend on order of execution
   - eg incrementing a counter - need to read, add, and store new value
-  - If interrupted during concurrent processing each thread will have a different state
+  - If interrupted during concurrent processing each thread will have a
+      different state
 
 ## Critical sections
-> Race condition: When multiple threads/processes access shared data and the result is dependent on
-> the order in which the instructions are interleaved
+> Race condition: When multiple threads/processes access shared data and the
+> result is dependent on the order in which the instructions are interleaved
 
-- A set of instructions in which shared resources between processes/threads (eg variables) are 
-changed
+- A set of instructions in which shared resources between processes/threads
+    (eg variables) are changed
 - Mutual exclusion must be enforced for critical sections
 
-> Mutual exclusion: Ensuring only one process at a time can be in the critical section
+> Mutual exclusion: Ensuring only one process at a time can be in the critical
+> section
 
 - Processes have to get 'permission' before entering their critical section
-  - Request lock, hold lock, release lock
+  1. Request lock
+  1. Hold lock
+  1. Release lock
 
 ### Within the OS 
 - Multiple processes/threads are running in the kernel
 - Kernel processes can be interrupted
-- Need to ensure that kernel data structures are not corrupted by concurrency issues due to race 
-conditions
-- Processes share resources, including memory, files, processor time, printers, I/O devices, etc
+- Need to ensure that kernel data structures are not corrupted by concurrency
+    issues due to race conditions
+- Processes share resources, including memory, files, processor time, printers,
+    I/O devices, etc
+
 - Needs to provide locking mechanisms to implement/support mutual exclusion 
-(and prevent starvation and deadlocks)
-- Need to allocate and deallocate these resource safely - avoid interference, deadlocks, starvation
+    (and prevent starvation and deadlocks)
+- Need to allocate and deallocate these resource safely - avoid interference,
+    deadlocks, starvation
 
 ### Requirements for solving the critical section problem
-- __Mutual exclusion__: only one process can be in its critical section at any point in time
-- __Progress__: any process must be able to enter its critical section at some point in time
-  - Processes/threads in the 'remaining code' do not influence access to critical sections
+- __Mutual exclusion__: only one process can be in its critical section at any
+    point in time
+- __Progress__: any process must be able to enter its critical section at some
+    point in time
+  - Processes/threads in the 'remaining code' do not influence access to
+      critical sections
 - __Fairness / bounded waiting__: processes cannot be made to wait indefinitely
 
-- These must be satisfied, independent of the order in which sequences are executed
+- These must be satisfied, independent of the order in which sequences are
+    executed
 
 ### Enforcing mutual exclusion
 - __Software__: using Peterson's solution
 - __Hardware__: using `test_and_set()`, `swap_and_compare()`
-  - CPU instructions that check and modify values in one go = no risk of interruption
+  - CPU instructions that check and modify values in one go = no risk of
+      interruption
 
 - Based on 
   - Mutexes
@@ -660,28 +729,35 @@ conditions
   - Monitors (software construct within the programming languages)
 
 ### Deadlocks
-> Deadlock: Where each process/thread in the set is waiting for an event that only the other 
-> process/thread in the set can cause
+> Deadlock: Where each process/thread in the set is waiting for an event that
+> only the other process/thread in the set can cause
 
-- Given two mutually exclusive resources X and Y, which can only be held by one process/thread at 
-a time
-- Threads A and B need to acquire both resources ( _locks_ ), and request them in opposite orders
+- Given two mutually exclusive resources X and Y, which can only be held by one
+    process/thread at a time
+- Threads A and B need to acquire both resources ( _locks_ ), and request them in
+    opposite orders
+
 - Such a sequence of events could occur in a multiprocess system:
-  - A requests and acquires X
-  - B requests and acquires Y
-  - A requests Y
-  - B requests X
+  1. A requests and acquires X
+  1. B requests and acquires Y
+  1. A requests Y
+  1. B requests X
   - Neither thread can continue
-- Each deadlocked process/thread is waiting for a resource held by another deadlocked 
-process/thread, which cannot run and hence cannot release the resources
-- Can occur between any number of processes/threads and for any number of resources
+
+- Each deadlocked process/thread is waiting for a resource held by another 
+    deadlocked process/thread, which cannot run and hence cannot release the
+    resources
+- Can occur between any number of processes/threads and for any number of
+    resources
 
 - Conditions for a deadlock
-  - __Mutual exclusion__: A resource can be assigned to at most one process at a time
-  - __Hold and wait condition__: A resource can be held whilst requesting new resources
+  - __Mutual exclusion__: A resource can be assigned to at most one process at a
+      time
+  - __Hold and wait condition__: A resource can be held whilst requesting new
+      resources
   - __No preemption__: Resources cannot be forcefully taken away from a process
-  - __Circular wait__: There is a circular chain of two or more processes, waiting for a resource held
-by the other processes
+  - __Circular wait__: There is a circular chain of two or more processes, waiting
+      for a resource held by the other processes
 
 ## Peterson's solution
 - Software solution
@@ -689,34 +765,40 @@ by the other processes
 
 - Two shared variables:
   - `turn`: indicates which process is next to enter its critical section
-  - `boolean flag[2]`: indicates that a process is ready to enter its critical section
-- Two processes (i and j) execute in strict alternation, can be generalised to multiple processes
+  - `boolean flag[2]`: indicates that a process is ready to enter its critical
+      section
 
-- Pros
-  - Satisfies all critical section requirements - mutual exclusion, progress, fairness
-- Cons
-  - Busy waiting is used - process loops endlessly while waiting for the lock to clear
+- Two processes (i and j) execute in strict alternation, can be generalised to
+    multiple processes
 
+- __Pro__: Satisfies all critical section requirements - mutual exclusion, progress,
+    fairness
+
+- __Con__: Busy waiting is used - process loops endlessly while waiting for the
+    lock to clear
 
 - Eg, for thread 0:
     ```c
     flag[0] = true;
     turn = 1;
     while (flag[1] == true && turn == 1) {
-      // busy wait
+    // busy wait
     }
     // critical section
     ...
     // end of critical section
     flag[0] = false;
     ```
-- Thread 1 would use the same structure, but replacing `1` with `0` and vice versa
+- Thread 1 would use the same structure, but replacing `1` with `0` and vice
+    versa
 
 ### Satisfying mutual exclusion
-- Both `flag[i]` and `flag[j]` are true when they want to enter their critical section
+- Both `flag[i]` and `flag[j]` are true when they both want to enter their 
+    critical section
 - `turn` is a singular variable that can only store one value
-- Hence, either `while(flag[i] && turn == i)` or `while(flag[j] && turn == j)` is true and at most 
-one process can enter its critical section
+
+- Hence, either `while(flag[i] && turn == i)` or `while(flag[j] && turn == j)`
+    is true and at most one process can enter its critical section
 
 ### Satisfying progress and bounded waiting
 - If process j does not want to enter its critical section
@@ -732,25 +814,26 @@ one process can enter its critical section
   - `while(flag[i] && turn == i)` terminates and j enters section
 
 ## Hardware solution
-- Disable interrupts whilst executing a critical section and prevent interruption 
-(eg form timers, I/O devices)
+- Disable interrupts whilst executing a critical section and prevent
+    interruption (eg from timers, I/O devices)
 - _May_ be appropriate on a single CPU machine
 
 - Atomic instructions:
   - `test_and_set()`
   - `swap_and_compare()`
   - Uninterruptible - done in one contiguous set of instructions
-  - Used in combination with global lock variables, assumed to be `true` if the lock is in use
+  - Used in combination with global lock variables, assumed to be `true` if the
+      lock is in use
 
 - Cons
-  - Are hardware instructions and (usually) not directly accessible to the user - OS is meant to 
-abstract this
+  - Are hardware instructions and (usually) not directly accessible to the user
+      \- OS is meant to abstract this
   - Busy waiting
   - Deadlock is possible - if two threads request resources in opposite order
   - Insufficient on modern multi-core/processor machines
 
-- OS uses hardware instructions to implement higher level mechanisms/instructions for mutual 
-exclusion - ie mutexes and semaphores
+- OS uses hardware instructions to implement higher level 
+    mechanisms/instructions for mutual exclusion - ie mutexes and semaphores
 
 ## Mutexes
 > Mutex: An approach for mutual exclusion provided by the OS
@@ -760,70 +843,84 @@ exclusion - ie mutexes and semaphores
 
 - Manipulation functions:
   - `acquire()`: before entering a critical section - boolean set to `false`
-  - `release()`: called after exiting the critical section - boolean set to `true` again
-  - Both must be atomic - no interrupts should occur between reading and setting the lock
-  - Process that acquires the lock must release the lock (in contrast to semaphores)
+  - `release()`: called after exiting the critical section - boolean set to 
+      `true` again
+  - Both must be atomic - no interrupts should occur between reading and
+      setting the lock
+  - Process that acquires the lock must release the lock (in contrast
+      to semaphores)
 
-- Pros
+- __Pros__
   - Context switches avoided - good for short critical sections
-  - Efficient on multi-core/processor systems when locks are held for a short time only
+  - Efficient on multi-core/processor systems when locks are held for a short
+      time only
 
-- Cons
+- __Cons__
   - `acquire()` calls result in busy waiting (appears to be OS dependent)
     - ie mutex is a 'spinlock'
     - Detrimental for performance on single CPU systems
 
 ## Semaphores
-> Semaphore: An approach for mutual exclusion and process synchronisation provided by the OS
+> Semaphore: An approach for mutual exclusion and process synchronisation
+> provided by the OS
 
 - Can be binary
 - Or integer - 0 to N (counting semaphore)
 
 - Manipulation functions:
   - `wait()`: Called when resource is acquired - the counter is decremented
-  - `signal()`/`post()`: Called when resource is released - the counter is incremented
-  - Both must be atomic - no interrupts should occur between reading and setting the counter
+  - `signal()`/`post()`: Called when resource is released - the counter is
+      incremented
+  - Both must be atomic - no interrupts should occur between reading and
+      setting the counter
 
-- Calling `post()` removes a process from the blocked queue if the counter is non-negative
+- Calling `post()` removes a process from the blocked queue if the counter is
+    non-negative
   - State changed from blocked to ready
 - Different queueing strategies can be employed to remove processes (eg FIFO)
-- The negative value of a semaphore is the number of processes waiting for the resource
+- The negative value of a semaphore is the number of processes waiting for the
+    resource
 - `block()` and `wakeup()` are system calls provided by the OS
 
 - Atomicity of `post()` and `wait()` can be achieved through...
   - use of mutexes
   - disabling interrupts in single CPU systems
   - hardware instructions
-- Atomicity of those functions means busy waiting is moved from the critical section to `wait()` 
-and `post()` - which are short
+- Atomicity of those functions means busy waiting is moved from the critical
+    section to `wait()` and `post()` - which are short
 
-- Semaphores within the same process can be declared as global variables of the type `sem_t`
+- Semaphores within the same process can be declared as global variables of the
+    type `sem_t`
   - `sem_init()`: Initialises value of the semaphore
   - `sem_wait()`: Decrements value of semaphore
   - `sem_post()`: Increments the value of the semaphore
 
-- Pros
-  - No busy waiting - calling `wait()` will block the process when the internal counter is negative
+- __Pros__
+  - No busy waiting - calling `wait()` will block the process when the internal
+      counter is negative
     - Process joins blocked queue
     - Process state changed from running to blocked
     - Control transferred to the process scheduler
 
-- Cons
-  - __Context switch overhead__: If critical section is short context switch dominates
+- __Cons__
+  - __Context switch overhead__: If critical section is short context switch
+      dominates
   - __Performance penalty__: From synchronising code
     - Synchronize only when necessary
-    - Synchronize as few instructions as possible - otherwise you're delaying others from entering
-their critical section
-  - __Starvation__: Poorly designed queueing approaches (eg LIFO) may result in fairness violations
+    - Synchronize as few instructions as possible - otherwise you're delaying
+        others from entering their critical section
+  - __Starvation__: Poorly designed queueing approaches (eg LIFO) may result in
+      fairness violations
   - __Deadlocks__
-  - __Priority inversion__: High priority process has to wait for the lower priority one to release a 
-resource it requires
+  - __Priority inversion__: High priority process has to wait for the lower
+      priority one to release a resource it requires
     - Can happen in chains
-    - Can be prevented by implementing priority inheritance to boost the lower's priority
+    - Can be prevented by implementing priority inheritance to boost the
+        lower's priority
 
 ## Producer/consumer problem
-- Producer(s) and consumer(s) share `n` buffers (eg array) that are capable of holding one item 
-each (eg a printer queue)
+- Producer(s) and consumer(s) share `n` buffers (eg array) that are capable of
+    holding one item each (eg a printer queue)
 - Can be bounded (size `n`) or unbounded size
 - Producers adds items - goes to sleep if buffer is full
 - Consumers remove items - goes to sleep if buffer is empty
@@ -833,42 +930,41 @@ each (eg a printer queue)
 
 - Two binary semaphores/mutexes:
   - `sync` synchronizes access to the buffer (counter), initialised to 1
-  - `delay_consumer` ensures that the consumer goes to sleep when there are no items available, 
-  initialised to 0
-  - Cons
-      - Race condition - When consumer has exhausted the buffer, the produce can still increment 
-count before consumer checks it
+  - `delay_consumer` ensures that the consumer goes to sleep when there are no
+      items available, initialised to 0
+  - __Con__: Race condition - When consumer has exhausted the buffer, the producer
+      can still increment count before consumer checks it
 
 ### Synchronisation problems
 - Bounded buffer
   - eg with `n` consumers, `m` producers, fixed buffer size `N`
-  - `sync`: boolean mutex/semaphore - enforce mutual exclusion when manipulating the buffer
+  - `sync`: boolean mutex/semaphore - enforce mutual exclusion when
+      manipulating the buffer
   - `empty`: tracks number of empty spaces in buffer, initialised to `N`
   - `full`: tracks number of full spaces in buffer, initialised to `0`
-  - `empty` and `full` are counting semaphores, updated as elements are removed/added respectively
+  - `empty` and `full` are counting semaphores, updated as elements are
+      removed/added respectively
 
 ### Dining philosophers problem
 - 5 philosophers sitting on a round table
 - Each needs 2 forks to be able to eat
-- When hungry (in between thinking), the philosopher tries the acquire the forks on their left and 
-right
-- Reflects general problem of sharing a limited set of resources (forks) between a number of 
-processes (philosophers)
+- When hungry (in between thinking), the philosopher tries the acquire the
+    forks on their left and right
+- Reflects general problem of sharing a limited set of resources (forks)
+    between a number of processes (philosophers)
 
 #### Naïve solutions
 - Pick up a fork and wait for a second one to become available
   - Have one semaphore per fork
-  - If all start at the same time, they will all take the fork on the left = deadlock as each is 
-  waiting for the fork on their right
-  - Cons
-      - Can avoid deadlock by putting forks down and waiting a random time
-(similar to Ethernet networks)
+  - __Cons__: Deadlock - if all start at the same time, they will all take the
+      fork on their left, so each will then wait for the fork on their right
+      - Can be avoided by putting forks down and waiting a random time
+          (similar to Ethernet networks)
 
 - Put one spare fork in the center of the table
   - Each philosopher has a fork for themselves
   - Each philosopher waits for the spare to be free when hungry
-  - Cons
-      - Results in poor usage of resources
+  - __Con__: Results in poor usage of resources
 
 #### Ideal solution
 - Store state of philosophers:
@@ -876,7 +972,7 @@ processes (philosophers)
 - `phil[N]`: One semaphore per philosopher (each initialised to 0)
 - `sync`: enforce mutual exclusion of the critical section
 - Philosopher sleeps if one of their neighbours are eating
-- Neighbours wake up the philosopher if they have finished eating
+- Philosophers who finish eating wake up their neighbours
 
 # Memory management
 - Computers typically have memory hierarchies:
@@ -891,18 +987,23 @@ processes (philosophers)
 - OS is responsible for...
   - allocating/deallocating memory when requested by processes
   - keeping track of used/unused memory
-  - distributing memory between processes and simulating an 'infinitely large' memory space
+  - distributing memory between processes and simulating an 'infinitely large'
+      memory space
   - controlling access in multiprogramming
   - transparently moving data from memory to disk and vice versa
 
-- Memory management has evolved - amount of memory available and used has greatly increased
-  - Many of the early ideas underpin more modern memory management approaches (eg relocation)
-  - Modern consumer electronics often require less complex memory management processes
+- Memory management has evolved - amount of memory available and used has
+    greatly increased
+  - Many of the early ideas underpin more modern memory management approaches
+      (eg relocation)
+  - Modern consumer electronics often require less complex memory management
+      processes
 
 - Partitioning: A process' memory can either be stored...
-  - __Contiguously__: As a single block in physical (main) memory, without holes or gaps
-  - __Non-contiguously__: Data divided into multiple blocks (or segments), spread around physical 
-memory, not necessarily adjacent
+  - __Contiguously__: As a single block in physical (main) memory, without holes
+      or gaps
+  - __Non-contiguously__: Data divided into multiple blocks (or segments), spread
+  around physical memory, not necessarily adjacent
 
 > Contiguous: Connecting, without a break
 
@@ -910,93 +1011,110 @@ memory, not necessarily adjacent
 > Mono-programming: Having a single partition for user processes
 
 - One single user process in memory/executed at any point
-- A fixed region of memory is allocated to the OS/kernel - remaining used by the single process
+- A fixed region of memory is allocated to the OS/kernel - remaining used by
+    the single process
 - eg used in MS-DOS
 - Process has direct access to physical memory = no address translation
 - Process always located in the same address space
 - No protection between different user processes required
-- Overlays enable the programmer to use more memory than available - load program incrementally
+- Overlays enable the programmer to use more memory than available - can load
+    a program incrementally
 
-> Overlaying: Transferring a block of data/code into memory, replacing what is already there
+> Overlaying: Transferring a block of data/code into memory, replacing what is
+> already there
 
-- Common in embedded systems and modern consumer electronics - eg washing machines, microwaves, etc
+- Common in embedded systems and modern consumer electronics - eg washing
+    machines, microwaves, etc
 
-- Cons
+- __Cons__
   - If a process has direct memory access it might be able to access OS memory
   - OS can be seen as a process - there's already multiple processes
   - Low utilisation of hardware resources (CPU, I/O, etc)
-  - Mono-programming unacceptable as multiprogramming is expected on modern machines
+  - Mono-programming unacceptable as multiprogramming is expected on modern
+      machines
 
 - Can simulate multiprogramming through swapping
-  - Swap process out to disk and load a new one (though context switches would become time 
-consuming)
+  - Swap process out to disk and load a new one (though context switches
+      would become time consuming)
 
 ## Modelling multi-programming
 - Given `n` processes in memory
 - A process spends `p` percent of its time waiting for I/O
 - CPU utilisation is `1 - (time all processes are waiting for I/O)`
 - CPU utilisation is given by `1 - p^n`
-- eg, given `p = .2`, we can achieve 100% CPU utilisation using 4 processes `(1 - .2^4)`
-- CPU util increases with `n` and decreases with `p`
-- More memory means space for more processes, which enables achieving higher util
+- eg, given `p = .2`, we can achieve 100% CPU utilisation using 4 processes
+    `(1 - .2^4)`
+- CPU utilisation increases with `n` and decreases with `p`
+- More memory means space for more processes, which enables achieving higher
+    utilisation
 
-- __Multi-programming improves CPU utilisation, and so memory management should support it__
+- __Multi-programming improves CPU utilisation, and so memory management should
+    support it__
 
 - Caveats
   - Assumes all processes are independent (not always true)
-  - Could build more complex models using the _queueing theory_, but could use this model for 
-approximate predictions
-
+  - Could build more complex models using the _queueing theory_, but could use
+      this model for approximate predictions
 
 ## Partitioning
 
 ### Fixed partitions, equal size
-- Divide memory into static, contiguous, and equally sized partitions, with fixed size and location
+- Divide memory into static, contiguous, and equally sized partitions, with
+    fixed size and location
 - Any process can take any (large enough) partition
 - OS keeps track of which parts are being used, and which are free
 
-- Pros
+- __Pros__
   - Allocation of fixed equal sized partitions to process is trivial
   - Very little overhead, simple implementation
-  - Allows multiprocessing = better CPU util
+  - Allows multiprocessing = better CPU utilisation
 
-- Cons
-  - Low memory utilisation and internal fragmentation - parts may be unnecessarily large
-  - Overlays needed if a program does not fit into partition (burden on programmer)
+- __Cons__
+  - Low memory utilisation and internal fragmentation - parts may be
+      unnecessarily large
+  - Overlays needed if a program does not fit into partition (burden on
+      programmer)
 
 > Internal fragmentation: When part of a partition is not being used
 
 ### Fixed partitions, non-equal size
-- Divide memory into static, non-equally sized partitions, with fixed size and location
+- Divide memory into static, non-equally sized partitions, with fixed size and
+    location
 
-- Pros
+- __Pros__
   - Reduces internal fragmentation
-  - Allows multiprocessing = better CPU util
+  - Allows multiprocessing = better CPU utilisation
 
-- Cons
-  - Low memory utilisation and internal fragmentation - parts may be unnecessarily large
+- __Cons__
+  - Low memory utilisation and internal fragmentation - parts may be
+      unnecessarily large
   - Allocating processes to partitions must be carefully considered
-  - Overlays needed if a program does not fit into partition (burden on programmer)
+  - Overlays needed if a program does not fit into partition (burden on
+      programmer)
 
 #### Allocation methods
 - Private queue per partition
   - Assigns each process to smallest partition in which it would fit
-  - Pro: Reduces internal fragmentation
-  - Con: Can reduce memory util - lots of small jobs results in unused large parts = starvation
+  - __Pro__: Reduces internal fragmentation
+  - __Con__: Can reduce memory utilisation - lots of small processes =
+      unused large partitions = starvation
 
 - Single shared queue
   - Applies to all partitions
-  - Can allocate small processes to large partitions
-  - Con: Results in increased internal fragmentation
+  - __Pro__: Can allocate small processes to large partitions
+  - __Con__: Results in increased internal fragmentation
 
 ## Relocation and protection
-- When run, a program does not know in advance which partition/address it will occupy
-  - Cannot generate static addresses that are absolute (referring to physical memory)
+- When run, a program does not know in advance which partition/address it will
+    occupy
+  - Cannot generate static addresses that are absolute (referring to physical
+      memory)
   - Addresses should be relative to where the program has been loaded
-  - OS must resolve relocation, allowing processes to run at different memory locations
+  - OS must resolve relocation, allowing processes to run at different memory
+      locations
 
-- Protection - once you can have two programs in memory at the same time, need to consider and 
-enforce protection 
+- Protection - once you can have two programs in memory at the same time, need
+    to consider and enforce protection 
   - One process must not be able to access another's memory
 
 > Logical address: A memory address seen by a process
@@ -1010,12 +1128,13 @@ enforce protection
 - Logical address space needs to map onto physical address space
 
 ### Approaches
-- Static 'relocation' at compile time - a process has to be located at the same point in memory 
-every time
+- Static 'relocation' at compile time - a process has to be located at the
+    same point in memory every time
 
 - Dynamic relocation at load time
-  - Offset added to every logical address - accounts for its physical location in memory
-  - Cons
+  - Offset added to every logical address - accounts for its physical location
+      in memory
+  - __Cons__
     - Slows down loading of a process
     - Does not account for swapping
 
@@ -1024,29 +1143,32 @@ every time
     - __Base register__: Stores the start address of the partition
     - __Limit register__: Holds the size of the partition
   - At runtime:
-    - Base register added to logical (relative) address to generate physical address
+    - Base register added to logical (relative) address to generate physical
+        address
     - Result is compared against the limit register
   - Con: Requires hardware support - was not always present
 
 ## Dynamic partitioning
-> Dynamic partitioning: Variable number of partitions of which the size and starting address can
-> change over time
+> Dynamic partitioning: Variable number of partitions of which the size and
+> starting address can change over time
 
 - Fixed partitioning = internal fragmentation
   - There may not exist a partition that is exactly the size the process needs
   - The partition may not be used entirely
-- Dynamic partitioning allocates the precise amount of contiguous memory a process requires
+- Dynamic partitioning allocates the precise amount of contiguous memory a
+    process requires
   - Prevents internal fragmentation
 
 ### Swapping
-> Swapping: Holding some processes on the drive and moving them between drive and main memory as 
-> necessary
+> Swapping: Holding some processes on the drive and moving them between drive
+> and main memory as necessary
 
 - Reasoning
   - Some processes only run occasionally
   - There are more processes than partitions (assuming fixed partitions)
   - A process' memory requirements have changed, eg increasing
-  - The total amount of memory that is required for the process exceeds the available memory
+  - The total amount of memory that is required for the process exceeds the
+      available memory
 
 - Issues
   - Exact memory requirements may not be known in advance 
@@ -1054,11 +1176,12 @@ every time
     - Could include extra space on top of current requirements
 
   - __External fragmentation__
-    - Swapping a process out of memory will create an unused gap ('hole') in physical memory
+    - Swapping a process out of memory will create an unused gap ('hole') in
+        physical memory
     - A new process may not use the entire hole, leaving a small unused block
     - A new process may be too large for a given "hole"
-    - Overhead of memory compaction to recover holes can be prohibitive and requires dynamic 
-relocation
+    - Overhead of memory compaction to recover holes can be prohibitive and
+        requires dynamic relocation
 
   - __Memory management__
     - Becomes more complicated
@@ -1066,19 +1189,23 @@ relocation
         - bitmaps
         - linked lists
     - Consider how to quickly allocate processes to available memory
-> External fragmentation: Blocks of memory that go unused because they are to small to be allocated
-> to a process
+
+> External fragmentation: Blocks of memory that go unused because they are to
+> small to be allocated to a process
 
 ### Allocation structures
+
 #### Bitmaps
 - Simple data structure - like an array
-- Each entry is 1 or 0 boolean, indicating whether the block at that index is allocated
+- Each entry is 1 or 0 boolean, indicating whether the block at that index is
+    allocated
 - Size of bitmap depends on amount of memory and size of blocks
 - Eg, with 4K blocks and 32M of memory
   - 8192 entries in bitmap
   - = 1KB of storage used
 
-- Finding gaps of sufficient size requires finding a certain number of adjacent bits in bitmap
+- Finding gaps of sufficient size requires finding a certain number of adjacent
+    bits in bitmap
   - Quite a long operation
 
 - Issues
@@ -1104,10 +1231,11 @@ relocation
     - Connected to a single disk arm, controlled by a single actuator
   - Data stored on both sides of disks
   - Common diameters range from 1.8 to 3.5 inches
-  - Disks rotated at a constant speed - the speed on the inside is less than on the outside
+  - Disks rotated at a constant speed - the speed on the inside is less than on
+      the outside
 - Disk controller between CPU and the drive
-- Hard disks are currently about 4 orders of magnitude slower than main memory - need to reduce the
-impact
+- Hard disks are currently about 4 orders of magnitude slower than main memory
+    \- need to reduce the impact
 
 ### Low-level format and organisation
 - __Tracks__: Concentric circle on a single platter side
@@ -1131,7 +1259,8 @@ impact
 
 - Multiple requests can occur concurrently
   - Access time may be increased by a __queueing time__
-  - Dominance of seek time leaves room for optimisation - consider the order of read operations
+  - Dominance of seek time leaves room for optimisation - consider the order of
+      read operations
 
 - Estimated seek time (moving arm from one track to another): `Ts = n * m + s`
   - `Ts`: Seek time
@@ -1144,7 +1273,8 @@ impact
   - `average rotation latency = 30000/rpm`
 
 - Transfer time `Tt`:
-  - For the number of bytes in a track `N`, it takes one revolution to read them all
+  - For the number of bytes in a track `N`, it takes one revolution to read
+      them all
   - `b` contiguous bytes takes `b/N` revolutions
   - `Tt = b/N * (ms per minute)/rpm`
 
@@ -1152,12 +1282,15 @@ impact
 - OS must use hardware efficiently
   - File system can position/organise files strategically
   - Having multiple disk requests queued can minimise arm movement
-- Every I/O operation is handled by a system call, allowing the OS to intercept and reorder requests
-- If the drive or controller is free, the request can be handled immediately, otherwise it is queued
+- Every I/O operation is handled by a system call, allowing the OS to intercept
+    and reorder requests
+- If the drive or controller is free, the request can be handled immediately,
+    otherwise it is queued
 
 - In a dynamic situation, several I/O requests will be made over time
   - Requests are stored in a table of requested sectors, per cylinder
-- __Disk scheduling algorithms__ determine the order in which requests are processed
+- __Disk scheduling algorithms__ determine the order in which requests are
+    processed
 
 ### First come first served (FCFS)
 - Requests processed in order that they arrive
@@ -1169,7 +1302,8 @@ impact
 - __Con__: Can result in starvation
   - Arm stays in the middle of the disk when under heavy load
   - Edge cylinders are poorly served - unfair
-  - Continuously receiving requests for the same location could __starve__ other regions
+  - Continuously receiving requests for the same location could __starve__ other
+      regions
 
 ### SCAN / Lift algorithm
 - Head moves in the same direction until end is reached (starting from outside)
@@ -1181,23 +1315,28 @@ impact
   - Max wait time is `N` tracks at center, `2N` tracks at edges
 
 ### C-SCAN (Circular SCAN)
-- Once the edge of the disk is reached, requests at the other end have been waiting the longest
+- Once the edge of the disk is reached, requests at the other end have been
+    waiting the longest
 - When reversing, C-SCAN does not handle requests, returning to where it began
 - Only handles requests in one direction
 - __Pros__: fairer, equalises response times across disk
 
 ### Look-SCAN
-- Moves head to the last cylinder __of the first/last__ request instead of simply to the edges
+- Moves head to the last cylinder __of the first/last__ request instead of simply
+    to the edges
+- __Pro__: Reduces head movement and thus latency
 - __Con__: Seeks are cylinder by cylinder - each containing multiple tracks
   - The arm may _stick_ to a cylinder
 
 ### N-step-SCAN
 - Only services a limited number of requests every sweep
+- __Pro__: Reduces delay until a request is processed
 
 ### Observations and notes
 - Look-SCAN and variations are reasonable choices for algorithms
 - Performance of each algorithm is dependent on the load of the disk
-  - If only one request is received at a time, FCFS will perform as well as any other
+  - If only one request is received at a time, FCFS will perform as well as any
+      other
 - __Optimal__ algorithms are difficult to achieve if requests arrive over time
 
 - Controlling disk scheduling in Unix/Linux
@@ -1207,26 +1346,29 @@ impact
     - `deadline`: N-step-SCAN
     - `cfq`: Complete Fairness Queueing
 
-    ```
-    $ cat /sys/block/sda/queue/scheduler
-    noop [deadline] cfq
-    ```
+        ```
+        $ cat /sys/block/sda/queue/scheduler
+        noop [deadline] cfq
+        ```
   - Option surrounded by square brackets is the currently active scheduler
 
 - Driver caching
-  - In most modern drives, the time required to seek to a new cylinder > the rotational time
+  - In most modern drives, the time required to seek to a new cylinder > the
+      rotational time
   - Makes sense to read more sectors than actually required
     - Read sectors during the rotation delay (that are passed by)
-    - Modern controllers read multiple sectors when asked for data from a single on - 
-track-at-a-time caching
+    - Modern controllers read multiple sectors when asked for data from a
+        single on - track-at-a-time caching
 
-- Solid State Drives (SSDs) have no moving parts - they store data in electrical circuits
+- Solid State Drives (SSDs) have no moving parts - they store data in
+    electrical circuits
   - No seek or rotation delays
   - FCFS is useful in general purpose system
   - Other algorithms may reduce performance
 
 ## User view
-> User view: defines a file system in terms of the abstractions that the operating system provides
+> User view: defines a file system in terms of the abstractions that the
+> operating system provides
 
 - How the file system looks like to regular users (and programmers)
 - Relates to abstractions
@@ -1234,9 +1376,10 @@ track-at-a-time caching
 - Provides:
   - __File abstraction__: Hides away implementation of files from user
   - __File naming policies__: Abstracts storage details
-  - __User file attributes__: Ability to read/manage size, protection, owner, protection, modification 
-times
-  - __System attributes__: Non-human readable file descriptors, archive & temporary flags
+  - __User file attributes__: Ability to read/manage size, protection, owner,
+      protection, modification times
+  - __System attributes__: Non-human readable file descriptors, archive &
+      temporary flags
   - __System calls__: Enable interaction with file system
   - __Directory structures__ and organisation
 
@@ -1246,16 +1389,17 @@ times
   - __Regular files__: Contain user data in ASCII or (a well-defined) binary format
   - __Directories__: Group files together - are files in the implementation level
 - Unix has character and block special files
-  - __Character special files__: Used to model serial I/O devices - eg keyboards, printers
+  - __Character special files__: Used to model serial I/O devices - eg keyboards,
+      printers
   - __Block special files__: Model block storage devices like hard drive
 
 ### File control block (FCB)
-| permissions |
+| Permissions |
 |:-:|
-| dates (create, access, write) |
-| owner, group, Access Control List (ACL) |
-| size |
-| (pointers to) data blocks |
+| Dates (create, access, write) |
+| Owner, Group, Access Control List (ACL) |
+| Size |
+| (Pointers to) Data blocks |
 
 - Are kernel data structures - protected and only accessible in kernel mode
 - Allowing user applications to access them could compromise their integrity
@@ -1267,11 +1411,14 @@ times
 - Eg, a bit is set that indicates the file is a directory
 
 - Multiple directory structures have been used in the past
-  - __Single level__: All files in the same directory (still used in consumer electronics)
+  - __Single level__: All files in the same directory (still used in consumer
+      electronics)
   - __Two/multiple level (hierarchical) directories__: Tree structures
     - __Absolute path name__: Path from root of the file system
-    - __Relative path name__: The current working directory is used as a starting point
-  - __Directed acyclic graph (DAG)__: Allows files to be shared (with links to files or sub-directories)
+    - __Relative path name__: The current working directory is used as a
+        starting point
+  - __Directed acyclic graph (DAG)__: Allows files to be shared (with links to
+      files or sub-directories)
     - Cycles are forbidden
   - __Generic graph structure__: Links and cycles can be used
 
@@ -1283,13 +1430,18 @@ times
   - Deleting files becomes complicated
     - Links may no longer point to a file
     - Inaccessible cycles may exist
-  - Garbage collection may be required to remove files that are no longer accessible from the tree
+  - Garbage collection may be required to remove files that are no longer
+      accessible from the tree
     - Files may become part of a cycle only
 
 ### System calls
-> System calls: Allow the OS to perform (kernel mode) actions on a user application's behalf
+> System calls: Allow the OS to perform (kernel mode) actions on a user
+> application's behalf
+
 - Categorised into __file manipulation__ and __directory manipulation__
+
 - __File manipulation__: `open()`, `close()`, `read()`, `write()`, etc
+
 - __Directory manipulation__:
   - `create()`/`delete()`: Create/delete directory
   - `opendir()`/`closedir()`: Add/free directory to/from internal tables
@@ -1297,13 +1449,17 @@ times
   - `rename()`, `link()`, `unlink()`, `list()`, `update()`
 
 ## Implementation view
-> Implementation view: defines the file system in terms of its low-level implementation
+> Implementation view: defines the file system in terms of its low-level
+> implementation
+
 - All file systems have to address several considerations:
   - Disk partitions, partition tables, boot sectors, etc
   - Free space management
   - System wide and per process file tables
+
 - Low level formatting writes sectors to disk
-- High level formatting imposes a file system on top - blocks can cover multiple sectors
+- High level formatting imposes a file system on top - blocks can cover
+    multiple sectors
 
 ### Partitions
 - Disks are usually divided into multiple partitions
@@ -1322,9 +1478,11 @@ times
 | Data |
 
 - __Boot block__: Exists on every partition, will contain code to boot the OS
-- __Super block__: Contains partition details, eg size, umber of blocks, I-node table size
+- __Super block__: Contains partition details, eg size, umber of blocks, I-node
+    table size
 - __Free space management__: A bitmap or linked list, indicating the free blocks
-- __I-nodes__: An array of data structures, each storing information about a single file
+- __I-nodes__: An array of data structures, each storing information about a single
+    file
 - __Root directory__: The top of the file system tree
 - __Data__: Files and directories
 
@@ -1338,16 +1496,18 @@ times
 - __Pro__: Take up comparatively less space than linked lists
 - __Con__: Size of the bitmap grows with the size of the disk
   - Fixed size for each disk
-  - Can only keep bitmap in memory for small disks
+  - Only for small disks can the entire bitmap be kept in memory
 
 #### Using linked lists
-- Aka _grouping_
+- aka _grouping_
+
 - Free blocks are used to hold the indexes of free blocks
   - eg with 1KB blocks and 32b disk block number, each block holds 255 blocks
   - One pointer points to the next block
 - Size of list grows with disk size, shrinks with block size
 - Can instead keep track of number of consecutive blocks
   - Known as _counting_
+
 - __Pros__
   - Less wasted space
     - Size of free list shrinks as disk fills
@@ -1362,44 +1522,50 @@ times
     - Location on disk
     - File size
     - Open count - number of processes using the file
-  - __Per-process open file table__: Contains a pointer to the system open file table
+  - __Per-process open file table__: Contains a pointer to the system open file
+      table
 
 - Opening a file requires...
-  1. checking the directory structure (in memory, or on disk)
-  2. loading the FCB from disk into memory
+    1. checking the directory structure (in memory, or on disk)
+    1. loading the FCB from disk into memory
 
 - Reading a file requires...
-  1. checking the file index in the per-process open-file table for a pointer
-  2. following that pointer to the system-wide open-file table
-  3. loading the FCB from disk into memory
-  4. reading the data blocks on disk
+    1. checking the file index in the per-process open-file table for a pointer
+    1. following that pointer to the system-wide open-file table
+    1. loading the FCB from disk into memory
+    1. reading the data blocks on disk
 
 ### Directories
-- Contain a list of human readable file names that are mapped onto unique identifiers and disk
-locations
+- Contain a list of human readable file names that are mapped onto unique
+    identifiers and disk locations
   - Map logical file onto the physical location
 - Can store all related file attributes
   - Name
   - Disk address (on Windows)
   - Pointer to I-node (Unix)
+
 - Finding a file involves searching a directory file
-  - Random order of directory entries could be slow - would mean O(n) search time
+  - Random order of directory entries could be slow - would mean O(n) search
+      time
   - Indexes or hash tables can be used
 
 ## Implementations
-- The layout of the file system and the file allocation methods used by the OS influences the 
-seeking of a mechanical hard drive
+- The layout of the file system and the file allocation methods used by the OS
+    influences the seeking of a mechanical hard drive
   - Contiguous files will result in many short head movements
 
-- Disk scheduling could be implemented in the controller, but OS can prioritise requests
+- Disk scheduling could be implemented in the controller, but OS can prioritise
+    requests
 
-Sequential vs random access:
+- Sequential vs random access:
   - Larger files are composed of a number of blocks
-  - __Sequential access__: - blocks before a desired one must be processed before the desired one
-  - __Random access__: - the desired block can be accessed without processing any before it
+  - __Sequential access__: - blocks before a desired one must be processed before
+      the desired one
+  - __Random access__: - the desired block can be accessed without processing any
+      before it
 
 ### Contiguous allocation
-Similar to dynamic partitioning in memory allocation:
+- Similar to dynamic partitioning in memory allocation:
   - Each file stored in a single group of adjacent blocks on the hard disk
   - Eg 1KB blocks, storing a 100KB file, would use 100 contiguous blocks
 
@@ -1407,43 +1573,50 @@ Similar to dynamic partitioning in memory allocation:
 - In use by CD-ROMs and DVDs
 
 - __Pros__
-  - __Simple to implement__: Need store only location of first block and length of file
-(in directory entry)
-  - __Optimal read/write performance__: Related blocks clustered in nearby/adjacent sectors 
-= minimised seek time
+  - __Simple to implement__: Need store only location of first block and length 
+      of file (in directory entry)
+  - __Optimal read/write performance__: Related blocks clustered in nearby/adjacent
+      sectors = minimised seek time
 
 - __Cons__:
   - __Need to know exact file size__: Not always known beforehand
     - If file size grows it could overflow the initially allocated disk space
-  - __Allocation algorithms__ are needed to decide which free blocks to allocate to a given file
+  - __Allocation algorithms__ are needed to decide which free blocks to allocate
+      to a given file
   - __Deleting a file = external fragmentation__: Need to defrag disk
 
 ### Linked lists
-- Avoid external fragmentation by storing files in separate blocks (similar to paging) that are 
-linked to one another
+- Avoid external fragmentation by storing files in separate blocks (similar to
+    paging) that are linked to one another
 - Only address of first block needed to locate file
 - Each block contains a data pointer to the next block (taking up space)
 
 - __Pros__
-  - __Easy to maintain__: Only first block (address) has to be maintained in the directory entry
-  - __File sizes can grow dynamically__: New blocks/sectors can be added to the end of the file as necessary
+  - __Easy to maintain__: Only first block (address) has to be maintained in the
+      directory entry
+  - __File sizes can grow dynamically__: New blocks/sectors can be added to the
+      end of the file as necessary
   - __Eliminates external fragmentation__: all blocks/sectors can be used
-  - Sequential access is straightforward - though more seek ops/disk access may be required
+  - Sequential access is straightforward - though more seek ops/disk access
+      may be required
 
 - __Cons__
   - __Random access is very slow__: Need to walk the list to find desired block
-  - __Internal fragmentation__: On average the last half of the last block is left unused
+  - __Internal fragmentation__: On average the last half of the last block is left
+      unused
     - Smaller block sizes = less internal fragmentation
   - __Possibility of random disk access__
     - Blocks stored around the disk
     - Need to seek to the next block for each link in the list
     - This would be very slow
-    - Larger blocks (containing multiple sectors) will be faster
+    - Using larger blocks (containing multiple sectors) will be faster
   - __Pointer takes up space__
-  - __Reliability worsened__: If a block in the list is corrupted, the rest of the file is lost
+  - __Reliability worsened__: If a block in the list is corrupted, the rest of the
+      file is lost
 
 ### File Allocation Tables (FAT)
-- Stores linked-list pointers in a separate index table - called a File Allocation Table (FAT)
+- Stores linked-list pointers in a separate index table - called a File
+    Allocation Table (FAT)
 - Information stored in memory
 
 - __Pros__
@@ -1459,35 +1632,39 @@ linked to one another
 ### I-nodes
 - Each file has a small data structure (on disk) called an I-node (index-node)
   - Contains its attributes and block pointers
-  - Each only loaded when the file is open (stored in system-wide open file table)
+  - Each only loaded when the file is open (stored in system-wide open file
+      table)
   - Amount of memory required is `n * k`:
     - `n`: Size of an I-node
     - `k`: Max number of files that can be open simultaneously
-
 
 - Composed of a combination of:
   - Direct block pointers (usually 10)
   - Indirect block pointers
 
-- With only direct block pointers, maximum file size is `block size * no. direct blocks`
-- A single indirect block can store up to `(block size) / (size of disk address)` block pointers
-- A double indirect block would square the number of blocks pointable by a single indirect block
+- With only direct block pointers, maximum file size is `block size * 
+    no. direct blocks`
+- A single indirect block can store up to `(block size) / (size of disk
+    address)` block pointers
+- A double indirect block would square the number of blocks pointable by a 
+    single indirect block
 - Larger files will require a greater level of indirect blocks
 
 ### Directories using I-nodes
 - In UNIX, all information about the file is stored in its I-node
-- Allows directory tables to be simple data structures composed of a file name and I-node pointer
+- Allows directory tables to be simple data structures composed of a file name
+    and I-node pointer
 - Directories are a special file, that have their own I-node
 
 ### I-node file lookups
 1. Locate the root directory of the file system
   - Its I-node is in a fixed location in the disk
   - The directory itself could be anywhere on disk
-2. Locate the directory entries specified in the path
+1. Locate the directory entries specified in the path
   - Find I-node number of first directory
   - Use I-node number to index the I-node table and retrieve the directory file
   - Repeat above cycle until the lowest-level directory file is reached
-3. Search the file's directory file for the I-node, cache it in memory
+1. Search the file's directory file for the I-node, cache it in memory
 
 ### Hard and soft links
 - Allow directories to share files
@@ -1495,15 +1672,18 @@ linked to one another
 
 #### Hard link
 - Each folder holds a reference to the same I-node
-- An _I-node link reference counter_ tracks number of directories referring to each I-node
+- An _I-node link reference counter_ tracks number of directories referring to
+    each I-node
 - Created using `ln file.txt linkName`
 
 - __Pro__: Faster - doesn't require reading another I-node
+
 - __Cons__: Deleting a file becomes difficult
-  - If owner deletes the file, the other directories will hold a reference to an invalid/undesired I-node
+  - If owner deletes the file, the other directories will hold a reference to 
+      an invalid/undesired I-node
   - I-node is kept intact if > 1 reference
-  - File is deleted from owner's directory table but technically is responsible for the space the 
-file takes up
+  - File is deleted from owner's directory table but technically is responsible
+      for the space the file takes up
 
 #### Symbolic/soft link
 - A file stores the location of the shared file
@@ -1513,7 +1693,8 @@ file takes up
 
 - __Pros__: 
   - No issues with deleting the original file - link is simply broken
-  - Can cross boundaries of filesystems - linked file could be stored on a different machine
+  - Can cross boundaries of filesystems - linked file could be stored on a
+      different machine
 
 - __Cons__
   - Result in another file lookup
@@ -1538,16 +1719,21 @@ file takes up
 - Many operations, eg creating a file, may involve using several blocks
   - Blocks do not need to be adjacent
   - Seeking to blocks in a hard drive causes delays, slowing down performance
-- Log structured filesystems try to __improve speed__ by __minimising head movements and rotation delays__
+- Log structured filesystems try to __improve speed__ by __minimising head movements
+    and rotation delays__
 - They use the disk as a log - only writes at the end
-- Read and write operations are buffered in memory, to write larger volumes in one go
-- Once the buffer is full, it is _flushed_ to the disk, written as one contiguous segment
+- Read and write operations are buffered in memory, to write larger volumes in
+    one go
+- Once the buffer is full, it is _flushed_ to the disk, written as one contiguous
+    segment
   - I-nodes and data written to the same segment
   - Finding I-nodes becomes more difficult
 - I-node map is maintained in memory to quickly find disk address of I-nodes
-- __Cleaner thread__: A process that runs in the background, scanning the log circularly to compact it
+- __Cleaner thread__: A process that runs in the background, scanning the log 
+    circularly to compact it
   - Deleted files are removed
-  - Files in use are marked as free segments - they will later be written to the end
+  - Files in use are marked as free segments - they will later be written to
+      the end
 - The hard drive is treated as a circular buffer
 
 - __Pros__
@@ -1559,9 +1745,9 @@ file takes up
 
 ### Journaling
 - Deleting a file requires
-  1. Removing the respective entry in the directory entry
-  2. Adding the file's I-node to the list of free I-nodes
-  3. Adding the file's blocks to the free list
+    1. Removing the respective entry in the directory entry
+    2. Adding the file's I-node to the list of free I-nodes
+    3. Adding the file's blocks to the free list
 - Failure points:
   - __Crash after removing directory entry__: I-nodes and disk blocks inaccessible
   - __Crash after freeing I-nodes__: Disk blocks inaccessible
@@ -1569,11 +1755,12 @@ file takes up
 
 - Journaling aims to increase resilience against crashes
   - Filesystem updates are recorded as a transaction
-  1. Write operations to log file
-  2. Carry out operations
-  3. Remove/commit the log entries
+      1. Write operations to log file
+      2. Carry out operations
+      3. Remove/commit the log entries
 
-- If a crash occurs in the middle of an operation, the log entries will still be there
+- If a crash occurs in the middle of an operation, the log entries will still
+    be there
   - Log can be examined after crash
   - __Pro__: Can restore consistency of the file system
 
@@ -1584,7 +1771,8 @@ file takes up
 - They can be seamlessly integrated by the OS (eg in Unix/Linux)
 - VFS relies on the standard object oriented principles of polymorphism
   - A generic interface is specified by the POSIX standards
-  - Commonly contains the POSIX system calls: `open()`, `close()`, `read()`, `write()`
+  - Commonly contains the POSIX system calls: `open()`, `close()`, `read()`,
+      `write()`
   - Each filesystem implements the interface
   - Done in the implementation layer of the file system
 - Allows Unix/Linux to unify different file systems
@@ -1594,14 +1782,16 @@ file takes up
 
 - All file systems, including the root, are registered with the VFS
   - A list/table to the VFS function calls is kept - function pointers
-  - Every VFS function call corresponds to the specific entry in the VFS function table for the given file system
+  - Every VFS function call corresponds to the specific entry in the VFS
+      function table for the given file system
   - VFS maps the POSIX call onto the file system's operation
 
 ## Recovery
 - Journaling reduces probability of inconsistencies
-- There is still the possibility of some inconsistencies - eg data blocks not being flushed to the 
-drive
-- Can cause issues, in particular with structural blocks like I-nodes, directories, and free lists
+- There is still the possibility of some inconsistencies - eg data blocks not
+    being flushed to the drive
+- Can cause issues, in particular with structural blocks like I-nodes,
+    directories, and free lists
 - System utilities are available to restore file systems, eg...
   - Scandisk
   - FSCK
@@ -1609,21 +1799,22 @@ drive
 ### Block consistency
 - Check whether blocks are assigned/used the correct way
 - Build two tables:
-  1. Counts how often a block is present in a file
-  2. Counts how often a block is present in the free list
+    1. Counts how often a block is present in a file
+    2. Counts how often a block is present in the free list
 - Typically a slow process - can take hours, partition needs to be unmounted
 - __Missing block__: Not in either of the tables - add it to the free list
 - __Duplicate block entry in free list__: Rebuild the free list
 - __Block present in more than one file__:
   - Removing one file = add block to free list
   - Remove both files = duplicate entry in free list
-  - __Solution__: Use a new free block and copy the content - file is likely to be damaged
+  - __Solution__: Use a new free block and copy the content - file is likely to be
+      damaged
 
 - FSCK algorithm:
-  1. Iterate through all I-nodes
+    1. Iterate through all I-nodes
     1. Retrieve blocks
     2. Increment counters
-  2. Iterate through the free list
+    2. Iterate through the free list
     - Increment counters for free blocks
 
 ### I-node consistency
@@ -1632,8 +1823,8 @@ drive
   - Removing file = I-node counter decremented
   - Counter > 1 so I-node/disk space is not marked free
 - __I-node count too low__: More directories contain the file than indicated
-  - Removing file = I-node counter decremented (eventually reaching 0) whilst the file is still 
-referenced
+  - Removing file = I-node counter decremented (eventually reaching 0) whilst
+      the file is still referenced
   - File/I-node released even though file is still in use
 
 - Algorithm
@@ -1648,18 +1839,21 @@ referenced
 - Over time, creating and removing files creates gaps of free blocks
 - Defrag utilities aim to make allocated and free file blocks contiguous
 - ext2/3 suffers less from fragmentation
-- Defragmenting SSDs is counter-productive - no seek time, re-writing causes wear
+- Defragmenting SSDs is counter-productive - no seek time, re-writing causes
+    wear
 
 ## Linux filesystem history
 - __Minix__: Max file size 64MB, file names limited to 14 characters
-- __Extended file system (extfs)__: Max file size 2GB, file names limited to 255 characters
+- __Extended file system (extfs)__: Max file size 2GB, file names limited to 255
+    characters
 - __ext2__: Larger files and names, better performance
 - __ext3/4__: Journaling and more
 
 ### Ext2
 - One of the most popular Linux file systems
 - Goals:
-  - Improve upon performance of MINIX and extfs, distributing directors evenly over disk
+  - Improve upon performance of MINIX and extfs, distributing directors evenly
+      over disk
   - Greater file names and sizes, improving directory implementation
 
 #### Structure
@@ -1671,9 +1865,11 @@ referenced
 | Block group 2 |
 | ... |
 
-- Block groups have the same size and are stored sequentially - allowing indexing
+- Block groups have the same size and are stored sequentially - allowing
+    indexing
 - __Pros__
-  - __Reduce fragmentation__: Storing I-nodes with their files, and directories with their files
+  - __Reduce fragmentation__: Storing I-nodes with their files, and directories
+      with their files
   - Reduce seek times to improve performance
 
 #### Within a block group
@@ -1686,7 +1882,8 @@ referenced
 | Data blocks |
 
 - __Superblock__:  Contains file system information - number of I-nodes, blocks
-- __Group descriptor__: Bitmap locations, number of free blocks, I-nodes, and directories
+- __Group descriptor__: Bitmap locations, number of free blocks, I-nodes, and
+    directories
 - __Data block & I-node bitmaps__: Keep track of free disk blocks and I-nodes
 - __Table of I-nodes__: Contain file and disk block information
 - __Data blocks__: Contain file and directory blocks
@@ -1724,47 +1921,53 @@ referenced
   - One server failing will not bring down all the other services
 
 - Alternative: virtual machines (VM)
-  - Hardware of a single computer abstracted onto several different execution environments 
-(idea from 60/70s)
+  - Hardware of a single computer abstracted onto several different execution
+      environments (idea from 60/70s)
 
 - Software is given illusion that it has full control over hardware
 - Can run multiple instances of an OS, or different ones, on the same machine
 
 > Host: The underlying hardware system
 
-> Hypervisor / Virtual machine manager (VMM): Creates and runs virtual machines, providing them
-> with an interface identical to the host (except in paravirtualisation)
+> Hypervisor / Virtual machine manager (VMM): Creates and runs virtual
+> machines, providing them with an interface identical to the host
+> (except in paravirtualisation)
 
 > Guest: Process provided with a virtual copy of the host - usually an OS
 
-- __Con__: Failure at server level would cause more damage
 - __Pros__: 
   - Failure of a single VM does not bring down any others
     - Most failures are caused by software, not hardware
   - Fewer physical machines = money saved on hardware and electricity
   - Can run legacy applications
 
+- __Con__: Failure at server level would cause more damage
+
 ## Properties
 - __Isolation__: Each VM is independent, so failures do not affect the host
 - __Encapsulation__: State of a VM can be captured into a file
   - Easier than migrating processes
   - Just have to move the memory image that contains OS tables
-- __Interposition__: All guest actions are moderated by the hypervisor, which can inspect, modify, 
-and deny them
+- __Interposition__: All guest actions are moderated by the hypervisor, which can
+    inspect, modify, and deny them
 
 ## Requirements
 - __Safety__: The hypervisor should have full control of virtualised resources
   - Can enforce resource sharing
-- __Fidelity__: Behaviour of a program on a VM should be the same as on the bare hardware
+- __Fidelity__: Behaviour of a program on a VM should be the same as on the bare
+    hardware
   - Need to consider privileged instructions - provided by hardware support 
-(Virtualisation Technology)
-- __Efficiency__: Minimise code run without intervention by hypervisor, to minimise overheads
+      (Virtualisation Technology)
+- __Efficiency__: Minimise code run without intervention by hypervisor, to
+    minimise overheads
 
 ## Approaches
-- __Full virtualisation__: Tries to trick guest into believing it controls the entire system
-- __Paravirtualisation__: VM does not simulate hardware, instead offering a set of _hypercalls_ which 
-allow guests to send explicit requests to the hypervisor
-- __Process-level virtualisation__: Allowing a process written for another OS to run
+- __Full virtualisation__: Tries to trick guest into believing it controls the
+    entire system
+- __Paravirtualisation__: VM does not simulate hardware, instead offering a set of
+    _hypercalls_ which allow guests to send explicit requests to the hypervisor
+- __Process-level virtualisation__: Allowing a process written for another OS to
+    be run
   - Wine on Linux, for Windows apps
   - Cygwin on Windows, for Linux shell apps
 
@@ -1803,16 +2006,18 @@ allow guests to send explicit requests to the hypervisor
 
 ### Privileged instructions
 - It's unsafe to let guest kernel run in kernel mode
-- VM needs two modes - virtual user mode and virtual kernel mode (both in real user mode)
+- VM needs two modes - virtual user mode and virtual kernel mode (both in real
+    user mode)
 - Eg, if a guest tries to map virtual pages to physical pages
-  - __Type-1 hypervisor__: CPUs without Virtualisation Technology will fail to execute the instruction, 
-causing the guest to crash
-  - __Type-2 hypervisor__: Can work without VT - privileged instructions are emulated
+  - __Type-1 hypervisor__: CPUs without Virtualisation Technology will fail to
+      execute the instruction, causing the guest to crash
+  - __Type-2 hypervisor__: Can work without VT - privileged instructions are
+      emulated
 
 1. Attempting to use a privileged instruction in user mode causes an error
-2. Control is moved to hypervisor
-3. Hypervisor analyses error, performs action attempted by guest
-4. Control is returned to guest in user mode
+1. Control is moved to hypervisor
+1. Hypervisor analyses error, performs action attempted by guest
+1. Control is returned to guest in user mode
 
 - Known as __trap and emulate__
 
@@ -1826,12 +2031,14 @@ causing the guest to crash
 - Hypervisor partitions memory among VM
   - Hardware pages are assigned to VMs
   - Needs to control mappings for isolation
-- Each VM's OS creates and manages page tables, but these are not used by the MMU
-- For each VM, hypervisor creates a _shadow_ page table, mapping virtual pages of guests onto actual 
-hardware pages
+- Each VM's OS creates and manages page tables, but these are not used by the
+    MMU
+- For each VM, hypervisor creates a _shadow_ page table, mapping virtual pages
+    of guests onto actual hardware pages
 
 ### Events and I/O
-- Guests cannot interact directly with I/O devices, but guests believe they own these devices
+- Guests cannot interact directly with I/O devices, but guests believe they
+    own these devices
 - Hypervisor receives interrupts and exceptions
 - Type-1 hypervisors: Run the device drivers
 - Type-2 hypervisors: Driver passes operation to real device driver on host OS
