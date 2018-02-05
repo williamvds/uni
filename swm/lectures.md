@@ -618,3 +618,6 @@ public Image getImage(URL url, String name) {
 - __Model__: Manages the state of the system, including any and all data
 - __View__: Allows a user to interact with the model
 - __Controller__: Acts as the interface between the _model_ and _view_
+
+- __Pros__
+  - Separates GUI development from program model
