@@ -1,3 +1,7 @@
 *.out
 *.class
 *.zip
+*.png
+*.log
+*.o
+*.hi
