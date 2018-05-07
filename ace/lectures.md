@@ -20,6 +20,7 @@ in front
 make space for insertion
 
 ## Correctness
+
 ### While invariant
 - If `A[i] <= key` the while loop is skipped
 - Extending subarray `A[1..j-1]` to `A[1..j]` between iterations leaves `A[j]`
@@ -33,8 +34,94 @@ in same place
 trivially sorted
 - __Maintenance__:
 
-# Abstract Data Types (ADTs): Stacks & Queues
-## Abstract Data Types
+# Divide and Conquer: Merge and Quick sort
+- Divide-and-conquer is a general algorithm design paradigm
+  1. __Divide__: create two disjoints subsets datasets from input data
+  2. __Recur__: solve subproblems of both subsets
+  3. __Conquer__: combine solutions for both subsets into solution for input data
+
+## Merge-sort
+- Eg, sorting an input sequence `S` with `n` elements
+1. __Divide__: Partition input into two sequences `S₁` and `S₂` both of size
+approx. n/2
+2. __Recur__: Recursively sort `S₁` and `S₂`
+3. __Conquer__: Merge `S₁` and `S₂` into a sorted sequence
+
+- Can create binary tree representing subarrays at each stage of
+splitting/merging
+- 𝑂(nlog(n))
+  - Height `h` of tree is 𝑂(log(n))
+  - Work done at each depth is 𝑂(n)
+- __Pros__
+  - Fast sorting for arrays
+  - Sequential data access = good for sorting data in slow external memory
+- __Con__: Not good with lists due to reliance on constant time access to
+middle of sequence
+
+## Quick-sort
+- __Motivation__: simplify the _merge_ portion of merge-sort
+- This is done by making the _divide_ more complicated - the _merge_ becomes
+concatenate
+- Create adjacent disjoint ordered ranges that can be simply concatenated, or
+if already consecutive subarrays, simply forget the boundaries between them
+- __Pro__: Can be done in-place = less memory usage
+
+### Algorithm
+1. __Divide__: Pick a random element `x` (aka pivot) and partition `S` into
+  - `L` elements less than `x`
+  - `E` elements equal to `x`
+  - `G` elements greater than `x`
+2. __Recur__: Sort `L` and `G`
+3. __Conquer__: Concatenate `L`, `E`, and `G`, in that order
+
+- Can combine `E` and `G`, merging into a single subarray `EG` - 2-way split
+instead of 3-way
+
+### Extra workspace
+- Elements are extracted from `S` and placed in one of `L`, `E`, `G`
+- Each insertion/removal is at the beginning or end of `S`, so 𝑂(1)
+- Thus, partitioning is 𝑂(n)
+- Doubles memory usage
+
+### In-place
+- Avoid using extra memory, so space complexity is 𝑂(n)
+- Scan from both ends of the array to pivot, swapping elements that belong
+on the other side of the pivot
+- __Binary tree visualisation__
+  - Can depict execution of quick-sort using a binary tree
+  - Each node shows a transition of the array
+  - Child nodes show the result of quick-sorting the remaining numbers either
+  side of the pivot
+
+### Time complexity
+- Worst-case is 𝑂(n²) - when the pivot is the minimum or maximum element
+  - One of `L` and `G` has size `n-1`, the other `0`
+  - Running time proportional to sum of `n+(n-1)+...+2+1`
+- Best case is 𝑂(nlog(n)) - when the pivot is the median element
+  - `L` and `G` are the same size - splitting `S` into halves, like merge sort
+- Average case is 𝑂(nlog(n)) - half hte times the pivot is close to the median
+
+## Comparison sorting
+> Comparison sorting: A sorting algorithm that compares between elements in the
+> sequence to determine in which order to place them
+
+- Eg: Bubble, selection, insertion, heap, merge, quick
+- Not comparison: Bucket sort
+  - 𝑂(n), but relies on knowing the range of values in sequence
+- Such algorithms can be modeled as a binary decision tree
+  - At each node two elements are compared - resulting in more information about
+the correct order of elements in the sequence
+  - The final result is the full information about the correct order of elements
+in the sequence
+
+### Complexity
+- A binary tree with `n!` leaves has minimum number of levels `(log₂(n!))+1`
+- This shows 𝑂(nlog(n)) sorting algorithms are essentially optimal
+- Thus, the limitation of comparison-based sorting is 𝑂(nlog(n))
+
+# Abstract Data Types: Stacks & Queues
+
+## Abstract Data Types (ADTs)
 - An abstraction of a data structure
 - __Contents__
 	- Data stored (attributes)
@@ -51,7 +138,7 @@ trivially sorted
 	- More flexible to use
 	- Possibly more difficult to implement efficiently
 
-## Concrete Data Types
+## Concrete Data Types (CDTs)
 - An implementation of an ADT
 - Implemented ADT interface hides actual implementation
 	- Concept of data hiding and encapsulation in Object Oriented programming
@@ -150,6 +237,7 @@ exception
 - Time complexity 𝑂(1) operations
 
 ## Array vs Linked List CDTs
+
 ### Array
 - __Con__: Fixed size - possibly unused, or possibly too small
 - __Pro__: Contiguous memory usage
@@ -330,7 +418,7 @@ throwing exception
 - Suppose a sequence of `s` operations are done, taking `T_s`
 - `sT` is the upper bound for `T_s`
   - Upper bound might never occur
-- `T_s` is `o(sT)` even in worst case
+- `T_s` is `𝑜(sT)` even in worst case
   - average time `T_s/s` is sometimes most relevant
 
 ### Amortised vs average case analysis
