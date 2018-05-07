@@ -61,9 +61,9 @@ trivially sorted
 - Suppose the _Array_ ADT specified an operation _reverse()_ that reverses
 the contents
 - __Poor implementation__: Reverse elements of internal data structure
-	- O(n)
+	- 𝑂(n)
 - __Efficient implementation__: Recalculate index if Array is currently reversed
-		- O(1)
+		- 𝑂(1)
 		```
 		array x[N];
 		boolean flipped = false;
@@ -96,8 +96,8 @@ the contents
 - Add elements left to right
 - Use a variable to track index of top element
 - If full a `push()` would raise a `FullStackException`
-- Space complexity O(n) - one array index for each element in stack
-- Time complexity O(1) for all operations
+- Space complexity 𝑂(n) - one array index for each element in stack
+- Time complexity 𝑂(1) for all operations
 - __Limitations__
 	- Max size of stack must be defined in advance
 	- Size cannot be changed dynamically
@@ -108,8 +108,8 @@ exception
 - Top element stored at first node
 - Insert/remove from head of list
 - Store size as attribute, update upon insertion/removal
-- Space complexity O(n) - one list entry for each element
-- Time complexity O(1) operations
+- Space complexity 𝑂(n) - one list entry for each element
+- Time complexity 𝑂(1) operations
 
 ## Queues
 - First-in First-out (FIFO) insertion/removal
@@ -146,8 +146,8 @@ exception
 - Remove from head, insert at tail
 - First element in queue stored at head of list
 - Store size as attribute, update upon insertion/removal
-- Space complexity O(n) - one list entry for each element
-- Time complexity O(1) operations
+- Space complexity 𝑂(n) - one list entry for each element
+- Time complexity 𝑂(1) operations
 
 ## Array vs Linked List CDTs
 ### Array
@@ -161,6 +161,118 @@ exception
 	- Can be scattered around memory = poor cache usage
 	- Has to store _next_ reference = more memory usage
 
+# Trees
+- An abstract model of a hierarchical structure
+- Composed of __nodes__ with at most one parent, and an unlimited number of
+children
+
+## Terminology
+- __Root__: node without parent
+- __Internal node__: node with at least one child
+- __External node/leaf__: node without children
+- __Ancestors__: chain of parents of a node
+- __Depth__: Number of ancestors
+- __Height__: greatest depth of all nodes in the tree
+- __Descendant__: nodes that are part of the subtree of which a particular
+node is the root of
+
+## ADT
+- `int size()`
+- `bool isEmpty()`
+- `Iterator iterator()`
+- `Iterator positions()`
+- `object replace(p, o)`
+- __Accessors__
+	- `position root()`
+	- `position parent(p)`
+	- `Iterator children(p)`
+- __Queries__
+	- `bool isInternal(p)`
+	- `bool isExternal(p)`
+	- `bool isRoot(p)`
+
+## Traversals
+- Goal is to visit each element precisely once in a systematic and meaningful
+order
+
+### Preorder traversal
+- Visit a node before its descendants
+- Eg when printing a structured document
+
+### Postorder traversal
+- Visit a node after its descendants
+- Eg computing disk space used by a directory
+
+## Linked List implementation
+- __Element contents__
+	- Pointer to parent
+	- Value
+	- List of child nodes
+
+## Binary trees
+- Each node has at most two children
+- Children are an ordered pair - though only one child may be present
+- Children are named _left_ and _right_
+- Height is 𝑂(n) and Ω(log(n))
+
+### Binary Tree ADT
+- Extends `Tree`
+- `position left(p)`
+- `position right(p)`
+- `bool hasLeft(p)`
+- `bool hasRight(p)`
+
+### Linked List implementation
+- __Element contents__
+	- Pointer to parent
+	- Pointer to left child
+	- Pointer to right child
+	- Value
+
+### Array implementation
+- `rank(root) = 1`
+- `rank(leftChild) = 2*rank(parent(leftChild))`
+- `rank(rightChild) = 2*rank(parent(rightChild)) +1`
+- Effectively stores in inorder traversal, leaving gaps for missing child
+nodes, and skipping index 0
+
+### In-order traversal
+1. Explore left child
+2. Visit node
+3. Explore right child 
+
+### Proper binary tree
+- Is a binary tree
+- Nodes must either have two or no children
+- A tree consisting of only a root node is a proper binary tree
+
+### Perfect binary tries
+- All leaves are at the same depth - hence all levels are full
+- `n` is the number of nodes in the tree
+- `d` is the depth of the tree
+- __Nodes at depth__ `d`: `2^d`
+	- Level 0 contains 1 node (root) - `2^0 = 1`
+	- Level `k-1` contains `2^(k-1)`
+	- Since each node at level `k-1` has 2 children, level `k` contains
+`2*2^(k-1) = 2^k` nodes
+- __Nodes at depth__ `d+1`: `2^(d+1) -1`
+- __Height__: `log₂(n+1)-1`
+	- Θ(log(n))
+- __Total nodes with height__ `h`: `2^(h-1) -1`
+	- `h = 0`: `2^1 -1 = 1` node (root)
+	- Assuming tree of height `h-1` has `2^h -1` nodes, a tree with another level
+(total `n`) has another `2^h` nodes
+	- Total: `2*2^h -1 = 2^(h+1) -1`
+
+## Applications
+- Organisation charts
+- File systems
+- Programming environments
+- __Binary trees__: Searching
+- __Proper binary trees__
+	- Arithmetic expression trees: Nodes are operators, leaves are arguments
+	- Decision trees: Nodes are yes/no questions, edges represent answers
+
 # Vector ADT & CDT and amortised analysis
 
 ## Vector ADT
@@ -171,11 +283,11 @@ exception
 - Exceptions are thrown if an invalid rank is specified (eg negative)
 
 ### Operations
-- `object elemAtRank(int r)`: return element at rank r
-- `object replaceAtRank(int r, object o)`: replace element at rank with o,
+- `object elemAtRank(int r)`: return element at rank `r`
+- `object replaceAtRank(int r, object o)`: replace element at rank with `o`,
 return old rank
-- `insertAtRank(int r, object o)`: insert o at rank r
-- `object removeAtRank(int r)`: remove and return element at r
+- `insertAtRank(int r, object o)`: insert `o` at rank `r`
+- `object removeAtRank(int r)`: remove and return element at `r`
 - `size()` and `isEmpty()`
 
 ### Applications
@@ -188,18 +300,18 @@ return old rank
 - Variable `n` tracks size of vector - elements actually stored
 
 ### Operations
-- `elemAtRank(r)`: O(1) - return V[r]
-- `insertAtRank(r, o)`: O(n)
+- `elemAtRank(r)`: 𝑂(1) - return `V[r]`
+- `insertAtRank(r, o)`: 𝑂(n)
   - Need to make room by shifting forward `n - r` elements
   - Worst case, `r = 0`, requires shifting `n` elements
   - Inserting when array is full could simply resize the array instead of
 throwing exception
-- `removeAtRank(r)`: O(n)
+- `removeAtRank(r)`: 𝑂(n)
   - Need to fill hole left by removing element
   - Shift backward `n - r - 1` elements
   - Worst case, `r = 0`, requires shifting `n - 1` elements
-- `size`, `isEmpty`, `replaceAtRank`: O(1)
-- Insert and remove can run in O(1) if using array circularly (as queue)
+- `size`, `isEmpty`, `replaceAtRank`: 𝑂(1)
+- Insert and remove can run in 𝑂(1) if using array circularly (as queue)
 
 ### Growable array
 - Insertions need to consider if the array is full
@@ -232,26 +344,26 @@ throwing exception
 - Array starts with size 3, `c = 3`
 - Example sequence of _push_ operations: `1, 1, 1, 3+1, 1, 1, 1, 6+1, 1, 1, 1,
 9+1, ...`
-- Constant fraction of pushes have cost O(n) meaning average is O(n)
+- Constant fraction of pushes have cost 𝑂(n) meaning average is 𝑂(n)
 - Total time `T(n)` of `n` push operations is proportional to:
   - `n + c + 2c + 3c + ... + kc`
   - `= n + c(1 + 3 + 3 + ... + k)`
   - `= n + ck(k + 1)/2`
-  - `c` is constant, so `T(n)` is O(n + k²), so O(n²)
-  - Amortised time is O(n)
+  - `c` is constant, so `T(n)` is 𝑂(n + k²), so 𝑂(n²)
+  - Amortised time is 𝑂(n)
 
 ### Incremental example
 - Array starts with size 3
 - Example sequence of _push_ operations: `1, 1, 1, 3+1, 1, 1, 1, 6+1, 1, 1, 1,
 1, 1, 1, 12+1, ...`
-- Fraction of pushes with cost O(n) reduces with n
-  - Every push of cost (n) allows another O(n) pushes of cost O(1)
-- Cost of resizing is amortised over n other O(1) operations
-- Average becomes O(1) per operation
-- Array is replaced log2(n) times
+- Fraction of pushes with cost 𝑂(n) reduces with n
+  - Every push of cost (n) allows another 𝑂(n) pushes of cost 𝑂(1)
+- Cost of resizing is amortised over n other 𝑂(1) operations
+- Average becomes 𝑂(1) per operation
+- Array is replaced log₂(n) times
 - Total time `T(n)` of `n` push operations is proportional to:
   - `n + 1 + 2 + 4 + 8 + ... + 2^(k-1)`
   - `= n + 2^k -1`
   - `= 2n -1`
-  - So T(n) is O(n)
-  - Amortised time is O(1) - no worse than pre-assigning memory
+  - So T(n) is 𝑂(n)
+  - Amortised time is 𝑂(1) - no worse than pre-assigning memory
