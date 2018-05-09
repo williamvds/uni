@@ -32,9 +32,8 @@ in same place
 ### For invariant
 - __Initialisation__: when `j=2` subarray `A[1..j-1]` is of length 1, so
 trivially sorted
-- __Maintenance__:
 
-# Divide and Conquer: Merge and Quick sort
+# Divide and Conquer
 - Divide-and-conquer is a general algorithm design paradigm
   1. __Divide__: create two disjoints subsets datasets from input data
   2. __Recur__: solve subproblems of both subsets
@@ -118,6 +117,48 @@ in the sequence
 - A binary tree with `n!` leaves has minimum number of levels `(log₂(n!))+1`
 - This shows 𝑂(nlog(n)) sorting algorithms are essentially optimal
 - Thus, the limitation of comparison-based sorting is 𝑂(nlog(n))
+
+## Recurrence Relations
+- A sort of recursively defined function
+  - Generally applied to functions that measure resources
+  - Might also want the big-Oh properties of solution
+- Divide and conquer algorithms can have their recurrence relations extracted
+
+### Merge sort
+- `T(n) = 2T(n/2) + b + a*n`
+  - `2T(n/2)`: Sorting two subarrays each of size `n/2`
+  - `b`: Cost of doing split
+  - `a*n`: Cost of doing merge, including copying to/from workspace
+
+### Bubble sort
+- `T(n) = T(n-1) + d*n`
+  - `d*n`: A pass of the outer loop
+  - `T(n-1)`: The remaining passes - done `n-1` times
+
+### Solving
+1. Start from base case
+  - Use recurrence to work out many cases for `T(n)`
+2. Inspect result, find pattern, form hypothesis
+3. Attempt to prove hypothesis by induction
+
+## Master Theorem
+- Given a relation of the form `T(n) = aT(n/b) + f(n)`
+- `f(n) ∈ 𝑂(nᶜ)`
+
+### Case 1: f(n) grows slower
+- I.e. `log_b(a) > c`
+- Means that `f(n)` can be ignored
+- `T(n) ∈ Θ(log_b(a))`
+
+### Case 2: f(n) grows as quickly as aT(n/b)
+- I.e. `log_b(a) = c`
+- Given `f(n) ∈ Θ(nᶜlog(n)ᵏ)`
+- Means that `f(n)` can be ignored
+- `T(n) ∈ Θ(nᶜlog(n)ᵏ⁺¹)`
+
+### Case 3: f(n) grows quicker
+- I.e. `log_b(a) < c`
+- `T(n) ∈ Θ(f(n))`
 
 # Abstract Data Types: Stacks & Queues
 
@@ -248,6 +289,7 @@ exception
 - __Cons__
 	- Can be scattered around memory = poor cache usage
 	- Has to store _next_ reference = more memory usage
+
 
 # Trees
 - An abstract model of a hierarchical structure
