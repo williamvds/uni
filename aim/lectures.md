@@ -507,16 +507,22 @@ machines
 > Uses survival of the fittest via processes of selection, mutation, and
 > reproduction (recombination)
 
-- An individual (aka chromosome(s)) represents a candidate solution
-- _Population_: A set of 'individuals' currently alive - current candidate solutions
-- Individuals evolved from one generation ( _iteration_ ) to another depending on the _fitness_ (objective function value) of individuals
-- Ideally he last generation will contain the final, best, solutions
+- __Chromosome__: A candidate solution (aka individual)
+- __Population__: A set of _individuals_ currently 'alive' - being considered
+- __Evolution__: Each population is are evolved from one generation ( _iteration_ ) to another depending on their _fitness_ 
+  - Fitness is how close it is to the optimal solution, depends on objective
+function value
+- Ideally the last generation will contain the best solution(s)
 
 ## History
-- __Genetic algorithms__: evolving bit strings
+- __Genetic algorithms__: Evolving bit strings
 - __Evolutionary programming__: Evolves parameters of a program with fixed structure
 - __Evolution strategies__: Evolves vectors of real numbers
-- TODO
+- __Genetic programming__: Evolves computer programs in tree form
+  - __Gene expression programming__: Computer programs of different sizes
+are encoded in linear chromosomes of fixed length)
+  - __Grammatical evolution__: Evolves solutions with respect to a specified
+grammar
 
 ## Weaknesses
 - Limited theoretical and mathematical analyses - but is a growing field of
@@ -526,11 +532,11 @@ study
 
 ## Features
 - Population based search algorithm
-  - Search performed using multiple candidate solutions
+  - Search performed using multiple initial candidate solutions
   - Conducted in parallel over search space
 - Avoid converging to local optima
-- Use exploration and exploitation of promising areas
-- May be used together with other approaches (known as a hybrid)
+- Combine exploration and exploitation of promising areas
+- May be used together with other approaches (hybrids)
 
 ## Genetic algorithms
 1. Generate an initial population
@@ -541,28 +547,23 @@ study
 4. Recombine: Crossover between parents
   - With probability p_c
 5. Mutate: Alter offspring/children
-  - With probability p_m
+  - With probability pₘ
 6. Replace population
   - By filtering from children
 7. Calculate _fitness_ values for each individual
 8. If termination criteria not met, go to 2
 
-### Components
-
-1. Encoding
-TODO
-
-#### Representation
+### Representation
 - _Haploid structure_: Each individual contains one chromosome
 - _Fitness value_: Find from calculating objective function value
 - _Chromosome length_: fixed number of genes
-- Binary encoding for each gene - allele value in {0, 1}
+- Binary encoding for each gene - allele value ∈ {0,1}
 - _Generation_: an iteration
 
-#### Initialisation
+### Initialisation
 - Random allele values
 
-#### Reproduction
+### Reproduction
 - aka Mate/parent selection
 1. Select individuals 
   - Use selection pressure to avoid randomness
@@ -571,108 +572,198 @@ TODO
 2. Copy selecting individuals into a mating pool (can duplicate individuals)
 3. Pairing individuals from population
 
+- __Roulette wheel selection__
+  - Probability of selection of each individual is its fitness over the total
+of all fitness scores
+  - Fitter individuals have a higher chance of selection
+  - Randomly select number in [0,total fitness]
+  - Add up fitnesses of individuals incrementally, return individual
+in which the random number lies in its range
+- __Tournament selection__
+  - Choose a certain number of individuals strictly less than the size of the
+population
+  - Return one of the most fit individuals
+
+### Recombination/crossover
+- __One Point Crossover (1PTX)__
+  - Generate random number in [0,1)
+  - If it not less that _crossover probability_ `p_c`, just return the parents
+  - Select a random crossover point in [1,chromosome length]
+  - Swap the segments between pairs to form two new individuals
+- __PMX__: TODO
+- __OX__: TODO
+- __CX__: TODO
+
+### Mutation
+- Provides diversity - allowing exploration of different regions of search
+space and escaping from local minima
+- Loop through alleles of all individuals, choose ones randomly for mutation
+- Mutation rate is usually very small (&gt 0.001)
+- With probability as `1/chromosome length` the expectation is that one
+gene per allele will be mutated
+
+### Replacement
+- Need to choose which individuals to keep to maintain fixed population size
+- __Generation gap (G)__: controls fraction of population to be replaced each
+generation [1/N,1]
+
+## Memetic algorithms
+- An extension of genetic algorithms
+- Includes local search at some point in the iteration (eg, after mutation)
+- __Pros__: Can perform better than normal GEs
+  - Depends on aptitude of local search algorithm, dependent parameters
+
+### Multimeme memetic algorithms
+- Implement _self adaptation_ in memetic algorithms
+  - Operators and settings are changed during the evolutionary search process,
+upon receiving feedback
+- Idea is to __co-evolve__ genetic and _memetic_ material
+- __Probability__: Save probability of applying each operator
+  - Done by Davis
+  - Performance of algorithm over last few generations is used to calculate it
+- __Memeplex__: An additional representation for memetic material
+  - Stored alongside allele in individuals
+  - Can store many details, including search operator, when to apply it,
+where, and other parameters
+  - Crossover/mutate memetic material alongside genetic material
+  - __Innovation Rate (IR)__: Probability of mutating a meme
+    - 0 = no innovation - memes do not change over iterations
+    - 1 = all memes available are used equally
+  - __Concentration of a meme cᵢ(t)__: The total number of individuals carrying
+meme at the given generation
+  - __Evolutionary activity of a meme cᵢ(t)__: The accumulation of meme
+concentration until a given generation
+- __Pros__: 
+  - Effective memes are automatically identified and used more often
+  - More quickly find good solutions
+  - Experiments show optimal solution is quickly found
+- __Con__: A simple MA using the best meme is superior
+  - The MA takes some iterations to learn the best ones
+  - Some iterations are spent using useless operators
+  - These iterations are wasted
+
 # Selection Hyperheuristics
 > Hyperheuristic: A search method or learning mechanism for selecting or
 > generating heuristics to solve computationally difficult problem
 
 - A class of methodologies for cross-domain search
-- Is the control mechanism that performs a search on low level heuristic
-algorithms (operators), which in turn search on potential solutions
+- Aim to provide a _one-fits-all_ algorithm for search problems, which can
+be applied to any problem domain
+- Performs a search on low level heuristic algorithms (operators)
+  - Operators perform actual search on potential solutions
+  - Operators are more specific, designed to solve specific problems
+(eg MAX-SAT, Travelling Salesman)
 - Hyperheuristics are also metaheuristics
-- Are more general than lower level heuristics, which are designed to help solve
-specific problems (eg MAX-SAT, Travelling Salesman)
-- Aimed to be able to solve multiple problems
-- Need an appropriate interface between hyperheuristics and operator
-- Ultimate goal of creating a 'general solver' than can be applied to any
-problem
-
-- Algorithm selection learning
+- __Algorithm selection learning__
   - Use machine learning to find best method for solving a particular problem
 instance
   - Use a classifier on the history of the performance of different operators
-
-- Hyperheuristic framework
-  - Problem domain barrier: an interface between the hyperheuristic and problem
+- __Hyperheuristic framework__
+  - __Problem domain barrier__: an interface between the hyperheuristic and problem
 domain
   - Can assume everything in the problem domain has been implemented
-  - Hyperheuristic can track number of operators and their performance
+  - Hyperheuristic able to apply available operators, gauge their
+performance
 
-- Characteristics
-  - Operate on search space of heuristics rather than directly on a search
+## Characteristics
+- Operate on search space of heuristics rather than directly on a search
 space of solutions
-  - Aim to take advantage of strengths and avoid weaknesses of each heuristic
-  - No problem specific knowledge is required during its search
-  - Easy to implement, practical to deploy (easy, cheap, fast)
+- Aim to take advantage of strengths and avoid weaknesses of each heuristic
+- No problem specific knowledge is required
+- Easy to implement, practical to deploy (easy, cheap, fast)
+- Can use existing heuristics and computer generated ones
 
 ## Classification
-- Selection
+- __Selection__
   - Have a predefined (mostly human designed) list of operators
   - Operators could be constructive/perturbative
-- Generation
+- __Generation__
   - Create new (constructive/perturbative) heuristics
-
-- Online learning
+- __Online learning__
   - Adapt to each problem instance while solving it
   - eg reinforcement learning
-- Offline learning
+- __Offline learning__
   - Use a sample training set
   - Feedback is gathered from training instances
   - Applies learnt feedback to unknown instances
   - eg classifiers
 
-## Software tools
-- [ECJ](https://cs.gmu.edu/~eclab/projects/ecj/)
+## Heuristic selection methods
+- __Greedy__: Apply all available heuristics to the solution, pick the solution
+with the best improvement
+- __Reinforcement Learning__: Keep a score for each heuristic, pick the one
+with highest score
+  - A machine learning technique
+  - Inspired by reward and punishment psychological theory
+  - Improving moves increments score, otherwise score is decremented
+- __Choice Function__
+  - Record performance metrics:
+    1. Individual performance
+    - Performance when combined with other heuristics
+    - Elapsed time since being applied
+  - Fₜ(hⱼ) = 𝛼ₜf₁(hⱼ) + 𝛽ₜf₂(h_k, hⱼ) + 𝛾ₜf₃(hⱼ)
+  - fₙ is the respective performance metric
+  - Parameters 𝛼, 𝛽, and 𝛾 control importance of each metric [0,1]
 
-## HyFlex
-- Hyperheuristics flexible interface
-- Hyperheuristic layer
-  - Deciding which low-level heuristic to apply
-  - Which solution to apply it to
-  - At which location so store the new solution
-    - Based on history of visited solutions and objective values
-- Domain layer
-  - Set of low-level heuristics
-  - List of solutions
-  - Evaluation/objective function
-  - Problem instance
+## Misconceptions (opinionated)
+- Hyperheuristics...
+  - do not require parameter tuning
+  - are all tested
+  - can be applied to new domains easily
+  - should not deal with domain-specific information (i.e. only objective value)
 
 # Cross-domain heuristic search
 
 ## Iterated multi-stage selected heuristic
 - Single point based search - crossover operators ignored
-- Discrete values for IoM and DoS are made and are randomly chosen from
-- Parameters are kept after improvements, randomised otherwise
+- Discrete values for intensity of mutation (IoM) and depth of search (DoS) are
+are randomly chosen in [0,1]
+  - Random value from these discrete values
+- Parameters are kept after improvements, otherwise randomised
 - Uses _Stage 1_ and _Stage 2_ hyperheuristics
-  - Randomly stop
+  - With a specific probability, randomly apply stage 2 after stage 1 in each
+iteration
 
 ### Stage 1
-- Maintain score for each low-level heuristic (score_i)
-1. Select a low level heuristic i with probability of ratio of score_i to
-sum of score of other low-level heuristics
+- Maintain score for each low-level heuristic (scoreᵢ)
+- Ends if a duration s₁ is exceeded without improvement
+1. Select a low level heuristic i with probability of ratio of
+scoreᵢ/(Σ scoreₖ ∀k)
 - Apply chosen heuristic
-- Accept/reject based
+- Accept/reject based on adaptive threshold acceptance method
 
 ### Acceptance
-- Threshold acceptance - accept if better than a certain multiple of current
-score
-- Threshold range increases if improvements are not found after several
-iterations
+- __Good design__
+  - Balance exploration and exploitation
+    - Use multiple operators, some that use learning, others that done
+  - Accept worsening moves to escape local minima
+    - Increasingly relax acceptance criteria when iterations keep resulting in
+no improvement
+  - Pair up heuristics to create 'new' heuristics (relay hybridisation)
+- __Threshold acceptance__
+  - Accepted if better than current solution
+  - Accept if better than (1+ϵ) * best objective function value
+    - ϵ = (floor(log(f(best))) + cᵢ)/f(best)
+    - ϵ is updated if no improvement for a duration d
 
 ### Stage 2
 - Pair up heuristics to create new ones (_test_)
 
 ## Graph-based hyperheuristic
-- General framework (GHH) employ a set of low level contructive graph colouring
+- General framework (GHH) employ a set of low level constructive graph colouring
 heuristics
 
 ### Exam timetabling problem
 - __Nodes__ = exams
-- __Edges__ = share pupils
+- __Edges__ = clashing - they share pupils
+- __Colors__: assigned time periods
+- __Objective__: assign different colors to adjacent nodes, minimising colors
+used
 
-### Graph colouring heursitics
-- __Largest degree__: colour nodes in
-  - descending order of degree
-  - descending order of enrolement
-
-### In hyperheuristics
-- 
+### Heuristics
+- __Tabu search hyperheuristic__: High level Tabu search
+  - __Neighbourhood operator__: randomly change two heuristics in heuristic list
+  - __Objective function__: quality of solutions built by heuristic list
+  - __Tabu list__: Forbid the same heuristic list
+- __Largest degree__: Give colors to nodes in descending order of degree
+- __Largest enrolment__: Give colors to nodes in descending order of enrolment
