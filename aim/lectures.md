@@ -642,6 +642,37 @@ concentration until a given generation
   - Some iterations are spent using useless operators
   - These iterations are wasted
 
+## Genetic programming
+- __Goal__: Get a computer to perform a task without telling how
+- Automatically creates working computer program from a high level problem
+statement
+  - Known as program synthesis/induction
+- Iteratively transforms a population of programs
+- __Pros__:
+  - Uses a more natural representation for solutions (a program)
+  - Fixed length character strings are overly restrictive for solution
+representations
+
+### Parse trees
+- __Internal nodes__: functions (+, -, if, etc.)
+- __Leaves__: arguments
+
+### Generating programs
+- __Function set__: Set of functions that can be used
+  - eg. {+, -, *, /}
+- __Terminal set__: Set of values that can be used in leaves
+  - eg. integers, named variables
+1. Randomly select either a function or terminal
+2. If function generated, randomly generate programs as arguments
+
+### Mutation
+1. Pick a random node
+2. Delete it and its children, replace with a new sub-program
+
+### Crossover
+1. Pick a random node
+2. Swap them
+
 # Selection Hyperheuristics
 > Hyperheuristic: A search method or learning mechanism for selecting or
 > generating heuristics to solve computationally difficult problem
