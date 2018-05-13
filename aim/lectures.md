@@ -357,14 +357,14 @@ quality solution
     1. Flip a random bit
     2. If the quality has decreased (or is unchanged), undo the flip
 
-### Strengths
+### Pros
 - Very easy to implement
 - Only needs
   - Representation
   - Evaluation function
   - A measure that defines neighbourhoods
 
-### Weaknesses
+### Cons
 - __Local optima__: Algorithm may halt at poor solution if neighbouring states
 are worse (or equal)
 - __Plateaus__: Would cause a random walk
@@ -423,13 +423,13 @@ trial solutions
 
 ### Algorithm
 - In each step
-  - Generate a list of neighbouring solutions
+  1. Generate a list of neighbouring solutions
   - Find the best of neighbours
   - Check if _accessible_
   - If accessible, accept it and replace current solution, otherwise
 continue with next best neighbour
 
-### Design (for MAX-SAT)
+### Eg MAX-SAT design
 - __Initialisation__: Random
 - __Move operator__: A hill climbing / local search algorithm
 - __Neighbourhood definition__: Eg, attainable by single bit flip
@@ -798,3 +798,141 @@ used
   - __Tabu list__: Forbid the same heuristic list
 - __Largest degree__: Give colors to nodes in descending order of degree
 - __Largest enrolment__: Give colors to nodes in descending order of enrolment
+
+# Generation Hyper-heuristics
+
+## Index policies
+- Giving a score to each possible choice, independent of other options
+  - Option with the highest index value is taken
+  - Need a rule to break ties (eg, take first available option)
+- Are a special case, but in some situations can be optimal, or at least very
+good
+
+## Generation hyperheuristics
+
+## Generating heuristics
+- Space of functions in GP
+  - is hard to understand
+  - is potentially biased based on representation
+- Alternative - matrix representation
+  - Eg, in bin packing
+  - All item sizes and residual capacities are integers, so `f(r, s)` is
+a large matrix `M(r, s)` of _parameter values_
+  - Just use lower diagonal where `r >= s`
+
+# Advanced topics
+
+## Single objective hyper²-heuristic
+- Many real-world data are multidimensional
+  - Very high-dimensional with a large amount of redundancy
+- Multi-dimensional arrays representing such data describe a _tensor_
+- Example applications include signal processing, psychometrics, social network
+analysis
+
+### Tensor factorisation
+- Multiple decomposition methods
+- Can use Canonical Polyadic (CP)
+  - Projects 3D data onto 1D
+  - Helps discover latent structures in data
+  - Quantifies relationship between pairs of different components
+- Can apply tensor analysis by applying each heuristic
+- Apply CP
+- Order heuristics by 
+
+## Apprenticeship Learning
+- aka Inverse reinforcement learning, learning via demonstration
+- Policy is undefined - instead learn from expert to find it
+- Theoretically possible to outperform the expert
+- Can be applied to heuristic search
+- Machine learning/analytics/data science helps improve hyperheuristic search
+processes
+  - Problem features vs solution/state features
+  - Offline vs online learning
+- Still a lack of benchmarks
+- Automated design of search methodologies is extremely challenging
+  - Still need mathematical and theoretical understanding
+
+# Fuzzy Sets
+> Fuzzy set: A set whose membership function is mu_A(x): X -> [0, 1]
+> Elements are not simply a member nor not a member of the set, but have an
+> assigned degree
+
+- Introduced by Lotfi Zadeh
+- Are extensions of conventional (crisp) sets that allow everyday notions to be
+represented
+
+## Compared to classical (aka crisp) sets
+- Elements of the universal set `X` are defined to be or not to be members of
+a set `A` by a characteristics function
+- For a given set `A`, this function assigns value `mu_A(x)` to every `x` in `X`
+- `mu_A(x): X -> {0,1}`, 0 iff `x` is in `A`, 1 otherwise
+- Can create a diagram visualising which ranges map to 0, and those which map
+to 1
+- Eg, defining tall people - set an arbitrary lower limit of height, above which
+people are considered tall
+- Instead of a hard limit, a spectrum of height can be defined, measuring the
+_degree_ of height
+
+## Notation
+- `A = mu_1/x1 + mu_2/x2 + ... + mu_n/x_n`
+- or `A =  Σ_(i=0,n) mu_i/x_i`
+
+## Meaning of fuzzy grades
+- Fuzzy memberships are not probabilities - eg, not applicable to height
+- Fuzzy membership function values can instead be interpreted as compatibilities
+- Eg, given two bottles, A is _drinkable_ with probability 0.9, and B is
+_drinkable_ with fuzzy membership 0.9
+  - There is a 10% chance Bottle A is not drinkable
+  - Bottle by is close to fully drinkable
+
+## Linguistic Variables
+> Linguistic Variable: a collection of fuzzy sets representing linguistic terms
+> of a concept
+
+## Components
+- `X`: The name of the variable (eg height)
+- `T`: The set of terms, each being a fuzzy variable (eg short, medium, tall)
+- `U`: The universe of discourse of all terms, associated with base variable `u`
+  - Effectively the range of values that can be used as boundaries for each term
+- `G`: A syntactic rule (grammar) for generating composite terms (eg very short)
+- `M`: A semantic rule for associating each term with its meaning (fuzzy set)
+
+### Example: Age
+- `X` = Age
+- `U = [0, 100]`
+- `T` = young + very young + not young + middle-aged + ...
+- Some terms are atomic (young)
+- Some terms are composite (not young)
+
+## Hedges
+- A qualifying word added to a term, indicating a minor modification to its
+meaning
+- Eg _very_, _slightly_, _somewhat_, _more or less_, etc
+- __Concentration__: Squaring membership function concentrates the range -
+_very_
+- __Dilation__: Square-rooting membership function decreases concentration - 
+_somewhat_
+
+## Membership functions
+- Meaning of terms such as M(young) are often defined by functions
+  - Could be defined by enumeration (look-up table) instead
+- When there is a function...
+  - M can be thought of as a set of membership functions
+  - Names of terms are related to the meaning of the terms
+  - Usually written as young = ...
+
+### Triangular
+- __Parameters__: Left, center, right
+- `low = trimf(x, c(0,0,5))`
+
+### Trapezoidal
+- __Parameters__: Left bottom, Left top, Right top, Right bottom
+- `low = trapmf(x, c(0,0,1,4))`
+
+### Gaussian
+- __Parameters__: Center, standard deviation
+- `low = gaussmf(x, c(1.5,0))`
+
+### Sigmoid
+- __Parameters__: Slope, half-point
+>>>>>>> Stashed changes
