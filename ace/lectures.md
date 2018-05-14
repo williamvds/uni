@@ -497,3 +497,86 @@ throwing exception
   - `= 2n -1`
   - So T(n) is 𝑂(n)
   - Amortised time is 𝑂(1) - no worse than pre-assigning memory
+
+# Graph traversals
+- Used to perform tasks such as searching for a particular node
+- Can be modified to search for paths, check if graph is connected or has loops,
+etc
+- Eg application: web crawlers
+- __Node sets__:
+  - Undiscovered nodes
+  - Working set: Currently being processed
+  - Processed nodes
+- _Processing_ a node generally mean looking at its neighbours and adding them
+to the working set
+- Node storage data structure influenced by algorithm may need LIFO, FIFO, etc
+  - Need to pick the correct next node to process
+- Usually continue until working set is empty
+
+## Breadth First Search (BFS)
+- Start from vertex v
+```
+create a queue Q
+mark v as visited; put v into Q
+while Q not empty:
+  remove the head u of Q
+  for each neighbour n of u: mark n as visited; put n into Q
+```
+- All neighbours added at the same time - no particular order is necessary
+- BFS order is effectively those closest to the start point are explored
+earliest
+
+### Complexity
+- __Time__
+  - Each vertex en/dequeued at most once - 𝑂(|V|)
+  - Scanning all adjacent vertices takes 𝑂(|E|), since that is the limit of
+the sum of lengths of adjacency lists
+  - ∴ 𝑂(|V| + |E|)
+
+- __Space__
+  - Need a queue of size |V|
+  - ∴ 𝑂(V)
+
+## Depth First Search (DFS)
+- Start from vertex v
+```
+create stack S
+mark v as visisted; push v onto S
+while S not empty:
+  peek at top u of S
+  if u has an unvisited neighbour w such that (u,w) is a (directed) edge:
+    mark w an push it onto S
+  else: pop S
+```
+- __Crucial property__: The stack always defines a directed path
+  - Useful as the basis of other algorithms
+  - The path is generally not the shortest path
+
+### Cycle detection
+- Instead of just marking _visited_ or _unvisited_
+  - __White__: unvisited
+  - __Grey__: on the stack
+  - __Black__: finished - has been backtracked from, full explored neighbours
+- Start from vertex v
+- All vertices initially coloured white
+```
+create stack S
+colour v grey; push v onto S
+while S not empty:
+  peek at top u of S
+  if u has a grey neighbour: found a cycle
+  if u has white neighbour w: colour w grey; push it onto S
+  else: colour u black; pop S
+```
+- Neighbours of nodes are searched one at a time
+
+### Complexity
+- __Time__
+  - Each vertex pushed onto stack and popped at most once
+  - For every vertex the next unvisited neighbour is checked
+  - Traverse the adjacency list only once
+  - ∴ 𝑂(|V| + |E|)
+
+- __Space__
+  - Need a stack of size |V|
+  - ∴ 𝑂(V)
