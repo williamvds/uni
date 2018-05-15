@@ -191,6 +191,58 @@ final states
 - Each set becomes its own _state_ in the DFA - though one might not be used
   - Only need to show the ones that can be reached from the starting state(s)
 
+# Regular Expressions
+- A concise and more direct way to describe languages
+- Concept implemented in programming languages and applications
+
+## Definition
+1. ∅ is a regex
+  - Empty set - no accepted words
+-  ϵ is a regex
+  - Only accept the empty string
+-  __x__ is a regex ∀ __x__ ∈ Σ
+  - Accept single symbols from the alphabet
+-  E+F is a regex if E and F are regexes
+  - __Alternation__
+  - Accept either E or F
+-  EF is a regex if E and F are regexes
+  - __Juxtaposition/concatenation__
+-  E^*  is a regex if E is a regex
+  - __Kleene star__
+  - Accept all possible combinations of the full strings of set E
+-  (E) is a regex if E is a regex
+  - Allows stronger binding
+
+- Operator binding is stronger further down the definition
+  - (E) > E^* > EF > E+F
+
+## Converting to NFA
+- Since regular expressions are equivalent to Finite Automata, there is a
+simple method to convert to a NFAs
+- Can convert through induction on the syntax of regular expressions
+
+### N(∅)
+- __A single initial state__
+- Will reject everything, since there are no initial states
+
+### N(ϵ)
+- __A single initial and accepting state__
+- Will accept the empty word but reject everything else
+  - There is no transition available for any symbol
+
+### N(x)
+- An initial state connected to an accepting state
+- Initial state has a transition to the accepting state on symbol x
+
+### N(E+F)
+- The diagrams for N(E) and N(F) are merged into one - draw a box around both
+
+### N(EF)
+1. Identify penultimate states in E (ie. ones leading to an accepting state)
+2. Connect each of these to each of the initial states of N(F)
+3. If there is an initial state in N(E) that is also accepting, keep the initial
+states in N(F), otherwise remove them
+
 # 𝒫  vs 𝒩 𝒫
 - __Motivations__
   - __Efficient__ exact algorithms have runtimes of low-order power laws
