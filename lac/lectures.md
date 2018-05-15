@@ -30,7 +30,7 @@ languages formally
   - Classifies grammars & languages and their descriptive power
 - __All langauges__
   - __Recursively enumerable (type 0)__
-    - __Decidable languages__: Turing machines
+    - __Decidable languages__: Turing Machines
       - __Context sensitive languages (type 1)__
         - __Context free languages (type 2)__: pushdown automata
           - __Regular langauges (type 3)__: finite automata
@@ -57,7 +57,7 @@ while (n > 1) {
 > another, arbitrary, program terminates (halts) or not.
 
 - Proven by __Alan Turing__ (1912-1954)
-- Introduced an abstract model of computation, Turing machines, in 1936
+- Introduced an abstract model of computation, Turing Machines, in 1936
   - A universal model of computation
   - Gives a precise definition of _effectively calculable_ problems
     - Ie ones that can be solved mechanically
@@ -74,7 +74,7 @@ while (n > 1) {
   - A universal model of computation
   - Gives a precise definition of what problems are _effectively calculable_
 - __Church-Turing thesis__: What is effectively calculable is exactly what can be
-computed by a Turing machine
+computed by a Turing Machine
 
 ## P vs NP
 > Can every problem whose solution can be checked quickly by a computer also be
@@ -190,3 +190,78 @@ between
 final states
 - Each set becomes its own _state_ in the DFA - though one might not be used
   - Only need to show the ones that can be reached from the starting state(s)
+
+# 𝒫  vs 𝒩 𝒫
+- __Motivations__
+  - __Efficient__ exact algorithms have runtimes of low-order power laws
+  - __Inefficient__ complete/exact algorithms have runtimes have exponential
+runtime, though incomplete or approximate methods are often fast
+
+## 𝒫
+- The set of problem classes that can be solved using a deterministic
+Turing Machine in polynomial time p(n)
+  - Deterministic TM: There is at most one action or 5-tuple for any current
+state qₖ and any symbol that can occur when the machine is in that state
+  - At most one choice for the next move
+
+## 𝒩 𝒫
+- The set of problem classes that can be solved using a
+__non__deterministic Turing Machine in polynomial time
+- A subset of __𝒫__
+- __Turing Machine definition__
+  - A language L is in the class 𝒩 𝒫 if there is a deterministic Turing Machine
+M and a polynomial function f such that...
+    - Running M on a tape with two inputs w and v (separated by a blank), it
+  always terminates in steps less than f(|w|)
+    - If w ∈ L then there exists some v such that M gives a positive answer when
+  run on w and v
+    - If w ∉ L, for every v M always gives a negative answer when run on w and v
+  - If M gives a positive answer when run on w and v, v is a _certificate/proof_
+w is in L
+    - If L is a problem, and w an instance, v is a solution for w
+- Many common decision problems are 'obviously' __𝒩 𝒫__
+- eg SUBSET-SUM: Find a subset of a set of values that sum to a particular value
+  - Verification is 𝑂(n) - sum the subset, compare to value
+  - Brute force algorithm 𝑂(2ⁿ) - check sum of each subset of S
+  - Nondeterministic algorithm - for each element of the set of values, either
+place it in the subset or don't, then compare its sum to the desired value
+
+### Nondeterminism
+- In a nondeterministic Turing Machine, there is more than one possible path
+through it 
+  - Each point where there is a choice results in a _decision_
+- Only one action may be selected, but it is always the _best one_
+- The shortest path is used every time
+  - This is not physically possible
+- If there is any sequence of decisions that results in success, the algorithm
+has succeeded
+  - Regardless of however many paths fail
+
+### Reductions
+- Can relate the hardness of two different problem classes
+  - Even if the true hardness is not known
+- This is done by showing that a (part of a) problem class is equivalent
+to another
+- Need to be able to convert (in polynomial time) from instance x of problem
+class X to instance y(x) of problem class Y
+- __Restricted conversions__
+  - If it is allowed to reduce anything to a trivial problem, the conversion
+itself can solve the problem
+  - It is desirable to reason about what can or cannot be done in polynomial
+time
+  - So conversions are restricted to those that can be done in polynomial time
+
+### 𝒩 𝒫-hardness
+- A problem class to which _any_ 𝒩 𝒫 problem can be reduced to
+- Such a problem class is 'as bad as it gets'
+  - If such a problem class turns out to be in 𝒫 then 𝒫=𝒩 𝒫 
+- Usually done by showing polynomial-time reduction from some known 𝒩 𝒫-complete
+problem
+- Eg Boolean satisfiability
+
+### 𝒩 𝒫-completeness
+- Problem class X is 𝒩 𝒫-complete if:
+  - X is in 𝒩 𝒫
+    - All instances of X can be solved in nondeterministic polynomial time
+    - Membership of N is usually demonstrated directly (and fairly easily)
+  - X is 𝒩 𝒫-hard
