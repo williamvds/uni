@@ -1,17 +1,17 @@
 # Insertion Sort
 ```
 InsertionSort(A) 
-	<precondition: A is an array of length n > 0 integers>
+  <precondition: A is an array of length n > 0 integers>
   for(j = 2 to A.length)  
-		<invariant: subarray A[1..j-1] is sorted>
-		key = A[j] 
-		i = j – 1  
-		while(i > 0 and A[i] > key)          
-			<invariant: all elements A[i+1..j] are >= key>
-			A[i + 1] = A[i];         
-			i--
-		A[i + 1] = key
-	<postcondition: elements in A are sorted>
+  <invariant: subarray A[1..j-1] is sorted>
+    key = A[j] 
+    i = j – 1  
+    while(i > 0 and A[i] > key)          
+      <invariant: all elements A[i+1..j] are >= key>
+      A[i + 1] = A[i]
+      i--
+    A[i + 1] = key
+  <postcondition: elements in A are sorted>
 ```
 - Keeps the front of the list sorted
 - As the end is processed, those elements are reinserted into the correct place
@@ -98,7 +98,7 @@ on the other side of the pivot
   - Running time proportional to sum of `n+(n-1)+...+2+1`
 - Best case is 𝑂(nlog(n)) - when the pivot is the median element
   - `L` and `G` are the same size - splitting `S` into halves, like merge sort
-- Average case is 𝑂(nlog(n)) - half hte times the pivot is close to the median
+- Average case is 𝑂(nlog(n)) - half the times the pivot is close to the median
 
 ## Comparison sorting
 > Comparison sorting: A sorting algorithm that compares between elements in the
@@ -165,39 +165,39 @@ in the sequence
 ## Abstract Data Types (ADTs)
 - An abstraction of a data structure
 - __Contents__
-	- Data stored (attributes)
-	- Operations on the data (methods)
-		- May specify efficiency requirements in big-Oh notation
-	- Error conditions associated with operations
+  - Data stored (attributes)
+  - Operations on the data (methods)
+    - May specify efficiency requirements in big-Oh notation
+  - Error conditions associated with operations
 - Does __not__ specify implementation - hence _abstract_
 - __Narrow__: small set of specified methods
-	- Eg Stack ADT
-	- Less flexible to use
-	- More flexible to implement - may be more efficient
+  - Eg Stack ADT
+  - Less flexible to use
+  - More flexible to implement - may be more efficient
 - __Wide__: large set of methods
-	- Eg Java Stack
-	- More flexible to use
-	- Possibly more difficult to implement efficiently
+  - Eg Java Stack
+  - More flexible to use
+  - Possibly more difficult to implement efficiently
 
 ## Concrete Data Types (CDTs)
 - An implementation of an ADT
 - Implemented ADT interface hides actual implementation
-	- Concept of data hiding and encapsulation in Object Oriented programming
+  - Concept of data hiding and encapsulation in Object Oriented programming
 - CDT choice affects running time and memory usage
-	
+  
 ### Eg: reversible array
 - Suppose the _Array_ ADT specified an operation _reverse()_ that reverses
 the contents
 - __Poor implementation__: Reverse elements of internal data structure
-	- 𝑂(n)
+  - 𝑂(n)
 - __Efficient implementation__: Recalculate index if Array is currently reversed
-		- 𝑂(1)
-		```
-		array x[N];
-		boolean flipped = false;
-		reverse() {flipped = !flipped;}
-		get(i) {return x[flipped? N-i : i];}
-		```
+    - 𝑂(1)
+    ```
+    array x[N];
+    boolean flipped = false;
+    reverse() {flipped = !flipped;}
+    get(i) {return x[flipped? N-i : i];}
+    ```
 
 ## Stacks
 - Last-in First-out (LIFO) insertions/removal
@@ -205,20 +205,20 @@ the contents
 ### Methods
 - `push(object)`: insert element at top
 - `object pop()`: remove and return element at top
-	- Throw `EmptyStackException` if no element available
+  - Throw `EmptyStackException` if no element available
 - `object top()`: return element at top without removal
-	- Throw `EmptyStackException` if no element available
+  - Throw `EmptyStackException` if no element available
 - `int size()`: return number of elements stored
 - `boolean isEmpty()`: true iff no elements stored
 
 ### Applications
 - __Direct__
-	- Tab history in a web browser
-	- Undo sequence in a text editor
-	- Chain of method calls in the Java Virtual Machine
+  - Tab history in a web browser
+  - Undo sequence in a text editor
+  - Chain of method calls in the Java Virtual Machine
 - __Indirect__
-	- Auxiliary data structure for algorithms
-	- Components of other data structures
+  - Auxiliary data structure for algorithms
+  - Components of other data structures
 
 ### Array implementation
 - Add elements left to right
@@ -227,9 +227,9 @@ the contents
 - Space complexity 𝑂(n) - one array index for each element in stack
 - Time complexity 𝑂(1) for all operations
 - __Limitations__
-	- Max size of stack must be defined in advance
-	- Size cannot be changed dynamically
-	- Attempted `push()`es to a full stack would cause an implementation-specific
+  - Max size of stack must be defined in advance
+  - Size cannot be changed dynamically
+  - Attempted `push()`es to a full stack would cause an implementation-specific
 exception
 
 ### Linked List implementation
@@ -247,20 +247,20 @@ exception
 ### Methods
 - `enqueue(object)`: insert an element to the end of the queue
 - `object dequeue()`: remove and return element at the front of queue
-	- If empty throw `EmptyQueueException`
+  - If empty throw `EmptyQueueException`
 - `object front()`: return element at front of queue
-	- If empty throw `EmptyQueueException`
+  - If empty throw `EmptyQueueException`
 - `int size()`: return number of elements in the queue
 - `boolean isEmpty()`: true iff no elements in queue
 
 ### Applications
 - __Direct__
-	- Waiting lists
-	- Access to shared resource (eg printer)
-	- Event queues in GUIs and simulations
+  - Waiting lists
+  - Access to shared resource (eg printer)
+  - Event queues in GUIs and simulations
 - __Indirect applications__
-	- Auxiliary data structure for algorithms
-	- Components of other data structures
+  - Auxiliary data structure for algorithms
+  - Components of other data structures
 
 ### Array implementation
 - Use an array of size `N` circularly
@@ -282,14 +282,13 @@ exception
 ### Array
 - __Con__: Fixed size - possibly unused, or possibly too small
 - __Pro__: Contiguous memory usage
-	- Localised memory access = more effective CPU caching & pre-fetching
+  - Localised memory access = more effective CPU caching & pre-fetching
 
 ### Linked list
 - __Pro__: Size can grow and shrink
 - __Cons__
-	- Can be scattered around memory = poor cache usage
-	- Has to store _next_ reference = more memory usage
-
+  - Can be scattered around memory = poor cache usage
+  - Has to store _next_ reference = more memory usage
 
 # Trees
 - An abstract model of a hierarchical structure
@@ -313,13 +312,13 @@ node is the root of
 - `Iterator positions()`
 - `object replace(p, o)`
 - __Accessors__
-	- `position root()`
-	- `position parent(p)`
-	- `Iterator children(p)`
+  - `position root()`
+  - `position parent(p)`
+  - `Iterator children(p)`
 - __Queries__
-	- `bool isInternal(p)`
-	- `bool isExternal(p)`
-	- `bool isRoot(p)`
+  - `bool isInternal(p)`
+  - `bool isExternal(p)`
+  - `bool isRoot(p)`
 
 ## Traversals
 - Goal is to visit each element precisely once in a systematic and meaningful
@@ -335,9 +334,9 @@ order
 
 ## Linked List implementation
 - __Element contents__
-	- Pointer to parent
-	- Value
-	- List of child nodes
+  - Pointer to parent
+  - Value
+  - List of child nodes
 
 ## Binary trees
 - Each node has at most two children
@@ -354,10 +353,10 @@ order
 
 ### Linked List implementation
 - __Element contents__
-	- Pointer to parent
-	- Pointer to left child
-	- Pointer to right child
-	- Value
+  - Pointer to parent
+  - Pointer to left child
+  - Pointer to right child
+  - Value
 
 ### Array implementation
 - `rank(root) = 1`
@@ -381,18 +380,18 @@ nodes, and skipping index 0
 - `n` is the number of nodes in the tree
 - `d` is the depth of the tree
 - __Nodes at depth__ `d`: `2^d`
-	- Level 0 contains 1 node (root) - `2^0 = 1`
-	- Level `k-1` contains `2^(k-1)`
-	- Since each node at level `k-1` has 2 children, level `k` contains
+  - Level 0 contains 1 node (root) - `2^0 = 1`
+  - Level `k-1` contains `2^(k-1)`
+  - Since each node at level `k-1` has 2 children, level `k` contains
 `2*2^(k-1) = 2^k` nodes
 - __Nodes at depth__ `d+1`: `2^(d+1) -1`
 - __Height__: `log₂(n+1)-1`
-	- Θ(log(n))
+  - Θ(log(n))
 - __Total nodes with height__ `h`: `2^(h-1) -1`
-	- `h = 0`: `2^1 -1 = 1` node (root)
-	- Assuming tree of height `h-1` has `2^h -1` nodes, a tree with another level
+  - `h = 0`: `2^1 -1 = 1` node (root)
+  - Assuming tree of height `h-1` has `2^h -1` nodes, a tree with another level
 (total `n`) has another `2^h` nodes
-	- Total: `2*2^h -1 = 2^(h+1) -1`
+  - Total: `2*2^h -1 = 2^(h+1) -1`
 
 ## Applications
 - Organisation charts
@@ -400,8 +399,8 @@ nodes, and skipping index 0
 - Programming environments
 - __Binary trees__: Searching
 - __Proper binary trees__
-	- Arithmetic expression trees: Nodes are operators, leaves are arguments
-	- Decision trees: Nodes are yes/no questions, edges represent answers
+  - Arithmetic expression trees: Nodes are operators, leaves are arguments
+  - Decision trees: Nodes are yes/no questions, edges represent answers
 
 # Vector ADT & CDT and amortised analysis
 
@@ -498,6 +497,36 @@ throwing exception
   - So T(n) is 𝑂(n)
   - Amortised time is 𝑂(1) - no worse than pre-assigning memory
 
+# Graphs
+
+## Minimum Spanning Trees (MSTs)
+- Are a subgraph that connects all vertices using only edges in the graph
+- Minimises the sum of the weights of the edges such that there is no spanning
+tree of smaller cost
+- If a graph has a cycle, removing an edge of the cycle will result in a
+still-connected graph, but the cost will have decreased
+  - Assuming no negative weights
+- Removing all cycle edges and leaving a connected graph results in a tree
+
+### Prim's algorithm
+- Finds the minimum spanning tree(s) of a graph
+```
+pick any vertex M
+choose shortest edge from M to any other vertex N
+add edge (M,N) to MST
+repeat:
+  add shortest edge from vertex in MST to a vertex outside
+until: all vertices in MST
+```
+- __Optimality__
+  - At each stage the algorithm adds the minimally weighted edge between the
+subgraph in the MST, and the subgraph not in the MST
+  - ∴ it will never add an edge that is not part of an MST
+- Is a greedy algorithm
+  - The minimally weighted edge available is added at each stage
+  - No consideration for the over structure or cost, or the future
+  - Only makes the locally optimal choice
+
 # Graph traversals
 - Used to perform tasks such as searching for a particular node
 - Can be modified to search for paths, check if graph is connected or has loops,
@@ -580,3 +609,72 @@ while S not empty:
 - __Space__
   - Need a stack of size |V|
   - ∴ 𝑂(V)
+
+# Dynamic programming
+- An alternative to brute-force (generate & test) algorithm design
+- Break up problem into sub-problems, solve each of them, build up answers to
+find desired solution
+- Is the Divide and Conquer methodology
+
+> Heuristic: a 'rule of thumb'. Finds solutions of higher quality than naïve
+> methods, though not necessarily optimal
+
+- _Heuristic_ used to describe decisions that...
+  - speed up finding optimal solutions
+    - Eg an admissible heuristic in A* search, picking a random pivot in
+quick-sort
+  - might not give optimal answers, but give good ones that are otherwise
+impractical to find
+
+## Greedy algorithms
+- Take the best short term solution
+- Eg, Prim's algorithm for MST
+  - Take the edge with least cost available at each iteration
+- Can sometimes be optimal (Prim's)
+- Other times non-optimal (min-coins change-giving)
+
+### Change-giving
+- Finds the subset-sum from a list of coins that total to `K`
+
+```
+Input: x[0],...,x[n-1] and K
+Initialise all Y[m] = false
+Y[0] = true; // As can always provide no change
+for (i = 0; i < n; i++) { // consider effect of x[i] 
+  for (m = K - x[i]; m >= 0; m--) { 
+    if (Y[m] == true) {
+      // m was achievable with x[0]...x[i - 1]
+      // hence now also m +x[i] is achievable
+      if (m +x[i] == K) return success
+      if (m +x[i] < K) Y[ m +x[i] ] = true
+    }
+  }
+}
+```
+
+- __Complexity__
+  - Outer loop considers all coins: 𝑂(n)
+  - Inner loops scans array Y: 𝑂(K)
+  - Overall: 𝑂(nK)
+  -
+### Min-coins change-giving
+- Track number of coins used for each subset-sum
+
+```
+Input: x[0],...,x[n-1] and K
+Initialise all Y[m] = -1
+Initialise Y[0] = 0 // 0 change achievable with 0 coins
+
+for (i = 0; i < n; i++) { // consider effect of x[i] 
+  for (m = K - x[i]; m >= 0; m--) { 
+    if (Y[m] >= 0) {
+      // m was achievable with x[0]...x[i - 1]
+      // hence now also m +x[i] is achievable with Y[m]+1 coins
+      if (Y[m +x[i]] == -1)
+        Y[m +x[i]] = Y[m] +1
+      else
+        Y[m +x[i]] = min(Y[ m +x[i] ], Y[m] +1)
+    }
+  }
+}
+```
