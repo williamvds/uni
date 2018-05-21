@@ -60,13 +60,23 @@ candidate solution
 > Global optimisation: finding the absolute best set of admissible conditions
 > to achieve your objective, formulated in mathematical terms
 
-- The fundamental problem of optimisation: arrive at the __best__ possible
-decision/solution in any given set of circumstances
-- Though in most cases, __best__ is unattainable
+- Aims to find the __best__ possible decision/solution in any given set of
+circumstances
+- In most cases, the __best__ is unattainable
+
+> Global optimum: The best possible solution
+
+> Local optimum: The best solution in a certain neighbourhood
+
+> Neighbourhood: A subsection of the entire search space.
+> The neighbourhoods of one solution is the set of solutions that can be
+> reached from x by applying a move operator
+>>>>>>> a515fb6... aim notes: move acceptance, parameters
 
 > Global optimum: Better than all other solutions (ie the best)
 
-> Local optimum: Better than all solutions in a certain neighbourhood
+- Optimisation aims to maximise or minimise the objective function value of
+the returned solution
 
 - Optimisation process:
   - Choose a quantity to be maximised or minimized, which might be subject to
@@ -452,6 +462,115 @@ or _diversification_, eg:
   - Occasionally force rarely used solution components
   - Extend evaluation function to capture frequency of use of candidate
 solutions (as a ratio of no. of components)
+
+# Move acceptance
+- In heuristic search, there decisions need to be made on whether to accept a
+move to a new solution
+- __Approaches__
+  - __Static__
+    - Fixed value and/or no dependency on time/iteration or history
+    - Constant acceptance threshold
+  - __Dynamic__
+    - Changes over time/iterations
+    - Same acceptance threshold for same candidate solution at the same
+  time/iteration
+  - __Adaptive__
+    - Changes depending on time/iteration and/or history
+    - Possibly different acceptance threshold for same candidate solution at the
+same time/iteration
+
+## Stochastic
+- Randomness is involved
+- eg, accept with random probability
+
+### Simulated Annealing
+- Analogous to the cooling of a molten metal
+  - Slower cooling creates a more organised molecular crystal alignment
+- Initially accept many worsening moves
+- Gradually decrease rate at which worsening moves are accepted
+1. Generate an initial _temperature_
+2. Perturb current solution
+3. Accept if better or with Boltzman probability - e^(delta/temp)
+  - Lower temperature means fewer worsening accepted
+4. _Cool_ temperature according to _cooling schedule_
+
+- __Geometric Cooling__
+  - 𝛼: Cooling rate - fixed value less than 1
+  - temp = 𝛼*temp
+- __Lundy & Mees__
+  - Parameter β
+  - temp = temp/(1+ β*temp)
+- Could reheat with a certain rate after a number of non-improving iterations
+
+## Non-stochastic
+- No randomness involved
+
+### Basic
+- Compare objective function values of solutions
+- __Static__: accept...
+  - all moves
+  - only improving moves (OI)
+  - improving and equal moves (IE)
+- __No dynamic examples__
+- __Adaptive__
+  - __Late acceptance__: compare current solution quality with that of the solution
+a certain number iterations ago
+
+### Threshold
+- Compare objective function values to a _threshold value_
+- __Static__: accept worsening solution if no worse than threshold
+- __Dynamic__
+  - Great Deluge
+    - Parameters: _rain up speed_, _water level_
+    - Tighten threshold upon each accepted solution
+  - Flex Deluge
+    - 
+- __Adaptive__
+  - Record to Record Travel (RRT)
+    - Fixed _deviation_
+    - Accept solutions with value `best ± deviation` (depending on min/maximisation)
+  - Extended Great Deluge
+    - Extra parameters: _initial boundary level B₀_, _decay rate •B_
+    - Use B as threshold
+    - Decrease boundary B by •B each iteration
+    - On many iterations without improvement:
+      - Reset B to value of current solution
+      - Set new •B based on secondary cooling parameter
+  - Modified Great Deluge
+
+## Parameter setting
+
+### Tuning
+> Parameter control: Modifying parameters during the search
+
+> Parameter tuning: Values are fixed throughout run, good values found
+> experimentally
+- Traditional approaches
+  - Arbitrary setting
+  - Trial & error using intuition
+  - Use theoretical studies
+  - A mixture of the above
+- Sequential tuning: fix parameter values successively
+- Meta-optimisation: use a metaheuristic to find 'optimal' settings
+- Design of Experiments
+  - Systematically finding relationship between controllable and uncontrollable
+factors
+  - Find how settings affect performance
+  - Sampling - need to choose what values to test
+  - __Random__: pick random values in the continuous range of possible settings
+  - __Latin hyper-cube__: Turn 2D settings range into grid, ensure at most one
+sample is used from each _cell_
+  - __Orthogonal sampling__: Divide Latin hyper-cube into subgrids, pick
+precisely one sample from each subgrid
+
+- __Taguchi Orthogonal Arrays__
+  1. Select control parameters
+  - Select number of level settings for each parameter
+  - Select a suitable orthogonal array based on 1 and 2
+  - Conduct experiments
+  - Analyse results
+  - Determine optimum levels for individual parameters
+  - Confirmation experiment
 
 # Scheduling
 > Scheduling: The process of planning, controlling, and optimising work and
@@ -935,4 +1054,3 @@ _somewhat_
 
 ### Sigmoid
 - __Parameters__: Slope, half-point
->>>>>>> Stashed changes
