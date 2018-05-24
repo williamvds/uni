@@ -445,9 +445,9 @@ continue with next best neighbour
 - __Neighbourhood definition__: Eg, attainable by single bit flip
 - __Memory__: Associate tabu status (boolean) with each variable of in problem
   - tabu = changed in last `T` steps, where `T` is tabu tenure
-  - For each variable `x_i` store number of the search step when it was last
-changed (`t_i`).
-  - tabu = `c - t_i < T`, where c is current search step number
+  - For each variable `xᵢ` store number of the search step when it was last
+changed (`tᵢ`).
+  - tabu = `c - tᵢ < T`, where `c` is current search step number
 
 ### Considerations & improvements
 - __Tabu tenure__ choice is critical for performance:
@@ -490,13 +490,13 @@ same time/iteration
 - Gradually decrease rate at which worsening moves are accepted
 1. Generate an initial _temperature_
 2. Perturb current solution
-3. Accept if better or with Boltzman probability - e^(delta/temp)
+3. Accept if better or with Boltzman probability - _e_^(delta/temp)
   - Lower temperature means fewer worsening accepted
 4. _Cool_ temperature according to _cooling schedule_
 
 - __Geometric Cooling__
-  - 𝛼: Cooling rate - fixed value less than 1
-  - temp = 𝛼*temp
+  - α: Cooling rate - fixed value less than 1
+  - temp = α*temp
 - __Lundy & Mees__
   - Parameter β
   - temp = temp/(1+ β*temp)
@@ -524,7 +524,6 @@ a certain number iterations ago
     - Parameters: _rain up speed_, _water level_
     - Tighten threshold upon each accepted solution
   - Flex Deluge
-    - 
 - __Adaptive__
   - Record to Record Travel (RRT)
     - Fixed _deviation_
@@ -579,9 +578,9 @@ precisely one sample from each subgrid
 - `i = [1, m]`: Number of machines
 - `j = [1, n]`: Number of jobs
 - `(i,j)`: A processing step (operation) of job `j` on machine `i`
-- `p_ij`: Processing time of job `j` on machine `i`
-- `d_j`: Due date - time job `j` must be completed by
-- `w_j`: Weight - importance of job `j` relative to other ones
+- `pᵢⱼ`: Processing time of job `j` on machine `i`
+- `dⱼ`: Due date - time job `j` must be completed by
+- `wᵢⱼ`: Weight - importance of job `j` relative to other ones
 
 ## Notation: α | β | γ
 - α: Machine characteristics
@@ -600,17 +599,17 @@ machines
   - Machines have different speeds for different jobs
 
 ### β examples
-- Release date `r_j`: earliest time at which job `j` can start being processed
-- Sequence dependent startup times `s_jk`: setup time between `j` and `k`
+- Release date `rⱼ`: earliest time at which job `j` can start being processed
+- Sequence dependent startup times `sⱼₖ`: setup time between `j` and `k`
 - Breakdowns `brkdwn`: machines are not continuously available
 - Permutation `prmu`: eg order of queue processing (FIFO)
 
 ### γ examples
-- Completion time `C_ij`: of job `j` on machine `i`
-- Time when job exits system `C_j`
-- Lateness of `j` `L_j = C_j - d_j`
-- Tardiness `T_j = max(C_j - d_j, 0)`
-- Unit penalty `U_j = 1 if C_j > d_j otherwise 0`
+- Completion time `Cᵢⱼ`: of job `j` on machine `i`
+- Time when job exits system `Cⱼ`
+- Lateness of `j` `Lⱼ = Cⱼ - dⱼ`
+- Tardiness `Tⱼ = max(Cⱼ - dⱼ, 0)`
+- Unit penalty `Uⱼ = 1 if Cⱼ > dⱼ otherwise 0`
 
 # Evolutionary algorithms
 
@@ -628,7 +627,8 @@ machines
 
 - __Chromosome__: A candidate solution (aka individual)
 - __Population__: A set of _individuals_ currently 'alive' - being considered
-- __Evolution__: Each population is are evolved from one generation ( _iteration_ ) to another depending on their _fitness_ 
+- __Evolution__: Each population is are evolved from one generation ( _iteration_ )
+to another depending on their _fitness_ 
   - Fitness is how close it is to the optimal solution, depends on objective
 function value
 - Ideally the last generation will contain the best solution(s)
@@ -851,9 +851,9 @@ with highest score
     1. Individual performance
     - Performance when combined with other heuristics
     - Elapsed time since being applied
-  - Fₜ(hⱼ) = 𝛼ₜf₁(hⱼ) + 𝛽ₜf₂(h_k, hⱼ) + 𝛾ₜf₃(hⱼ)
+  - Fₜ(hⱼ) = αₜf₁(hⱼ) + βₜf₂(h_k, hⱼ) + γₜf₃(hⱼ)
   - fₙ is the respective performance metric
-  - Parameters 𝛼, 𝛽, and 𝛾 control importance of each metric [0,1]
+  - Parameters alpha , β, and γ control importance of each metric [0,1]
 
 ## Misconceptions (opinionated)
 - Hyperheuristics...
@@ -983,8 +983,8 @@ represented
 ## Compared to classical (aka crisp) sets
 - Elements of the universal set `X` are defined to be or not to be members of
 a set `A` by a characteristics function
-- For a given set `A`, this function assigns value `mu_A(x)` to every `x` in `X`
-- `mu_A(x): X -> {0,1}`, 0 iff `x` is in `A`, 1 otherwise
+- For a given set `A`, this function assigns value `μ_A(x)` to every `x` in `X`
+- `μ_A(x): X -> {0,1}`, 0 iff `x` is in `A`, 1 otherwise
 - Can create a diagram visualising which ranges map to 0, and those which map
 to 1
 - Eg, defining tall people - set an arbitrary lower limit of height, above which
@@ -993,8 +993,8 @@ people are considered tall
 _degree_ of height
 
 ## Notation
-- `A = mu_1/x1 + mu_2/x2 + ... + mu_n/x_n`
-- or `A =  Σ_(i=0,n) mu_i/x_i`
+- `A = μ₁/x₁ + μ₂/x₂ + ... + μₙ/xₙ`
+- or `A =  Σ_(i=1,n) μᵢ/xᵢ`
 
 ## Meaning of fuzzy grades
 - Fuzzy memberships are not probabilities - eg, not applicable to height

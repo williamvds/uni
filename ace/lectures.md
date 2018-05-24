@@ -6,7 +6,7 @@ InsertionSort(A)
   <invariant: subarray A[1..j-1] is sorted>
     key = A[j] 
     i = j – 1  
-    while(i > 0 and A[i] > key)          
+    while(i > 0 and A[i] > key)
       <invariant: all elements A[i+1..j] are >= key>
       A[i + 1] = A[i]
       i--
@@ -40,6 +40,13 @@ trivially sorted
   3. __Conquer__: combine solutions for both subsets into solution for input data
 
 ## Merge-sort
+```
+mergesort(xs):
+  if xs.length <= 1: return xs
+  left, right = divide(xs)
+  merge( mergesort(left), mergesort(right) )
+```
+
 - Eg, sorting an input sequence `S` with `n` elements
 1. __Divide__: Partition input into two sequences `S₁` and `S₂` both of size
 approx. n/2
@@ -270,9 +277,7 @@ exception
 - Throw `FullQueueException` if full on `enqueue()`
 
 ### Linked List implementation
-- New arrivals placed at head
 - Remove from head, insert at tail
-- First element in queue stored at head of list
 - Store size as attribute, update upon insertion/removal
 - Space complexity 𝑂(n) - one list entry for each element
 - Time complexity 𝑂(1) operations
@@ -289,6 +294,7 @@ exception
 - __Cons__
   - Can be scattered around memory = poor cache usage
   - Has to store _next_ reference = more memory usage
+  - Have to walk the list to reach a desired element
 
 # Trees
 - An abstract model of a hierarchical structure
@@ -375,7 +381,7 @@ nodes, and skipping index 0
 - Nodes must either have two or no children
 - A tree consisting of only a root node is a proper binary tree
 
-### Perfect binary tries
+### Perfect binary trees
 - All leaves are at the same depth - hence all levels are full
 - `n` is the number of nodes in the tree
 - `d` is the depth of the tree
@@ -387,7 +393,7 @@ nodes, and skipping index 0
 - __Nodes at depth__ `d+1`: `2^(d+1) -1`
 - __Height__: `log₂(n+1)-1`
   - Θ(log(n))
-- __Total nodes with height__ `h`: `2^(h-1) -1`
+- __Total nodes with height__ `h`: `2^(h+1) -1`
   - `h = 0`: `2^1 -1 = 1` node (root)
   - Assuming tree of height `h-1` has `2^h -1` nodes, a tree with another level
 (total `n`) has another `2^h` nodes
@@ -481,7 +487,7 @@ throwing exception
   - `c` is constant, so `T(n)` is 𝑂(n + k²), so 𝑂(n²)
   - Amortised time is 𝑂(n)
 
-### Incremental example
+### Geometric example
 - Array starts with size 3
 - Example sequence of _push_ operations: `1, 1, 1, 3+1, 1, 1, 1, 6+1, 1, 1, 1,
 1, 1, 1, 12+1, ...`

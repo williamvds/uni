@@ -197,21 +197,21 @@ final states
 
 ## Definition
 1. ∅ is a regex
-  - Empty set - no accepted words
+    - Empty set - no accepted words
 -  ϵ is a regex
-  - Only accept the empty string
+    - Only accept the empty string
 -  __x__ is a regex ∀ __x__ ∈ Σ
-  - Accept single symbols from the alphabet
+    - Accept single symbols from the alphabet
 -  E+F is a regex if E and F are regexes
-  - __Alternation__
-  - Accept either E or F
+    - __Alternation__
+    - Accept either E or F
 -  EF is a regex if E and F are regexes
-  - __Juxtaposition/concatenation__
+    - __Juxtaposition/concatenation__
 -  E^*  is a regex if E is a regex
-  - __Kleene star__
-  - Accept all possible combinations of the full strings of set E
+    - __Kleene star__
+    - Accept all possible combinations of the full strings of set E
 -  (E) is a regex if E is a regex
-  - Allows stronger binding
+    - Allows stronger binding
 
 - Operator binding is stronger further down the definition
   - (E) > E^* > EF > E+F
@@ -238,12 +238,17 @@ simple method to convert to a NFAs
 - The diagrams for N(E) and N(F) are merged into one - draw a box around both
 
 ### N(EF)
-1. Identify penultimate states in E (ie. ones leading to an accepting state)
+1. Identify penultimate states in N(E) (ie. ones leading to an accepting state)
 2. Connect each of these to each of the initial states of N(F)
 3. If there is an initial state in N(E) that is also accepting, keep the initial
 states in N(F), otherwise remove them
 
-# 𝒫  vs 𝒩 𝒫
+### N(E^*)
+1. Identify penultimate states in N(E) (ie. ones leading to an accepting state)
+2. Connect each of these to each of the initial states of N(E)
+3. Add an initial and accepting state
+
+# 𝒫  vs 𝒩𝒫
 - __Motivations__
   - __Efficient__ exact algorithms have runtimes of low-order power laws
   - __Inefficient__ complete/exact algorithms have runtimes have exponential
@@ -256,12 +261,12 @@ Turing Machine in polynomial time p(n)
 state qₖ and any symbol that can occur when the machine is in that state
   - At most one choice for the next move
 
-## 𝒩 𝒫
+## 𝒩𝒫
 - The set of problem classes that can be solved using a
-__non__deterministic Turing Machine in polynomial time
+__nondeterministic__ Turing Machine in polynomial time
 - A subset of __𝒫__
 - __Turing Machine definition__
-  - A language L is in the class 𝒩 𝒫 if there is a deterministic Turing Machine
+  - A language L is in the class 𝒩𝒫 if there is a deterministic Turing Machine
 M and a polynomial function f such that...
     - Running M on a tape with two inputs w and v (separated by a blank), it
   always terminates in steps less than f(|w|)
@@ -271,7 +276,7 @@ M and a polynomial function f such that...
   - If M gives a positive answer when run on w and v, v is a _certificate/proof_
 w is in L
     - If L is a problem, and w an instance, v is a solution for w
-- Many common decision problems are 'obviously' __𝒩 𝒫__
+- Many common decision problems are 'obviously' __𝒩𝒫__
 - eg SUBSET-SUM: Find a subset of a set of values that sum to a particular value
   - Verification is 𝑂(n) - sum the subset, compare to value
   - Brute force algorithm 𝑂(2ⁿ) - check sum of each subset of S
@@ -303,17 +308,17 @@ itself can solve the problem
 time
   - So conversions are restricted to those that can be done in polynomial time
 
-### 𝒩 𝒫-hardness
-- A problem class to which _any_ 𝒩 𝒫 problem can be reduced to
+### 𝒩𝒫-hardness
+- A problem class to which _any_ 𝒩𝒫 problem can be reduced to
 - Such a problem class is 'as bad as it gets'
-  - If such a problem class turns out to be in 𝒫 then 𝒫=𝒩 𝒫 
-- Usually done by showing polynomial-time reduction from some known 𝒩 𝒫-complete
+  - If such a problem class turns out to be in 𝒫 then 𝒫=𝒩𝒫 
+- Usually done by showing polynomial-time reduction from some known 𝒩𝒫-complete
 problem
 - Eg Boolean satisfiability
 
-### 𝒩 𝒫-completeness
-- Problem class X is 𝒩 𝒫-complete if:
-  - X is in 𝒩 𝒫
+### 𝒩𝒫-completeness
+- Problem class X is 𝒩𝒫-complete if:
+  - X is in 𝒩𝒫
     - All instances of X can be solved in nondeterministic polynomial time
     - Membership of N is usually demonstrated directly (and fairly easily)
-  - X is 𝒩 𝒫-hard
+  - X is 𝒩𝒫-hard
